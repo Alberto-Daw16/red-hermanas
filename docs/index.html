@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="build" content="2026-11-20.1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Red</title>
+<style>
+:root{--bg:#000;--bg2:#16181c;--bg3:#202327;--line:#2f3336;--tx:#e7e9ea;--tx2:#71767b;--azul:#1d9bf0;--rosa:#f91880;--verde:#00ba7c;--safe-t:env(safe-area-inset-top);--safe-b:env(safe-area-inset-bottom)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input,textarea{font:inherit;color:var(--tx);background:transparent;border:0;outline:0;resize:none}
+#app{max-width:600px;margin:0 auto;min-height:100vh;border-left:1px solid var(--line);border-right:1px solid var(--line);padding-bottom:calc(60px + var(--safe-b))}
+.top{position:sticky;top:0;z-index:20;background:rgba(0,0,0,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding-top:var(--safe-t)}
+.top .fila{display:flex;align-items:center;gap:12px;height:53px;padding:0 16px}
+.top h1{font-size:20px;font-weight:800;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .sub{font-size:13px;color:var(--tx2);font-weight:400}
+.plats{display:flex}
+.plats button{flex:1;height:44px;color:var(--tx2);font-weight:600;position:relative}
+.plats button.on{color:var(--tx);font-weight:700}
+.plats button.on:after{content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:56px;height:4px;border-radius:4px;background:var(--azul)}
+.ico{width:20px;height:20px;fill:currentColor;flex:none}
+.atras{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;margin-left:-8px}
+.atras:active{background:var(--bg3)}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:var(--safe-b)}
+.nav .in{max-width:600px;margin:0 auto;display:flex;height:53px}
+.nav a{flex:1;display:grid;place-items:center;color:var(--tx2);position:relative}
+.nav a.on{color:var(--tx)}
+.nav .ico{width:26px;height:26px}
+.punto{position:absolute;top:8px;left:calc(50% + 6px);min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--azul);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.post{display:flex;gap:10px;padding:12px 16px 4px;border-bottom:1px solid var(--line)}
+.post:active{background:#080808}
+.av{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:700;color:#fff;overflow:hidden;background:#333;font-size:16px}
+.av img{width:100%;height:100%;object-fit:cover}
+.cuerpo{flex:1;min-width:0}
+.cab{display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden}
+.cab .n{font-weight:700;overflow:hidden;text-overflow:ellipsis}
+.cab .u,.cab .t{color:var(--tx2);overflow:hidden;text-overflow:ellipsis}
+.cab .t{flex:none}
+.verif{width:18px;height:18px;fill:var(--azul);flex:none}
+.verif.oro{fill:#e2b719}
+.tx{white-space:pre-wrap;word-wrap:break-word;margin:2px 0 0}
+.tx .m,.tx .h{color:var(--azul)}
+.rt{color:var(--tx2);font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;padding:8px 16px 0 42px}
+.rt .ico{width:16px;height:16px}
+.media{margin-top:10px;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
+.media img{display:block;width:100%;max-height:520px;object-fit:cover}
+.cita{margin-top:10px;border:1px solid var(--line);border-radius:16px;padding:10px 12px}
+.cita .av{width:20px;height:20px;font-size:10px}
+.acc{display:flex;justify-content:space-between;max-width:425px;margin:6px 0 4px -8px;color:var(--tx2);font-size:13px}
+.acc button{display:flex;align-items:center;gap:4px;padding:6px 8px;border-radius:20px}
+.acc .ico{width:18px;height:18px}
+.acc button.lk.on{color:var(--rosa)}
+.acc button.rp.on{color:var(--verde)}
+.enc{margin-top:10px}
+.enc .op{position:relative;height:32px;margin:6px 0;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:space-between;padding:0 10px;width:100%}
+.enc .op .b{position:absolute;inset:0 auto 0 0;background:var(--bg3);border-radius:6px}
+.enc .op.win .b{background:rgba(29,155,240,.45)}
+.enc .op span{position:relative}
+.enc .op.votar{border:1px solid var(--azul);color:var(--azul);justify-content:center;font-weight:700;border-radius:20px}
+.enc .pie{color:var(--tx2);font-size:13px}
+.det .tx{font-size:17px;margin-top:12px}
+.det .meta{color:var(--tx2);padding:14px 0;border-bottom:1px solid var(--line)}
+.det .cifras{display:flex;gap:18px;padding:12px 0;border-bottom:1px solid var(--line);color:var(--tx2)}
+.det .cifras b{color:var(--tx)}
+.resp{display:flex;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);align-items:flex-start}
+.resp textarea{flex:1;font-size:17px;min-height:40px;padding:8px 0}
+.btn{background:var(--tx);color:#000;font-weight:700;border-radius:20px;padding:0 16px;height:36px;display:inline-flex;align-items:center;justify-content:center}
+.btn.azul{background:var(--azul);color:#fff}
+.btn.borde{background:transparent;color:var(--tx);border:1px solid #536471}
+.btn:disabled{opacity:.5}
+.fab{position:fixed;right:max(16px,calc(50% - 284px));bottom:calc(72px + var(--safe-b));width:56px;height:56px;border-radius:50%;background:var(--azul);display:grid;place-items:center;box-shadow:0 0 12px rgba(255,255,255,.2);z-index:25}
+.fab .ico{width:24px;height:24px;fill:#fff}
+.enresp{color:var(--tx2);font-size:14px;margin:2px 0}
+.enresp a{color:var(--azul)}
+.hilo{width:2px;background:var(--line);margin:4px auto 0;flex:1}
+.perfil .banner{height:150px;background:linear-gradient(135deg,#1a1a2e,#3a1c3e)}
+.perfil .banner img{width:100%;height:100%;object-fit:cover}
+.perfil .fila1{display:flex;justify-content:space-between;align-items:flex-end;padding:0 16px;margin-top:-40px}
+.perfil .avg{width:84px;height:84px;font-size:32px;border:4px solid #000}
+.perfil .info{padding:10px 16px 12px}
+.perfil .nombre{font-size:20px;font-weight:800;display:flex;align-items:center;gap:4px}
+.perfil .info .u{color:var(--tx2)}
+.perfil .bio{margin:10px 0;white-space:pre-wrap}
+.perfil .datos{color:var(--tx2);font-size:15px;display:flex;gap:16px;flex-wrap:wrap}
+.perfil .datos b{color:var(--tx)}
+.tabs{display:flex;border-bottom:1px solid var(--line)}
+.tabs button{flex:1;height:52px;color:var(--tx2);font-weight:600;position:relative}
+.tabs button.on{color:var(--tx);font-weight:700}
+.tabs button.on:after{content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:56px;height:4px;border-radius:4px;background:var(--azul)}
+.conv{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);align-items:center}
+.conv .ult{color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv.nueva .ult{color:var(--tx);font-weight:600}
+.burbujas{padding:12px 16px;display:flex;flex-direction:column;gap:6px;min-height:calc(100vh - 200px)}
+.bb{max-width:78%;padding:10px 14px;border-radius:22px;white-space:pre-wrap;word-wrap:break-word}
+.bb.yo{align-self:flex-end;background:var(--azul);color:#fff;border-bottom-right-radius:4px}
+.bb.el{align-self:flex-start;background:var(--bg3);border-bottom-left-radius:4px}
+.bb .hora{display:block;font-size:11px;opacity:.65;margin-top:3px}
+.escribir{position:sticky;bottom:calc(53px + var(--safe-b));background:#000;border-top:1px solid var(--line);padding:8px 12px;display:flex;gap:8px;align-items:flex-end}
+.escribir textarea{flex:1;background:var(--bg3);border-radius:20px;padding:9px 14px;max-height:120px}
+.vacio{padding:48px 32px;text-align:center;color:var(--tx2)}
+.vacio h2{color:var(--tx);font-size:28px;margin:0 0 8px}
+.tarjetas{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px}
+.tj{background:var(--bg2);border-radius:16px;padding:14px}
+.tj .k{color:var(--tx2);font-size:13px}
+.tj .v{font-size:24px;font-weight:800;margin-top:4px}
+.tj .s{color:var(--tx2);font-size:12px;margin-top:2px}
+.barra{height:8px;border-radius:4px;background:var(--bg3);overflow:hidden;margin-top:8px}
+.barra i{display:block;height:100%;background:var(--azul)}
+.barra i.alto{background:var(--rosa)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{color:var(--tx2);font-weight:600}
+td.num,th.num{text-align:right}
+.seccion{padding:16px 16px 6px;font-weight:800;font-size:17px}
+.login{padding:64px 32px;max-width:400px;margin:0 auto}
+.login h2{font-size:31px;margin:0 0 28px}
+.campo{border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-bottom:14px}
+.campo label{display:block;color:var(--tx2);font-size:13px}
+.campo input{width:100%;font-size:17px;padding:4px 0}
+.login .btn{width:100%;height:44px;margin-top:6px}
+.aviso{color:var(--tx2);font-size:13px;margin-top:16px}
+.err{color:#f4212e;font-size:14px;min-height:20px}
+.modal{position:fixed;inset:0;z-index:50;background:#000;display:flex;flex-direction:column;padding-top:var(--safe-t)}
+.modal .fila{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;height:53px}
+.modal .red{display:flex;gap:10px;padding:8px 16px}
+.modal textarea{flex:1;font-size:20px;min-height:160px;padding-top:6px}
+.modal .cnt{color:var(--tx2);font-size:13px;padding:0 16px}
+.modal .cnt.mal{color:#f4212e}
+.toast{position:fixed;left:50%;bottom:calc(80px + var(--safe-b));transform:translateX(-50%);background:var(--azul);color:#fff;padding:10px 18px;border-radius:6px;font-weight:600;z-index:60;max-width:90%}
+.edit .campo{margin:0 16px 14px}
+.cargando{padding:40px;text-align:center;color:var(--tx2)}
+.mas{display:block;width:100%;padding:16px;color:var(--azul)}
+</style>
+</head>
+<body>
+<div id="app"><div class="cargando">Cargando…</div></div>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const SB_URL = 'https://wtxiqvzercgharibvubw.supabase.co';
+const SB_KEY = 'sb_publishable_pX2v_ef5m1pjFfAEKiZEgw_xsEgixkC';
+const sb = createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true, storageKey: 'red-hermanas' } });
+
+const S = { plat: 'x', cuentas: new Map(), porUser: new Map(), yo: {}, likes: new Set(), likesC: new Set(), mios: new Set(), sigo: new Set(), red: '', urls: new Map(), noLeidos: 0, limite: 40 };
+const $app = document.getElementById('app');
+
+/* ---------- utilidades ---------- */
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const I = {
+  casa: '<path d="M12 1.7 1.5 9.6l1.2 1.6L4 10.2V21h6v-6h4v6h6V10.2l1.3 1 1.2-1.6z"/>',
+  sobre: '<path d="M1.998 5.5c0-1.38 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.12 2.5 2.5v13c0 1.38-1.119 2.5-2.5 2.5h-15c-1.381 0-2.5-1.12-2.5-2.5zm2.5-.5c-.276 0-.5.22-.5.5v.58l8.002 5.38 8-5.38V5.5c0-.28-.224-.5-.5-.5zm15.5 3.5-8 5.38-8.002-5.38V18.5c0 .28.224.5.5.5h15c.276 0 .5-.22.5-.5z"/>',
+  grafica: '<path d="M8.75 21V3h2v18zM18 21V8.5h2V21zM4 21l.004-10h2L6 21zm9.248 0v-7h2v7z"/>',
+  persona: '<path d="M5.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C15.318 13.65 13.838 13 12 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C7.627 11.85 9.648 11 12 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H3.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46zM12 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM8 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4z"/>',
+  resp: '<path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13z"/>',
+  rp: '<path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/>',
+  lk: '<path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/>',
+  lkOn: '<path d="M20.884 13.19c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/>',
+  vistas: '<path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/>',
+  atras: '<path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"/>',
+  pluma: '<path d="M23 3c-6.62-.1-10.38 2.42-13.05 6.03C7.29 12.61 6 17.33 6 22h2c0-1.01.07-2.01.19-3H12c4.1 0 7.48-3.08 7.94-7.05C22.79 10.47 23.17 6.64 23 3zm-7 8h-1.5v2H16c.63-.09 1.2-.27 1.72-.52C17.25 15.58 14.89 17 12 17H8.48c.2-.95.46-1.88.79-2.79C10.38 11.17 13.28 6.13 21 5c-.07 1.96-.49 4.27-5 6z"/>',
+  recarga: '<path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>',
+  salir: '<path d="M16 13v-2H7V8l-5 4 5 4v-3zM20 3h-9c-1.1 0-2 .9-2 2v4h2V5h9v14h-9v-4H9v4c0 1.1.9 2 2 2h9c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>',
+  verif: '<path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"/>',
+};
+const svg = (k, cls = 'ico') => `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true">${I[k]}</svg>`;
+const verif = c => c?.verificada ? `<svg viewBox="0 0 24 24" class="verif${c.tipo === 'marca' ? ' oro' : ''}">${I.verif}</svg>` : '';
+
+function num(n) {
+  n = Number(n) || 0;
+  if (n < 10000) return n.toLocaleString('es-ES');
+  if (n < 1e6) return (Math.round(n / 100) / 10).toLocaleString('es-ES') + ' mil';
+  return (Math.round(n / 1e5) / 10).toLocaleString('es-ES') + ' M';
+}
+const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sept', 'oct', 'nov', 'dic'];
+function hace(f) {
+  const d = new Date(f), s = (Date.now() - d) / 1000;
+  if (s < 60) return Math.max(1, Math.floor(s)) + ' s';
+  if (s < 3600) return Math.floor(s / 60) + ' min';
+  if (s < 86400) return Math.floor(s / 3600) + ' h';
+  const a = d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : '';
+  return d.getDate() + ' ' + MES[d.getMonth()] + a;
+}
+function quedan(f) {
+  const s = (new Date(f) - Date.now()) / 1000;
+  if (s < 3600) return Math.max(1, Math.round(s / 60)) + ' min';
+  if (s < 86400) return Math.round(s / 3600) + ' h';
+  return Math.round(s / 86400) + ' días';
+}
+function fechaLarga(f) {
+  const d = new Date(f);
+  return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) + ' · ' + d.getDate() + ' ' + MES[d.getMonth()] + '. ' + d.getFullYear();
+}
+function texto(t) {
+  return esc(t)
+    .replace(/(^|[^\w])@(\w{1,30})/g, (m, a, u) => `${a}<a class="m" href="#/u/${u}" data-stop>@${u}</a>`)
+    .replace(/(^|\s)#([\wáéíóúñü]+)/gi, (m, a, h) => `${a}<span class="h">#${h}</span>`);
+}
+const COLORES = ['#c2185b', '#7b1fa2', '#512da8', '#1976d2', '#0097a7', '#388e3c', '#f57c00', '#5d4037', '#455a64', '#d81b60'];
+function avatar(c, cls = 'av') {
+  if (!c) return `<div class="${cls}"></div>`;
+  const u = c.avatar_url && S.urls.get(c.avatar_url);
+  if (u) return `<div class="${cls}"><img src="${esc(u)}" alt=""></div>`;
+  let h = 0; for (const ch of c.usuario) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return `<div class="${cls}" style="background:${COLORES[h % COLORES.length]}">${esc((c.nombre || c.usuario).replace(/[^\p{L}\p{N}]/gu, '').charAt(0).toUpperCase() || '?')}</div>`;
+}
+function toast(m) {
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = m;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+}
+async function firmar(rutas) {
+  const falta = [...new Set(rutas.filter(r => r && !S.urls.has(r)))];
+  const ext = falta.filter(r => /^https?:/.test(r)); ext.forEach(r => S.urls.set(r, r));
+  const priv = falta.filter(r => !/^https?:/.test(r));
+  if (!priv.length) return;
+  const { data } = await sb.storage.from('media').createSignedUrls(priv, 60 * 60 * 12);
+  (data || []).forEach(d => d.signedUrl && S.urls.set(d.path, d.signedUrl));
+}
+const cuenta = id => S.cuentas.get(id);
+
+/* ---------- arranque ---------- */
+async function cargarCuentas() {
+  const { data, error } = await sb.from('cuentas').select('*').order('creado');
+  if (error) throw error;
+  S.cuentas.clear(); S.porUser.clear();
+  for (const c of data) { S.cuentas.set(c.id, c); S.porUser.set(c.plataforma + ':' + c.usuario.toLowerCase(), c); if (c.tipo === 'alberto') S.yo[c.plataforma] = c; }
+  await firmar(data.flatMap(c => [c.avatar_url, c.banner_url]));
+}
+async function cargarMio() {
+  const yo = S.yo[S.plat]; if (!yo) return;
+  const [l, s, m] = await Promise.all([
+    sb.from('likes').select('post_id,comentario_id').eq('cuenta_id', yo.id),
+    sb.from('seguimientos').select('seguido').eq('seguidor', yo.id),
+    sb.from('mensajes').select('id', { count: 'exact', head: true }).eq('para', yo.id).eq('leido', false),
+  ]);
+  S.likes = new Set((l.data || []).filter(x => x.post_id).map(x => x.post_id));
+  S.likesC = new Set((l.data || []).filter(x => x.comentario_id).map(x => x.comentario_id));
+  S.sigo = new Set((s.data || []).map(x => x.seguido));
+  S.noLeidos = m.count || 0;
+}
+async function arrancar() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return pantallaLogin();
+  const { data: ok, error } = await sb.rpc('es_alberto');
+  if (error || !ok) {
+    $app.innerHTML = `<div class="login"><h2>Sin acceso</h2><p class="aviso">Esta cuenta (${esc(session.user.email)}) no tiene permiso para entrar.</p><button class="btn borde" id="fuera">Salir</button></div>`;
+    document.getElementById('fuera').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+    return;
+  }
+  const { data: cfg } = await sb.from('config').select('valor').eq('clave', 'nombre_red').maybeSingle();
+  S.red = (cfg?.valor && cfg.valor !== '(sin nombre)') ? cfg.valor : '';
+  document.title = S.red || 'Red';
+  await cargarCuentas(); await cargarMio();
+  window.addEventListener('hashchange', ruta);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && /^#?\/?$|^#\/md/.test(location.hash)) ruta(); });
+  ruta();
+}
+
+function pantallaLogin() {
+  $app.innerHTML = `<div class="login">
+    <h2>Entra en la red</h2>
+    <div class="campo"><label>Correo</label><input id="em" type="email" autocomplete="username" inputmode="email"></div>
+    <div class="campo"><label>Contraseña</label><input id="pw" type="password" autocomplete="current-password"></div>
+    <div class="err" id="er"></div>
+    <button class="btn" id="entrar">Entrar</button>
+    <button class="btn borde" id="crear" style="margin-top:12px">Crear mi cuenta (la primera vez)</button>
+    <p class="aviso">Solo puede entrar una persona: la primera cuenta que se crea queda como la tuya y cualquier otra no ve nada.</p>
+  </div>`;
+  const em = () => document.getElementById('em').value.trim(), pw = () => document.getElementById('pw').value;
+  const er = m => document.getElementById('er').textContent = m;
+  document.getElementById('entrar').onclick = async () => {
+    er('');
+    const { error } = await sb.auth.signInWithPassword({ email: em(), password: pw() });
+    if (error) return er(error.message === 'Invalid login credentials' ? 'Correo o contraseña incorrectos' : error.message);
+    location.hash = '#/'; arrancar();
+  };
+  document.getElementById('crear').onclick = async () => {
+    er('');
+    if (pw().length < 8) return er('La contraseña, de 8 caracteres o más');
+    const { error } = await sb.auth.signUp({ email: em(), password: pw() });
+    if (error) return er(error.message);
+    const r = await sb.auth.signInWithPassword({ email: em(), password: pw() });
+    if (r.error) return er('Cuenta creada, pero falta confirmarla: ' + r.error.message);
+    location.hash = '#/'; arrancar();
+  };
+}
+
+/* ---------- marco ---------- */
+function marco(titulo, html, { atras = false, plats = false, sub = '', extra = '' } = {}) {
+  const h = location.hash || '#/';
+  const nav = (r, ico, on, badge = '') => `<a href="${r}" class="${on ? 'on' : ''}">${svg(ico)}${badge}</a>`;
+  $app.innerHTML = `
+  <div class="top"><div class="fila">
+    ${atras ? `<button class="atras" onclick="history.length>1?history.back():location.hash='#/'">${svg('atras')}</button>` : ''}
+    <h1>${titulo}${sub ? `<div class="sub">${sub}</div>` : ''}</h1>${extra}
+  </div>
+  ${plats ? `<div class="plats">${[['x', 'X'], ['ig', 'Instagram'], ['of', 'OnlyFans']].map(([k, n]) => `<button data-plat="${k}" class="${S.plat === k ? 'on' : ''}">${n}</button>`).join('')}</div>` : ''}
+  </div>
+  <main id="main">${html}</main>
+  <nav class="nav"><div class="in">
+    ${nav('#/', 'casa', h === '#/' || h === '#' || h === '')}
+    ${nav('#/md', 'sobre', h.startsWith('#/md'), S.noLeidos ? `<span class="punto">${S.noLeidos}</span>` : '')}
+    ${nav('#/consumo', 'grafica', h.startsWith('#/consumo'))}
+    ${nav('#/u/' + (S.yo[S.plat]?.usuario || S.yo.x?.usuario || ''), 'persona', h === '#/u/' + (S.yo[S.plat]?.usuario || ''))}
+  </div></nav>`;
+  $app.querySelectorAll('[data-plat]').forEach(b => b.onclick = () => { S.plat = b.dataset.plat; ruta(); });
+}
+
+async function ruta() {
+  const h = decodeURIComponent(location.hash.replace(/^#/, '')) || '/';
+  window.scrollTo(0, 0);
+  try {
+    let m;
+    if (h === '/' || h === '') return vistaInicio();
+    if ((m = h.match(/^\/p\/(\d+)$/))) return vistaPost(+m[1]);
+    if ((m = h.match(/^\/u\/(.*)$/))) return vistaPerfil(m[1]);
+    if (h === '/md') return vistaMD();
+    if ((m = h.match(/^\/md\/(.+)$/))) return vistaChat(m[1]);
+    if (h === '/consumo') return vistaConsumo();
+    location.hash = '#/';
+  } catch (e) {
+    console.error(e);
+    marco('Error', `<div class="vacio">${esc(e.message || e)}</div>`, { atras: true });
+  }
+}
+
+/* ---------- posts ---------- */
+async function traerPosts(q) {
+  const { data, error } = await q;
+  if (error) throw error;
+  const ids = [...new Set(data.map(p => p.repost_de).filter(Boolean))].filter(id => !data.some(p => p.id === id));
+  let orig = [];
+  if (ids.length) { const r = await sb.from('v_posts').select('*').in('id', ids); orig = r.data || []; }
+  const todos = new Map([...data, ...orig].map(p => [p.id, p]));
+  await firmar([...todos.values()].map(p => p.imagen_url));
+  const yo = S.yo[S.plat];
+  if (yo) S.mios = new Set(data.filter(p => p.cuenta_id === yo.id && p.repost_de && !p.cita).map(p => p.repost_de));
+  return { lista: data, todos };
+}
+
+function encuesta(p) {
+  const e = p.encuesta; if (!e?.opciones) return '';
+  const votos = e.votos || e.opciones.map(() => 0), total = votos.reduce((a, b) => a + b, 0);
+  const cerrada = e.cierra && new Date(e.cierra) < new Date();
+  const votada = e.voto_alberto != null || cerrada;
+  const max = Math.max(...votos);
+  return `<div class="enc" data-stop>${e.opciones.map((o, i) => votada
+    ? `<div class="op ${votos[i] === max ? 'win' : ''}"><i class="b" style="width:${total ? votos[i] / total * 100 : 0}%"></i><span>${esc(o)}${e.voto_alberto === i ? ' ✓' : ''}</span><span>${total ? Math.round(votos[i] / total * 100) : 0}%</span></div>`
+    : `<button class="op votar" data-votar="${p.id}" data-i="${i}">${esc(o)}</button>`).join('')}
+    <div class="pie">${num(total)} votos · ${cerrada ? 'Resultados finales' : e.cierra ? 'Quedan ' + quedan(e.cierra) : 'Encuesta'}</div></div>`;
+}
+
+function htmlPost(p, todos, { detalle = false } = {}) {
+  let rtDe = '';
+  let base = p;
+  if (p.repost_de && !p.cita) {
+    const quien = cuenta(p.cuenta_id);
+    rtDe = `<div class="rt">${svg('rp')}${esc(quien?.nombre || '')} ha reposteado</div>`;
+    base = todos.get(p.repost_de); if (!base) return '';
+  }
+  const c = cuenta(base.cuenta_id) || { nombre: '?', usuario: '?' };
+  const citada = base.cita && base.repost_de && todos.get(base.repost_de);
+  const img = base.imagen_url && S.urls.get(base.imagen_url);
+  const lkOn = S.likes.has(base.id), rpOn = S.mios.has(base.id);
+  const cuerpo = `
+    ${base.texto ? `<div class="tx">${texto(base.texto)}</div>` : ''}
+    ${img ? `<div class="media"><img src="${esc(img)}" alt="" loading="lazy"></div>` : ''}
+    ${encuesta(base)}
+    ${citada ? `<div class="cita" data-ir="${citada.id}"><div class="cab">${avatar(cuenta(citada.cuenta_id))}<span class="n">${esc(cuenta(citada.cuenta_id)?.nombre)}</span><span class="u">@${esc(cuenta(citada.cuenta_id)?.usuario)}</span><span class="t">· ${hace(citada.creado)}</span></div><div class="tx">${texto(citada.texto || '')}</div></div>` : ''}`;
+  const acciones = `<div class="acc" data-stop>
+      <button data-ir="${base.id}">${svg('resp')}<span>${base.n_comentarios ? num(base.n_comentarios) : ''}</span></button>
+      <button class="rp ${rpOn ? 'on' : ''}" data-rp="${base.id}">${svg('rp')}<span>${base.n_reposts ? num(base.n_reposts) : ''}</span></button>
+      <button class="lk ${lkOn ? 'on' : ''}" data-lk="${base.id}">${svg(lkOn ? 'lkOn' : 'lk')}<span>${base.n_likes ? num(base.n_likes) : ''}</span></button>
+      <button>${svg('vistas')}<span>${base.vistas_sim ? num(base.vistas_sim) : ''}</span></button>
+    </div>`;
+  if (detalle) {
+    return `<div class="det" style="padding:12px 16px 0;border-bottom:1px solid var(--line)">
+      <a class="cab" href="#/u/${esc(c.usuario)}" style="gap:10px">${avatar(c)}<div style="min-width:0"><div class="cab"><span class="n">${esc(c.nombre)}</span>${verif(c)}</div><div class="cab"><span class="u">@${esc(c.usuario)}</span></div></div></a>
+      ${cuerpo}
+      <div class="meta">${fechaLarga(base.creado)} · <b style="color:var(--tx)">${num(base.vistas_sim)}</b> visualizaciones</div>
+      <div class="cifras"><span><b>${num(base.n_reposts)}</b> reposts</span><span><b>${num(base.n_likes)}</b> me gusta</span></div>
+      ${acciones}</div>`;
+  }
+  return `${rtDe}<article class="post" data-ir="${base.id}">
+    <a href="#/u/${esc(c.usuario)}" data-stop>${avatar(c)}</a>
+    <div class="cuerpo">
+      <div class="cab"><span class="n">${esc(c.nombre)}</span>${verif(c)}<span class="u">@${esc(c.usuario)}</span><span class="t">· ${hace(base.creado)}</span></div>
+      ${cuerpo}${acciones}
+    </div></article>`;
+}
+
+function enganchar(root, recargar) {
+  root.onclick = async ev => {
+    const t = ev.target.closest('[data-lk],[data-rp],[data-votar],[data-lkc],[data-respc],[data-ir],a');
+    if (!t) return;
+    if (t.tagName === 'A') return; // enlaces normales
+    ev.preventDefault(); ev.stopPropagation();
+    const yo = S.yo[S.plat]; if (!yo) return toast('No tienes cuenta en esta plataforma');
+    if (t.dataset.lk) {
+      const id = +t.dataset.lk, on = S.likes.has(id);
+      const span = t.querySelector('span'); const n = parseInt((span.textContent || '0').replace(/\./g, '')) || 0;
+      if (on) { S.likes.delete(id); await sb.from('likes').delete().eq('cuenta_id', yo.id).eq('post_id', id); }
+      else { S.likes.add(id); await sb.from('likes').insert({ cuenta_id: yo.id, post_id: id }); }
+      t.classList.toggle('on', !on); t.querySelector('svg').innerHTML = I[!on ? 'lkOn' : 'lk'];
+      if (!span.textContent.includes('mil')) span.textContent = num(n + (on ? -1 : 1)) || '';
+      return;
+    }
+    if (t.dataset.rp) {
+      const id = +t.dataset.rp, on = S.mios.has(id);
+      if (on) { await sb.from('posts').delete().eq('cuenta_id', yo.id).eq('repost_de', id).eq('cita', false); S.mios.delete(id); toast('Repost deshecho'); }
+      else {
+        const cita = confirm('¿Citar con un comentario? (Cancelar = repost normal)');
+        if (cita) return redactar({ citaDe: id, alAcabar: recargar });
+        await sb.from('posts').insert({ cuenta_id: yo.id, plataforma: S.plat, repost_de: id, origen: 'web' }); S.mios.add(id); toast('Reposteado');
+      }
+      return recargar();
+    }
+    if (t.dataset.votar) {
+      const id = +t.dataset.votar, i = +t.dataset.i;
+      const { data: p } = await sb.from('posts').select('encuesta').eq('id', id).single();
+      const e = p.encuesta; e.votos = e.votos || e.opciones.map(() => 0); e.votos[i]++; e.voto_alberto = i;
+      await sb.from('posts').update({ encuesta: e }).eq('id', id);
+      return recargar();
+    }
+    if (t.dataset.lkc) {
+      const id = +t.dataset.lkc, on = S.likesC.has(id);
+      if (on) { S.likesC.delete(id); await sb.from('likes').delete().eq('cuenta_id', yo.id).eq('comentario_id', id); }
+      else { S.likesC.add(id); await sb.from('likes').insert({ cuenta_id: yo.id, comentario_id: id }); }
+      return recargar();
+    }
+    if (t.dataset.respc) { const ta = document.getElementById('resptx'); ta.dataset.a = t.dataset.respc; ta.placeholder = 'Responder a @' + t.dataset.u; ta.focus(); return; }
+    if (t.dataset.ir) location.hash = '#/p/' + t.dataset.ir;
+  };
+}
+
+function proximamente(nombre, fase) {
+  return `<div class="vacio"><h2>${nombre}</h2>Llega en la fase ${fase}. De momento la red es solo X.</div>`;
+}
+
+async function vistaInicio() {
+  const titulo = S.red || 'Inicio';
+  if (S.plat !== 'x') return marco(titulo, proximamente(S.plat === 'ig' ? 'Instagram' : 'OnlyFans', S.plat === 'ig' ? 2 : 4), { plats: true });
+  marco(titulo, '<div class="cargando">Cargando…</div>', { plats: true, extra: `<button class="atras" id="rec">${svg('recarga')}</button>` });
+  document.getElementById('rec').onclick = () => { S.limite = 40; ruta(); };
+  const { lista, todos } = await traerPosts(sb.from('v_posts').select('*').eq('plataforma', 'x').order('creado', { ascending: false }).limit(S.limite));
+  const main = document.getElementById('main');
+  main.innerHTML = (lista.length ? lista.map(p => htmlPost(p, todos)).join('') : '<div class="vacio"><h2>Nada todavía</h2>Cuando publiquen, sale aquí.</div>')
+    + (lista.length >= S.limite ? '<button class="mas" id="mas">Ver más</button>' : '');
+  enganchar(main, vistaInicio);
+  const mas = document.getElementById('mas'); if (mas) mas.onclick = e => { e.stopPropagation(); S.limite += 40; vistaInicio(); };
+  fab();
+}
+
+function fab() {
+  if (!S.yo[S.plat]) return;
+  const b = document.createElement('button'); b.className = 'fab'; b.innerHTML = svg('pluma');
+  b.onclick = () => redactar({ alAcabar: ruta });
+  document.getElementById('main').appendChild(b);
+}
+
+function redactar({ citaDe = null, alAcabar }) {
+  const yo = S.yo[S.plat];
+  const m = document.createElement('div'); m.className = 'modal';
+  m.innerHTML = `<div class="fila"><button id="cx">Cancelar</button><button class="btn azul" id="pub" disabled>Publicar</button></div>
+    <div class="red">${avatar(yo)}<textarea id="tx" placeholder="${citaDe ? 'Añade un comentario' : '¿Qué está pasando?'}" maxlength="560"></textarea></div>
+    <div class="cnt" id="cnt">280</div>`;
+  document.body.appendChild(m);
+  const tx = m.querySelector('#tx'), pub = m.querySelector('#pub'), cnt = m.querySelector('#cnt');
+  tx.focus();
+  tx.oninput = () => { const r = 280 - tx.value.length; cnt.textContent = r; cnt.classList.toggle('mal', r < 0); pub.disabled = !tx.value.trim() || r < 0; };
+  m.querySelector('#cx').onclick = () => m.remove();
+  pub.onclick = async () => {
+    pub.disabled = true;
+    const fila = { cuenta_id: yo.id, plataforma: S.plat, texto: tx.value.trim(), origen: 'web' };
+    if (citaDe) Object.assign(fila, { repost_de: citaDe, cita: true });
+    const { error } = await sb.from('posts').insert(fila);
+    if (error) { pub.disabled = false; return toast(error.message); }
+    m.remove(); toast('Publicado'); alAcabar && alAcabar();
+  };
+}
+
+async function vistaPost(id) {
+  marco('Post', '<div class="cargando">Cargando…</div>', { atras: true });
+  const { lista, todos } = await traerPosts(sb.from('v_posts').select('*').eq('id', id));
+  const p = lista[0]; if (!p) return document.getElementById('main').innerHTML = '<div class="vacio">Este post ya no existe.</div>';
+  const base = p.repost_de && !p.cita ? todos.get(p.repost_de) : p;
+  const { data: com } = await sb.from('comentarios').select('*').eq('post_id', base.id).order('creado');
+  const ids = (com || []).map(c => c.id);
+  const lc = new Map();
+  if (ids.length) { const r = await sb.from('likes').select('comentario_id').in('comentario_id', ids); (r.data || []).forEach(x => lc.set(x.comentario_id, (lc.get(x.comentario_id) || 0) + 1)); }
+  const porId = new Map((com || []).map(c => [c.id, c]));
+  const autor = cuenta(base.cuenta_id);
+  const htmlC = c => {
+    const k = cuenta(c.cuenta_id) || { nombre: '?', usuario: '?' };
+    const a = c.responde_a ? cuenta(porId.get(c.responde_a)?.cuenta_id) : autor;
+    const on = S.likesC.has(c.id), n = (c.likes_sim || 0) + (lc.get(c.id) || 0);
+    return `<article class="post"><a href="#/u/${esc(k.usuario)}">${avatar(k)}</a><div class="cuerpo">
+      <div class="cab"><span class="n">${esc(k.nombre)}</span>${verif(k)}<span class="u">@${esc(k.usuario)}</span><span class="t">· ${hace(c.creado)}</span></div>
+      <div class="enresp">En respuesta a <a href="#/u/${esc(a?.usuario)}">@${esc(a?.usuario)}</a></div>
+      <div class="tx">${texto(c.texto)}</div>
+      <div class="acc"><button data-respc="${c.id}" data-u="${esc(k.usuario)}">${svg('resp')}</button><button>${svg('rp')}</button>
+      <button class="lk ${on ? 'on' : ''}" data-lkc="${c.id}">${svg(on ? 'lkOn' : 'lk')}<span>${n ? num(n) : ''}</span></button><button>${svg('vistas')}</button></div>
+    </div></article>`;
+  };
+  const main = document.getElementById('main');
+  main.innerHTML = htmlPost(base, todos, { detalle: true }) +
+    (S.yo[S.plat] ? `<div class="resp">${avatar(S.yo[S.plat])}<textarea id="resptx" placeholder="Postea tu respuesta" rows="1"></textarea><button class="btn azul" id="enviar">Responder</button></div>` : '') +
+    (com || []).map(htmlC).join('');
+  enganchar(main, () => vistaPost(id));
+  const env = document.getElementById('enviar');
+  if (env) env.onclick = async e => {
+    e.stopPropagation();
+    const ta = document.getElementById('resptx'); const t = ta.value.trim(); if (!t) return;
+    env.disabled = true;
+    const { error } = await sb.from('comentarios').insert({ post_id: base.id, cuenta_id: S.yo[S.plat].id, texto: t, responde_a: ta.dataset.a ? +ta.dataset.a : null, origen: 'web' });
+    if (error) { env.disabled = false; return toast(error.message); }
+    vistaPost(id);
+  };
+}
+
+async function vistaPerfil(usuario) {
+  const c = S.porUser.get(S.plat + ':' + usuario.toLowerCase()) || S.porUser.get('x:' + usuario.toLowerCase());
+  if (!c) return marco('Perfil', '<div class="vacio"><h2>Esta cuenta no existe</h2>Prueba a buscar otra.</div>', { atras: true });
+  const esYo = c.tipo === 'alberto';
+  marco(esc(c.nombre), '<div class="cargando">Cargando…</div>', { atras: !esYo, extra: esYo ? `<button class="atras" id="salir" title="Salir">${svg('salir')}</button>` : '' });
+  if (esYo) document.getElementById('salir').onclick = async () => { if (confirm('¿Cerrar sesión?')) { await sb.auth.signOut(); location.hash = '#/'; location.reload(); } };
+  const [segs, sigs, postsR] = await Promise.all([
+    sb.from('seguimientos').select('seguidor', { count: 'exact', head: true }).eq('seguido', c.id),
+    sb.from('seguimientos').select('seguido', { count: 'exact', head: true }).eq('seguidor', c.id),
+    traerPosts(sb.from('v_posts').select('*').eq('cuenta_id', c.id).order('creado', { ascending: false }).limit(50)),
+  ]);
+  const sigo = S.sigo.has(c.id);
+  const ban = c.banner_url && S.urls.get(c.banner_url);
+  const main = document.getElementById('main');
+  main.innerHTML = `<div class="perfil">
+    <div class="banner">${ban ? `<img src="${esc(ban)}" alt="">` : ''}</div>
+    <div class="fila1">${avatar(c, 'av avg')}
+      <div style="display:flex;gap:8px">${esYo ? '<button class="btn borde" id="editar">Editar perfil</button>'
+      : `<a class="btn borde" href="#/md/${c.id}" style="width:36px;padding:0">${svg('sobre')}</a><button class="btn ${sigo ? 'borde' : ''}" id="seguir">${sigo ? 'Siguiendo' : 'Seguir'}</button>`}</div></div>
+    <div class="info">
+      <div class="nombre">${esc(c.nombre)}${verif(c)}</div>
+      <div class="u">@${esc(c.usuario)}</div>
+      ${c.bio ? `<div class="bio">${texto(c.bio)}</div>` : ''}
+      <div class="datos">${c.ubicacion ? `<span>${esc(c.ubicacion)}</span>` : ''}</div>
+      <div class="datos" style="margin-top:8px"><span><b>${num((c.siguiendo || 0) + (sigs.count || 0))}</b> Siguiendo</span><span><b>${num((c.seguidores || 0) + (segs.count || 0))}</b> Seguidores</span></div>
+    </div>
+    <div class="tabs"><button class="on">Posts</button></div>
+  </div><div id="lista">${postsR.lista.map(p => htmlPost(p, postsR.todos)).join('') || '<div class="vacio">Aún no ha publicado nada.</div>'}</div>`;
+  enganchar(document.getElementById('lista'), () => vistaPerfil(usuario));
+  const sg = document.getElementById('seguir');
+  if (sg) sg.onclick = async () => {
+    const yo = S.yo[S.plat]; if (!yo) return;
+    if (sigo) { await sb.from('seguimientos').delete().eq('seguidor', yo.id).eq('seguido', c.id); S.sigo.delete(c.id); }
+    else { await sb.from('seguimientos').insert({ seguidor: yo.id, seguido: c.id }); S.sigo.add(c.id); }
+    vistaPerfil(usuario);
+  };
+  const ed = document.getElementById('editar');
+  if (ed) ed.onclick = () => editarPerfil(c);
+}
+
+function editarPerfil(c) {
+  const m = document.createElement('div'); m.className = 'modal edit';
+  m.innerHTML = `<div class="fila"><button id="cx">Cancelar</button><b>Editar perfil</b><button class="btn" id="ok">Guardar</button></div>
+    <div class="campo"><label>Nombre</label><input id="n" value="${esc(c.nombre)}" maxlength="50"></div>
+    <div class="campo"><label>Usuario (sin @)</label><input id="u" value="${esc(c.usuario)}" maxlength="30" autocapitalize="off"></div>
+    <div class="campo"><label>Biografía</label><textarea id="b" rows="3" maxlength="160" style="width:100%">${esc(c.bio || '')}</textarea></div>
+    <div class="campo"><label>Ubicación</label><input id="l" value="${esc(c.ubicacion || '')}" maxlength="30"></div>`;
+  document.body.appendChild(m);
+  m.querySelector('#cx').onclick = () => m.remove();
+  m.querySelector('#ok').onclick = async () => {
+    const u = m.querySelector('#u').value.trim().replace(/^@/, '');
+    if (!/^\w{2,30}$/.test(u)) return toast('Usuario: letras, números y _');
+    const { error } = await sb.from('cuentas').update({ nombre: m.querySelector('#n').value.trim() || c.nombre, usuario: u, bio: m.querySelector('#b').value.trim(), ubicacion: m.querySelector('#l').value.trim() }).eq('id', c.id);
+    if (error) return toast(error.code === '23505' ? 'Ese usuario ya existe' : error.message);
+    m.remove(); await cargarCuentas(); location.hash = '#/u/' + u; ruta();
+  };
+}
+
+/* ---------- MD ---------- */
+async function vistaMD() {
+  if (S.plat !== 'x') return marco('Mensajes', proximamente('Mensajes', S.plat === 'ig' ? 2 : 4), { plats: true });
+  marco('Mensajes', '<div class="cargando">Cargando…</div>', { plats: true });
+  const yo = S.yo.x;
+  const { data, error } = await sb.from('mensajes').select('*').eq('plataforma', 'x').or(`de.eq.${yo.id},para.eq.${yo.id}`).order('creado', { ascending: false }).limit(500);
+  if (error) throw error;
+  const convs = new Map();
+  for (const m of data) { const otro = m.de === yo.id ? m.para : m.de; if (!convs.has(otro)) convs.set(otro, { ult: m, nuevos: 0 }); if (m.para === yo.id && !m.leido) convs.get(otro).nuevos++; }
+  document.getElementById('main').innerHTML = [...convs].map(([id, v]) => {
+    const c = cuenta(id) || { nombre: '?', usuario: '?' };
+    return `<a class="conv ${v.nuevos ? 'nueva' : ''}" href="#/md/${id}">${avatar(c)}<div class="cuerpo">
+      <div class="cab"><span class="n">${esc(c.nombre)}</span>${verif(c)}<span class="u">@${esc(c.usuario)}</span><span class="t">· ${hace(v.ult.creado)}</span></div>
+      <div class="ult">${v.ult.de === yo.id ? 'Tú: ' : ''}${esc(v.ult.texto)}</div></div>${v.nuevos ? '<span class="punto" style="position:static">' + v.nuevos + '</span>' : ''}</a>`;
+  }).join('') || '<div class="vacio"><h2>Sin mensajes</h2>Entra en un perfil y dale al sobre para escribirle.</div>';
+}
+
+async function vistaChat(otroId) {
+  const c = cuenta(otroId); const yo = S.yo.x;
+  if (!c || !yo) return marco('Mensajes', '<div class="vacio">Conversación no encontrada.</div>', { atras: true });
+  marco(esc(c.nombre), '<div class="cargando">Cargando…</div>', { atras: true, sub: '@' + esc(c.usuario) });
+  const { data } = await sb.from('mensajes').select('*').eq('plataforma', 'x')
+    .or(`and(de.eq.${yo.id},para.eq.${c.id}),and(de.eq.${c.id},para.eq.${yo.id})`).order('creado');
+  const nuevos = (data || []).filter(m => m.para === yo.id && !m.leido).map(m => m.id);
+  if (nuevos.length) { await sb.from('mensajes').update({ leido: true }).in('id', nuevos); S.noLeidos = Math.max(0, S.noLeidos - nuevos.length); }
+  const main = document.getElementById('main');
+  main.innerHTML = `<div class="burbujas">${(data || []).map(m => `<div class="bb ${m.de === yo.id ? 'yo' : 'el'}">${esc(m.texto)}${m.propina ? `<b> · propina ${m.propina} €</b>` : ''}<span class="hora">${hace(m.creado)}</span></div>`).join('') || `<div class="vacio">Escríbele a @${esc(c.usuario)}.</div>`}</div>
+    <div class="escribir"><textarea id="mtx" rows="1" placeholder="Escribe un mensaje"></textarea><button class="btn azul" id="menv">Enviar</button></div>`;
+  window.scrollTo(0, document.body.scrollHeight);
+  document.getElementById('menv').onclick = async () => {
+    const t = document.getElementById('mtx').value.trim(); if (!t) return;
+    const { error } = await sb.from('mensajes').insert({ plataforma: 'x', de: yo.id, para: c.id, texto: t, origen: 'web' });
+    if (error) return toast(error.message);
+    vistaChat(otroId);
+  };
+}
+
+/* ---------- consumo ---------- */
+async function vistaConsumo() {
+  marco('Consumo', '<div class="cargando">Cargando…</div>', { sub: 'Llamadas a modelos de la red' });
+  const desde = new Date(Date.now() - 7 * 864e5).toISOString();
+  const [ult, cfg, sem] = await Promise.all([
+    sb.from('consumo').select('*').order('creado', { ascending: false }).limit(30),
+    sb.from('config').select('valor').eq('clave', 'tanda').maybeSingle(),
+    sb.from('consumo').select('*').gte('creado', desde),
+  ]);
+  const t = cfg.data?.valor || {};
+  const hoyStr = new Date().toLocaleDateString('es-ES', { timeZone: 'Europe/Madrid' });
+  const filas = sem.data || [];
+  const tot = r => (r.tokens_in || 0) + (r.tokens_out || 0);
+  const hoy = filas.filter(r => new Date(r.creado).toLocaleDateString('es-ES', { timeZone: 'Europe/Madrid' }) === hoyStr);
+  const hoyT = hoy.reduce((a, r) => a + tot(r), 0), semT = filas.reduce((a, r) => a + tot(r), 0);
+  const tandas = filas.filter(r => r.para === 'reacciones' && !r.saltada && !r.error);
+  const media = tandas.length ? Math.round(tandas.reduce((a, r) => a + tot(r), 0) / tandas.length) : 0;
+  const msMed = tandas.length ? Math.round(tandas.reduce((a, r) => a + (r.duracion_ms || 0), 0) / tandas.length / 1000) : 0;
+  const salt = filas.filter(r => r.saltada).length, errs = filas.filter(r => r.error).length;
+  const tope = t.tope_diario_tokens || 0, pct = tope ? Math.min(100, hoyT / tope * 100) : 0;
+  const porQuien = {}; filas.forEach(r => { porQuien[r.quien] = (porQuien[r.quien] || 0) + tot(r); });
+  document.getElementById('main').innerHTML = `
+    <div class="tarjetas">
+      <div class="tj" style="grid-column:1/-1"><div class="k">Hoy</div><div class="v">${num(hoyT)} tokens</div>
+        <div class="barra"><i class="${pct > 80 ? 'alto' : ''}" style="width:${pct}%"></i></div>
+        <div class="s">Tope diario: ${num(tope)} · ${Math.round(pct)} % · <a href="#" id="cambiaTope" style="color:var(--azul)">cambiar</a></div></div>
+      <div class="tj"><div class="k">Últimos 7 días</div><div class="v">${num(semT)}</div><div class="s">${filas.length} llamadas</div></div>
+      <div class="tj"><div class="k">Media por tanda</div><div class="v">${num(media)}</div><div class="s">${tandas.length} tandas · ${msMed} s de media</div></div>
+      <div class="tj"><div class="k">Saltadas por tope</div><div class="v">${salt}</div><div class="s">7 días</div></div>
+      <div class="tj"><div class="k">Con error</div><div class="v">${errs}</div><div class="s">7 días</div></div>
+    </div>
+    <div class="seccion">Por quién (7 días)</div>
+    <div style="padding:0 16px"><table>${Object.entries(porQuien).sort((a, b) => b[1] - a[1]).map(([q, n]) => `<tr><td>${esc(q)}</td><td class="num">${num(n)}</td></tr>`).join('') || '<tr><td style="color:var(--tx2)">Nada todavía</td></tr>'}</table></div>
+    <div class="seccion">Últimas llamadas</div>
+    <div style="padding:0 16px 24px;overflow-x:auto"><table>
+      <tr><th>Cuándo</th><th>Quién</th><th>Para</th><th class="num">Entrada</th><th class="num">Salida</th><th class="num">s</th></tr>
+      ${(ult.data || []).map(r => `<tr title="${esc(r.error || r.nota || '')}"><td>${hace(r.creado)}</td><td>${esc(r.quien)}</td><td>${esc(r.para)}${r.saltada ? ' · saltada' : ''}${r.error ? ' · <span style="color:#f4212e">error</span>' : ''}</td><td class="num">${num(r.tokens_in)}</td><td class="num">${num(r.tokens_out)}</td><td class="num">${r.duracion_ms ? Math.round(r.duracion_ms / 1000) : ''}</td></tr>`).join('') || '<tr><td colspan="6" style="color:var(--tx2)">Aún no hay llamadas registradas.</td></tr>'}
+    </table>
+    <p class="aviso">Modelo de las reacciones: ${esc(t.modelo || '?')} · tanda ${t.activa === false ? 'parada' : 'activa'} · máx. ${t.max_posts_por_tanda || '?'} posts por tanda.</p></div>`;
+  document.getElementById('cambiaTope').onclick = async e => {
+    e.preventDefault();
+    const v = prompt('Tope diario de tokens para la red (entrada + salida):', tope);
+    if (v === null) return; const n = parseInt(v.replace(/\D/g, ''));
+    if (!n) return toast('Número no válido');
+    const { error } = await sb.from('config').update({ valor: { ...t, tope_diario_tokens: n } }).eq('clave', 'tanda');
+    if (error) return toast(error.message);
+    vistaConsumo();
+  };
+}
+
+sb.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT') pantallaLogin(); });
+arrancar().catch(e => { console.error(e); $app.innerHTML = `<div class="vacio">Error al arrancar: ${esc(e.message || e)}</div>`; });
+</script>
+</body>
+</html>
