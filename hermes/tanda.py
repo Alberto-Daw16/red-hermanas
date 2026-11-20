@@ -1,0 +1,327 @@
+#!/usr/bin/env python3
+"""Tanda de reacciones: la gente simulada (amigos, rival, hater, fans, marcas) reacciona
+de golpe a lo nuevo de la red. UNA sola llamada al modelo por tanda, y se apunta en `consumo`.
+
+  tanda.py              # la tanda normal (la lanza la tarea programada, 2 veces al día)
+  tanda.py --prueba     # monta el prompt y lo imprime con su tamaño, SIN llamar al modelo
+  tanda.py --sin-guardar  # llama al modelo e imprime lo que haría, sin escribir en la red
+
+Reglas de gasto:
+- Si hoy ya se ha pasado el tope diario (config 'tanda'.tope_diario_tokens), no llama: apunta
+  una fila 'saltada' y sale.
+- Si no hay nada nuevo, no llama y no apunta nada.
+- Si el modelo falla, apunta el error y sale. Nunca reintenta.
+"""
+import argparse, glob, json, os, random, re, subprocess, sys, time, urllib.request, urllib.error
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import red
+
+PLAT = "x"
+REGLAS = """Eres el motor de una red social FALSA y privada (tipo X/Twitter) donde solo entra un usuario real, Alberto.
+Generas en una sola respuesta cómo reacciona la gente simulada a lo nuevo. Todo es ficción.
+
+Reglas fijas:
+- Español de España, como se escribe en X de verdad: corto, minúsculas frecuentes, jerga, memes, faltas leves a veces. Nada de sonar a IA ni a anuncio (salvo las marcas, que suenan a community manager).
+- Todos los usuarios son inventados. Nunca nombres ni @ de gente real, ni enlaces reales, ni marcas reales.
+- Picante sí (bait, indirectas, coqueteo), sexual explícito NO. El hater es pesado, borde y patético, pero nunca odio por raza, religión, orientación, etc., ni amenazas, ni doxxeo.
+- Nunca hables de Cristina, de academias, de aviación ni del trabajo de Alberto.
+- Yoruha es una cantante anónima: nadie conoce su cara, su nombre real ni su ciudad, y nadie la relaciona con VeeNoir.
+- Las hermanas (VeeNoir, Yoruha) NO las escribes tú: nunca generes comentarios, posts ni MD firmados por ellas ni por Alberto.
+- Cada personaje fijo habla con su personalidad y recuerda lo que pone en su memoria.
+- Cifras realistas para el tamaño de cada cuenta (son INCREMENTOS sobre lo que ya tiene el post):
+  VeeNoir (~184 mil seguidores): un post nuevo suma 15–60 mil vistas, 800–3500 likes, 20–150 reposts, 4–8 comentarios generados.
+  Yoruha (~24 mil): 3–12 mil vistas, 200–900 likes, 10–60 reposts, 2–4 comentarios.
+  Alberto (~110): 20–300 vistas, 0–15 likes, 0–2 comentarios (solo si alguien fijo tiene algo que decir; si menciona a VeeNoir, sus fans pueden aparecer).
+  Otros (fijos/marcas): según sus seguidores.
+- Fans de relleno: usuarios nuevos inventados con @ creíble (p. ej. ahri_mainlover, k4rmasleeper). Repite alguno de vez en cuando.
+- Si Alberto ha comentado o mandado MD a un personaje, ese personaje le contesta (en comentario o MD) si tiene sentido.
+- posts_nuevos: como mucho 3 en total y solo si pega (indirecta de la rival, la marca que tantea una colabo, Nerea avisando del directo, el hater haciendo ratio con cita…).
+- md: como mucho 4 (fans, marcas o fijos a las hermanas; o respuestas a los MD de Alberto).
+
+Devuelve SOLO un objeto JSON con esta forma (omite listas vacías):
+{"posts":[{"id":123,"vistas":0,"likes":0,"reposts":0,"comentarios":[{"usuario":"pau_tilt","texto":"...","likes":0,"responde_a":null}]}],
+ "respuestas":[{"comentario_id":45,"usuario":"nereitaa_vlc","texto":"...","likes":0}],
+ "posts_nuevos":[{"usuario":"kiarapls","texto":"...","cita":null}],
+ "md":[{"de":"voltaenergy","para":"veenoir","texto":"..."}],
+ "fans_nuevos":[{"usuario":"ahri_mainlover","nombre":"Ahri main 🦊","bio":"..."}],
+ "memoria":[{"usuario":"realtalk_88x","nota":"frase corta de lo que recordará"}]}
+"responde_a" dentro de comentarios: null, o el índice (0,1,2…) de otro comentario de la misma lista al que responde.
+"""
+
+
+def medianoche_madrid_utc():
+    ahora = datetime.now(ZoneInfo("Europe/Madrid"))
+    return ahora.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def gastado_hoy():
+    filas = red.sel("consumo", creado=f"gte.{medianoche_madrid_utc()}", select="tokens_in,tokens_out")
+    return sum((f["tokens_in"] or 0) + (f["tokens_out"] or 0) for f in filas)
+
+
+# ---------- llamada al modelo ----------
+def _token_hermes():
+    """Busca el token de xai-oauth que guarda Hermes. Si Hermes lo guarda en otro sitio, ajustar aquí."""
+    candidatos = [os.path.expanduser(p) for p in ("~/.hermes/auth.json", "~/.hermes/credentials.json")] + \
+        glob.glob(os.path.expanduser("~/.hermes/**/*xai*.json"), recursive=True)
+    def buscar(o, ruta=""):
+        if isinstance(o, dict):
+            if "access_token" in o and "xai" in ruta.lower():
+                return o["access_token"]
+            for k, v in o.items():
+                r = buscar(v, ruta + "/" + str(k))
+                if r:
+                    return r
+        elif isinstance(o, list):
+            for v in o:
+                r = buscar(v, ruta)
+                if r:
+                    return r
+        return None
+    for f in candidatos:
+        try:
+            t = buscar(json.load(open(f)), f)
+            if t:
+                return t
+        except Exception:
+            pass
+    return None
+
+
+def llamar_modelo(mensajes, modelo):
+    """Devuelve (texto, usage_dict). Tres vías, por orden:
+    1) MODELO_CMD: comando que recibe {"modelo","mensajes"} por stdin y devuelve {"texto","usage"} por stdout.
+    2) XAI_API_KEY o el token de xai-oauth de Hermes contra la API de xAI (compatible con OpenAI)."""
+    cmd = os.environ.get("MODELO_CMD")
+    if cmd:
+        p = subprocess.run(cmd, shell=True, input=json.dumps({"modelo": modelo, "mensajes": mensajes}),
+                           capture_output=True, text=True, timeout=600)
+        if p.returncode != 0:
+            raise RuntimeError(f"MODELO_CMD falló: {p.stderr[-500:]}")
+        r = json.loads(p.stdout)
+        return r["texto"], r.get("usage") or {}
+    token = os.environ.get("XAI_API_KEY") or _token_hermes()
+    if not token:
+        raise RuntimeError("No hay XAI_API_KEY ni token de xai-oauth localizable (ver _token_hermes en tanda.py)")
+    base = os.environ.get("XAI_BASE_URL", "https://api.x.ai/v1").rstrip("/")
+    cuerpo = {"model": modelo, "messages": mensajes, "response_format": {"type": "json_object"}, "temperature": 0.9}
+    req = urllib.request.Request(base + "/chat/completions", data=json.dumps(cuerpo).encode(), method="POST",
+                                 headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=600) as r:
+            d = json.loads(r.read().decode())
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(f"xAI {e.code}: {e.read().decode(errors='replace')[:400]}") from None
+    return d["choices"][0]["message"]["content"], d.get("usage") or {}
+
+
+def leer_json(texto):
+    texto = texto.strip()
+    texto = re.sub(r"^```(?:json)?|```$", "", texto, flags=re.M).strip()
+    i, j = texto.find("{"), texto.rfind("}")
+    return json.loads(texto[i:j + 1])
+
+
+# ---------- material de la tanda ----------
+def corto(t, n=280):
+    t = (t or "").strip()
+    return t if len(t) <= n else t[:n] + "…"
+
+
+def montar(desde, maximo):
+    cuentas = red.sel("cuentas", plataforma=f"eq.{PLAT}", select="id,tipo,quien,nombre,usuario,bio,seguidores,personalidad,memoria")
+    por_id = {c["id"]: c for c in cuentas}
+    ids_her = [c["id"] for c in cuentas if c["tipo"] == "hermana"]
+    ids_alb = [c["id"] for c in cuentas if c["tipo"] == "alberto"]
+    ids_fijos = [c["id"] for c in cuentas if c["tipo"] in ("fijo", "marca", "fan")]
+    clave = ",".join(ids_her + ids_alb)
+
+    posts = red.sel("posts", plataforma=f"eq.{PLAT}", cuenta_id=f"in.({clave})", creado=f"gt.{desde}",
+                    select="id,cuenta_id,texto,imagen_url,encuesta,repost_de,cita,creado", order="creado.asc", limit=maximo)
+    posts = [p for p in posts if not (p["repost_de"] and not p["cita"])]  # los reposts sin texto no generan reacciones
+    coms = red.sel("comentarios", cuenta_id=f"in.({clave})", creado=f"gt.{desde}",
+                   select="id,post_id,cuenta_id,texto,responde_a", order="creado.asc", limit=30)
+    mds = red.sel("mensajes", plataforma=f"eq.{PLAT}", de=f"in.({','.join(ids_alb) or '0'})", para=f"in.({','.join(ids_fijos) or '0'})",
+                  creado=f"gt.{desde}", select="id,de,para,texto", order="creado.asc", limit=20) if ids_fijos and ids_alb else []
+    if not (posts or coms or mds):
+        return None, cuentas
+
+    u = lambda cid: "@" + por_id.get(cid, {}).get("usuario", "?")
+    partes = ["## Personajes fijos y marcas"]
+    for c in cuentas:
+        if c["tipo"] in ("fijo", "marca"):
+            partes.append(f"- @{c['usuario']} ({c['nombre']}, {c['seguidores']} seguidores): {c['personalidad'] or ''}"
+                          + (f" | Memoria: {c['memoria']}" if c.get("memoria") else ""))
+    fans = [c["usuario"] for c in cuentas if c["tipo"] == "fan"]
+    if fans:
+        partes.append("Fans que ya existen (puedes reutilizarlos): " + ", ".join("@" + f for f in random.sample(fans, min(25, len(fans)))))
+    partes.append("\n## Las cuentas que NO escribes tú")
+    for c in cuentas:
+        if c["tipo"] in ("hermana", "alberto"):
+            partes.append(f"- @{c['usuario']} ({c['nombre']}, {c['seguidores']} seguidores): {corto(c['personalidad'] or 'usuario real, Alberto', 200)}")
+
+    if posts:
+        partes.append("\n## Posts nuevos a los que reaccionar")
+        for p in posts:
+            extra = ""
+            if p.get("encuesta"):
+                extra += " [encuesta: " + " / ".join(p["encuesta"].get("opciones", [])) + "]"
+            if p.get("imagen_url"):
+                extra += " [lleva imagen]"
+            if p.get("cita"):
+                extra += f" [cita al post {p['repost_de']}]"
+            partes.append(f"- post {p['id']} de {u(p['cuenta_id'])}: «{corto(p['texto'])}»{extra}")
+    if coms:
+        partes.append("\n## Comentarios nuevos de Alberto o de las hermanas (se les puede contestar en 'respuestas')")
+        cache = {}
+        for c in coms:
+            pid = c["post_id"]
+            if pid not in cache:
+                r = red.sel("posts", id=f"eq.{pid}", select="cuenta_id,texto")
+                cache[pid] = r[0] if r else {}
+            dueño = cache[pid]
+            partes.append(f"- comentario {c['id']} de {u(c['cuenta_id'])} en el post {pid} (de {u(dueño.get('cuenta_id'))}: «{corto(dueño.get('texto'), 100)}»): «{corto(c['texto'])}»")
+    if mds:
+        partes.append("\n## MD de Alberto sin contestar")
+        for m in mds:
+            partes.append(f"- de @{por_id[m['de']]['usuario']} a {u(m['para'])}: «{corto(m['texto'])}»")
+    partes.append(f"\nHora en España: {datetime.now(ZoneInfo('Europe/Madrid')).strftime('%A %d/%m %H:%M')}.")
+    return "\n".join(partes), cuentas
+
+
+# ---------- aplicar ----------
+def aplicar(res, cuentas):
+    por_user = {c["usuario"].lower(): c for c in cuentas}
+    prohibidas = {c["usuario"].lower() for c in cuentas if c["tipo"] in ("hermana", "alberto")}
+    fans_info = {f.get("usuario", "").lower().lstrip("@"): f for f in res.get("fans_nuevos", []) or []}
+    n = {"comentarios": 0, "respuestas": 0, "posts": 0, "md": 0, "fans": 0}
+
+    def cuenta_de(usuario):
+        usuario = (usuario or "").lstrip("@").strip()
+        k = usuario.lower()
+        if not re.fullmatch(r"\w{2,30}", usuario) or k in prohibidas:
+            return None
+        if k not in por_user:
+            info = fans_info.get(k, {})
+            nueva = red.ins("cuentas", {"tipo": "fan", "quien": None, "plataforma": PLAT, "nombre": (info.get("nombre") or usuario)[:50],
+                                        "usuario": usuario, "bio": (info.get("bio") or "")[:160],
+                                        "seguidores": random.randint(8, 2400), "siguiendo": random.randint(50, 900)})[0]
+            por_user[k] = nueva; n["fans"] += 1
+        return por_user[k]
+
+    num = lambda v: max(0, int(v or 0))
+    for p in res.get("posts", []) or []:
+        pid = p.get("id")
+        if not isinstance(pid, int):
+            continue
+        actual = red.sel("posts", id=f"eq.{pid}", select="likes_sim,reposts_sim,vistas_sim")
+        if not actual:
+            continue
+        a = actual[0]
+        red.upd("posts", {"likes_sim": a["likes_sim"] + num(p.get("likes")), "reposts_sim": a["reposts_sim"] + num(p.get("reposts")),
+                          "vistas_sim": a["vistas_sim"] + num(p.get("vistas"))}, id=f"eq.{pid}")
+        creados = []
+        for c in p.get("comentarios", []) or []:
+            k = cuenta_de(c.get("usuario"))
+            if not k or not c.get("texto"):
+                creados.append(None); continue
+            ref = c.get("responde_a")
+            resp = creados[ref] if isinstance(ref, int) and 0 <= ref < len(creados) else None
+            r = red.ins("comentarios", {"post_id": pid, "cuenta_id": k["id"], "texto": c["texto"][:500], "likes_sim": num(c.get("likes")),
+                                        "responde_a": resp, "origen": "tanda"})[0]
+            creados.append(r["id"]); n["comentarios"] += 1
+    for c in res.get("respuestas", []) or []:
+        k = cuenta_de(c.get("usuario"))
+        orig = red.sel("comentarios", id=f"eq.{c.get('comentario_id')}", select="id,post_id") if isinstance(c.get("comentario_id"), int) else []
+        if k and orig and c.get("texto"):
+            red.ins("comentarios", {"post_id": orig[0]["post_id"], "cuenta_id": k["id"], "texto": c["texto"][:500],
+                                    "likes_sim": num(c.get("likes")), "responde_a": orig[0]["id"], "origen": "tanda"})
+            n["respuestas"] += 1
+    for p in (res.get("posts_nuevos", []) or [])[:3]:
+        k = cuenta_de(p.get("usuario"))
+        if k and p.get("texto"):
+            fila = {"cuenta_id": k["id"], "plataforma": PLAT, "texto": p["texto"][:560], "origen": "tanda",
+                    "likes_sim": random.randint(5, 400), "vistas_sim": random.randint(300, 9000)}
+            if isinstance(p.get("cita"), int) and red.sel("posts", id=f"eq.{p['cita']}", select="id"):
+                fila.update(repost_de=p["cita"], cita=True)
+            red.ins("posts", fila); n["posts"] += 1
+    for m in (res.get("md", []) or [])[:4]:
+        de = cuenta_de(m.get("de"))
+        para = por_user.get((m.get("para") or "").lstrip("@").lower())
+        if de and para and m.get("texto"):
+            red.ins("mensajes", {"plataforma": PLAT, "de": de["id"], "para": para["id"], "texto": m["texto"][:1000], "origen": "tanda"})
+            n["md"] += 1
+    for m in res.get("memoria", []) or []:
+        k = por_user.get((m.get("usuario") or "").lstrip("@").lower())
+        if k and k["tipo"] in ("fijo", "marca") and m.get("nota"):
+            mem = ((k.get("memoria") or "") + " · " + m["nota"]).strip(" ·")[-600:]  # memoria corta: solo lo último
+            red.upd("cuentas", {"memoria": mem}, id=f"eq.{k['id']}"); k["memoria"] = mem
+    return n
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--prueba", action="store_true")
+    ap.add_argument("--sin-guardar", action="store_true")
+    a = ap.parse_args()
+
+    cfg = red.config("tanda", {}) or {}
+    if not cfg.get("activa", True) and not a.prueba:
+        print("Tanda parada en config."); return
+    modelo = cfg.get("modelo", "grok-4.7")
+    tope = int(cfg.get("tope_diario_tokens", 150000))
+    gastado = gastado_hoy()
+    if gastado >= tope and not a.prueba:
+        red.apuntar_consumo(quien="tanda", para="reacciones", modelo=modelo, saltada=True, nota=f"tope: {gastado}/{tope}")
+        print(f"Saltada: hoy van {gastado} tokens y el tope es {tope}."); return
+
+    desde = red.config("ultima_tanda") or "2000-01-01T00:00:00Z"
+    hasta = red.ahora_iso()
+    material, cuentas = montar(desde, int(cfg.get("max_posts_por_tanda", 12)))
+    if material is None:
+        if not a.prueba and not a.sin_guardar:
+            red.poner_config("ultima_tanda", hasta)
+        print("Nada nuevo desde", desde); return
+
+    mensajes = [{"role": "system", "content": REGLAS}, {"role": "user", "content": material}]
+    if a.prueba:
+        print(REGLAS + "\n-----\n" + material)
+        print(f"\n[prueba] ~{(len(REGLAS) + len(material)) // 4} tokens de entrada estimados. Hoy van {gastado}/{tope}.")
+        return
+
+    t0 = time.time()
+    try:
+        texto, uso = llamar_modelo(mensajes, modelo)
+        res = leer_json(texto)
+    except Exception as e:
+        red.apuntar_consumo(quien="tanda", para="reacciones", modelo=modelo, duracion_ms=int((time.time() - t0) * 1000), error=str(e)[:500])
+        print("ERROR:", e, file=sys.stderr); sys.exit(1)
+    ms = int((time.time() - t0) * 1000)
+    tin = int(uso.get("prompt_tokens") or 0)
+    total = int(uso.get("total_tokens") or 0)
+    tout = (total - tin) if total else int(uso.get("completion_tokens") or 0)  # incluye razonamiento
+    razon = int((uso.get("completion_tokens_details") or {}).get("reasoning_tokens") or uso.get("reasoning_tokens") or 0)
+    cache = int((uso.get("prompt_tokens_details") or {}).get("cached_tokens") or 0)
+
+    if a.sin_guardar:
+        print(json.dumps(res, ensure_ascii=False, indent=1))
+        print(f"\n[sin guardar] entrada {tin} · salida {tout} (razonamiento {razon}) · {ms/1000:.1f} s")
+        red.apuntar_consumo(quien="tanda", para="reacciones", modelo=modelo, tokens_in=tin, tokens_out=tout, tokens_razon=razon,
+                            tokens_cache=cache, duracion_ms=ms, nota="sin-guardar (prueba)")
+        return
+    try:
+        n = aplicar(res, cuentas)
+    except Exception as e:
+        red.apuntar_consumo(quien="tanda", para="reacciones", modelo=modelo, tokens_in=tin, tokens_out=tout, tokens_razon=razon,
+                            tokens_cache=cache, duracion_ms=ms, error=f"al aplicar: {str(e)[:400]}")
+        raise
+    red.poner_config("ultima_tanda", hasta)
+    red.apuntar_consumo(quien="tanda", para="reacciones", modelo=modelo, tokens_in=tin, tokens_out=tout, tokens_razon=razon,
+                        tokens_cache=cache, duracion_ms=ms, nota=json.dumps(n))
+    print(f"OK {n} · entrada {tin} · salida {tout} (razonamiento {razon}) · {ms/1000:.1f} s")
+
+
+if __name__ == "__main__":
+    main()
