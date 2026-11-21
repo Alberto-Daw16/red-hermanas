@@ -2,41 +2,96 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
-<meta name="build" content="2026-11-20.1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="build" content="2026-11-21.1">
 <meta name="robots" content="noindex,nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Móvil">
+<meta name="theme-color" content="#0b0710">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>Red</title>
+<title>Móvil</title>
 <style>
-:root{--bg:#000;--bg2:#16181c;--bg3:#202327;--line:#2f3336;--tx:#e7e9ea;--tx2:#71767b;--azul:#1d9bf0;--rosa:#f91880;--verde:#00ba7c;--safe-t:env(safe-area-inset-top);--safe-b:env(safe-area-inset-bottom)}
+:root{--bg:#000;--bg2:#16181c;--bg3:#202327;--line:#2f3336;--tx:#e7e9ea;--tx2:#71767b;--azul:#ff3d8b;--rosa:#ff3d8b;--verde:#00ba7c;--st:0px;--sb:0px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%}
+html,body{margin:0;height:100%;overflow:hidden;background:#050307;color:var(--tx);font:15px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%;-webkit-user-select:none;user-select:none}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
-input,textarea{font:inherit;color:var(--tx);background:transparent;border:0;outline:0;resize:none}
-#app{max-width:600px;margin:0 auto;min-height:100vh;border-left:1px solid var(--line);border-right:1px solid var(--line);padding-bottom:calc(60px + var(--safe-b))}
-.top{position:sticky;top:0;z-index:20;background:rgba(0,0,0,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding-top:var(--safe-t)}
-.top .fila{display:flex;align-items:center;gap:12px;height:53px;padding:0 16px}
-.top h1{font-size:20px;font-weight:800;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+input,textarea{font:inherit;color:var(--tx);background:transparent;border:0;outline:0;resize:none;-webkit-user-select:text;user-select:text}
+.tx,.bb{-webkit-user-select:text;user-select:text}
+
+/* ---------- el móvil ---------- */
+body.pantalla #movil{position:fixed;inset:0;--st:env(safe-area-inset-top);--sb:env(safe-area-inset-bottom)}
+body.marco{display:grid;place-items:center;background:radial-gradient(ellipse at 50% 30%,#1a1020,#050307 70%)}
+body.marco #movil{position:relative;width:393px;height:852px;border-radius:56px;box-shadow:0 0 0 11px #121014,0 0 0 13px #2a2630,0 30px 80px rgba(0,0,0,.7);--st:54px;--sb:24px;transform:scale(var(--escala,1))}
+#movil{overflow:hidden;background:#0b0710;isolation:isolate}
+.isla{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:124px;height:36px;border-radius:20px;background:#000;z-index:90;display:none}
+.estado{position:absolute;top:0;left:0;right:0;height:54px;padding:18px 34px 0 46px;display:none;justify-content:space-between;align-items:flex-start;font-weight:600;font-size:16px;z-index:89;pointer-events:none;color:#fff}
+.estado .der{display:flex;gap:6px;align-items:center;margin-top:1px}
+body.marco .isla,body.marco .estado{display:flex}
+.estado.oscura{color:#fff}
+
+/* fondo */
+.fondo{position:absolute;inset:0;z-index:0;background:
+ radial-gradient(60% 40% at 15% 20%,rgba(255,61,139,.55),transparent 70%),
+ radial-gradient(55% 45% at 90% 35%,rgba(120,40,200,.55),transparent 70%),
+ radial-gradient(70% 50% at 50% 100%,rgba(255,61,139,.35),transparent 70%),
+ linear-gradient(170deg,#1c0d22,#0b0710 60%,#160a18)}
+.fondo:after{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);background-size:3px 3px;opacity:.6}
+
+/* ---------- inicio ---------- */
+.home{position:absolute;inset:0;z-index:1;padding:calc(var(--st) + 14px) 22px calc(var(--sb) + 10px);display:flex;flex-direction:column;transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .35s,opacity .35s}
+.home.atras{transform:scale(.92);filter:blur(6px) brightness(.6)}
+.widgets{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:22px}
+.wg{height:158px;border-radius:22px;padding:14px;background:rgba(30,16,36,.55);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border:1px solid rgba(255,255,255,.08);overflow:hidden;display:flex;flex-direction:column}
+.wg .et{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#ff8ab8}
+.wg .ev{margin-top:8px;font-size:13px;line-height:1.25}
+.wg .ev b{display:block;font-size:15px}
+.wg .ev span{color:rgba(255,255,255,.6)}
+.wg .post{border:0;padding:0;margin-top:8px;gap:8px}
+.wg .post .av{width:26px;height:26px;font-size:12px}
+.wg .post .tx{font-size:13px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);row-gap:22px;justify-items:center}
+.ic{display:flex;flex-direction:column;align-items:center;gap:6px;width:72px;position:relative}
+.ic .cara{width:62px;height:62px;border-radius:15px;display:grid;place-items:center;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.35);transition:transform .15s}
+.ic:active .cara{transform:scale(.9);filter:brightness(.8)}
+.ic .cara svg{width:100%;height:100%;display:block}
+.ic .nom{font-size:12px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6);white-space:nowrap}
+.ic .badge{position:absolute;top:-6px;right:0;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:#ff3b30;color:#fff;font-size:13px;font-weight:600;display:grid;place-items:center;z-index:2}
+.puntos{display:flex;justify-content:center;gap:8px;margin:auto 0 14px}
+.puntos i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.35)}
+.puntos i.on{background:#fff}
+.dock{display:flex;justify-content:space-around;padding:14px 10px;border-radius:34px;background:rgba(40,24,48,.45);backdrop-filter:blur(30px) saturate(1.5);-webkit-backdrop-filter:blur(30px) saturate(1.5);border:1px solid rgba(255,255,255,.07)}
+.dock .nom{display:none}
+
+/* ---------- capa de app ---------- */
+.app{position:absolute;inset:0;z-index:10;background:#000;display:flex;flex-direction:column;overflow:hidden;border-radius:inherit}
+.app.oculta{display:none}
+.app .cont{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;position:relative}
+.indicador{position:absolute;left:0;right:0;bottom:0;height:calc(var(--sb) + 4px);z-index:40;display:flex;justify-content:center;align-items:flex-end;padding-bottom:max(8px,calc(var(--sb) - 18px))}
+.indicador i{width:134px;height:5px;border-radius:3px;background:rgba(255,255,255,.85)}
+body.pantalla .indicador{height:28px;padding-bottom:calc(var(--sb) + 6px);bottom:0}
+.volver{position:absolute;left:12px;bottom:calc(var(--sb) + 10px);z-index:41;display:none}
+
+.top{position:relative;z-index:20;background:rgba(0,0,0,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding-top:var(--st);flex:none}
+.top .fila{display:flex;align-items:center;gap:12px;height:50px;padding:0 16px}
+.top h1{font-size:19px;font-weight:800;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .top .sub{font-size:13px;color:var(--tx2);font-weight:400}
-.plats{display:flex}
-.plats button{flex:1;height:44px;color:var(--tx2);font-weight:600;position:relative}
-.plats button.on{color:var(--tx);font-weight:700}
-.plats button.on:after{content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:56px;height:4px;border-radius:4px;background:var(--azul)}
 .ico{width:20px;height:20px;fill:currentColor;flex:none}
 .atras{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;margin-left:-8px}
 .atras:active{background:var(--bg3)}
-.nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:var(--safe-b)}
-.nav .in{max-width:600px;margin:0 auto;display:flex;height:53px}
+.casa{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;margin-right:-6px;color:var(--tx2)}
+.nav{flex:none;background:rgba(0,0,0,.9);border-top:1px solid var(--line);padding-bottom:calc(var(--sb) + 2px);position:relative;z-index:20}
+.nav .in{display:flex;height:50px}
 .nav a{flex:1;display:grid;place-items:center;color:var(--tx2);position:relative}
 .nav a.on{color:var(--tx)}
-.nav .ico{width:26px;height:26px}
-.punto{position:absolute;top:8px;left:calc(50% + 6px);min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--azul);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.nav .ico{width:25px;height:25px}
+.punto{position:absolute;top:7px;left:calc(50% + 6px);min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--azul);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.sinnav{padding-bottom:calc(var(--sb) + 30px)}
+
+/* ---------- Vox (la red tipo X) ---------- */
 .post{display:flex;gap:10px;padding:12px 16px 4px;border-bottom:1px solid var(--line)}
 .post:active{background:#080808}
 .av{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:700;color:#fff;overflow:hidden;background:#333;font-size:16px}
@@ -64,7 +119,7 @@ input,textarea{font:inherit;color:var(--tx);background:transparent;border:0;outl
 .enc{margin-top:10px}
 .enc .op{position:relative;height:32px;margin:6px 0;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:space-between;padding:0 10px;width:100%}
 .enc .op .b{position:absolute;inset:0 auto 0 0;background:var(--bg3);border-radius:6px}
-.enc .op.win .b{background:rgba(29,155,240,.45)}
+.enc .op.win .b{background:rgba(255,61,139,.4)}
 .enc .op span{position:relative}
 .enc .op.votar{border:1px solid var(--azul);color:var(--azul);justify-content:center;font-weight:700;border-radius:20px}
 .enc .pie{color:var(--tx2);font-size:13px}
@@ -78,12 +133,11 @@ input,textarea{font:inherit;color:var(--tx);background:transparent;border:0;outl
 .btn.azul{background:var(--azul);color:#fff}
 .btn.borde{background:transparent;color:var(--tx);border:1px solid #536471}
 .btn:disabled{opacity:.5}
-.fab{position:fixed;right:max(16px,calc(50% - 284px));bottom:calc(72px + var(--safe-b));width:56px;height:56px;border-radius:50%;background:var(--azul);display:grid;place-items:center;box-shadow:0 0 12px rgba(255,255,255,.2);z-index:25}
+.fab{position:absolute;right:16px;bottom:calc(var(--sb) + 66px);width:56px;height:56px;border-radius:50%;background:var(--azul);display:grid;place-items:center;box-shadow:0 0 14px rgba(255,61,139,.45);z-index:25}
 .fab .ico{width:24px;height:24px;fill:#fff}
 .enresp{color:var(--tx2);font-size:14px;margin:2px 0}
 .enresp a{color:var(--azul)}
-.hilo{width:2px;background:var(--line);margin:4px auto 0;flex:1}
-.perfil .banner{height:150px;background:linear-gradient(135deg,#1a1a2e,#3a1c3e)}
+.perfil .banner{height:130px;background:linear-gradient(135deg,#1a1a2e,#3a1c3e)}
 .perfil .banner img{width:100%;height:100%;object-fit:cover}
 .perfil .fila1{display:flex;justify-content:space-between;align-items:flex-end;padding:0 16px;margin-top:-40px}
 .perfil .avg{width:84px;height:84px;font-size:32px;border:4px solid #000}
@@ -94,56 +148,93 @@ input,textarea{font:inherit;color:var(--tx);background:transparent;border:0;outl
 .perfil .datos{color:var(--tx2);font-size:15px;display:flex;gap:16px;flex-wrap:wrap}
 .perfil .datos b{color:var(--tx)}
 .tabs{display:flex;border-bottom:1px solid var(--line)}
-.tabs button{flex:1;height:52px;color:var(--tx2);font-weight:600;position:relative}
+.tabs button{flex:1;height:48px;color:var(--tx2);font-weight:600;position:relative}
 .tabs button.on{color:var(--tx);font-weight:700}
 .tabs button.on:after{content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:56px;height:4px;border-radius:4px;background:var(--azul)}
 .conv{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);align-items:center}
 .conv .ult{color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .conv.nueva .ult{color:var(--tx);font-weight:600}
-.burbujas{padding:12px 16px;display:flex;flex-direction:column;gap:6px;min-height:calc(100vh - 200px)}
-.bb{max-width:78%;padding:10px 14px;border-radius:22px;white-space:pre-wrap;word-wrap:break-word}
+.burbujas{padding:12px 16px;display:flex;flex-direction:column;gap:6px;min-height:100%}
+.bb{max-width:78%;padding:9px 13px;border-radius:20px;white-space:pre-wrap;word-wrap:break-word}
 .bb.yo{align-self:flex-end;background:var(--azul);color:#fff;border-bottom-right-radius:4px}
 .bb.el{align-self:flex-start;background:var(--bg3);border-bottom-left-radius:4px}
 .bb .hora{display:block;font-size:11px;opacity:.65;margin-top:3px}
-.escribir{position:sticky;bottom:calc(53px + var(--safe-b));background:#000;border-top:1px solid var(--line);padding:8px 12px;display:flex;gap:8px;align-items:flex-end}
+.escribir{flex:none;background:#000;border-top:1px solid var(--line);padding:8px 12px calc(var(--sb) + 8px);display:flex;gap:8px;align-items:flex-end}
 .escribir textarea{flex:1;background:var(--bg3);border-radius:20px;padding:9px 14px;max-height:120px}
 .vacio{padding:48px 32px;text-align:center;color:var(--tx2)}
-.vacio h2{color:var(--tx);font-size:28px;margin:0 0 8px}
+.vacio h2{color:var(--tx);font-size:24px;margin:0 0 8px}
+.cargando{padding:40px;text-align:center;color:var(--tx2)}
+.mas{display:block;width:100%;padding:16px;color:var(--azul)}
+.toast{position:absolute;left:50%;bottom:calc(var(--sb) + 80px);transform:translateX(-50%);background:var(--azul);color:#fff;padding:10px 18px;border-radius:10px;font-weight:600;z-index:80;max-width:90%;white-space:nowrap}
+.modal{position:absolute;inset:0;z-index:70;background:#000;display:flex;flex-direction:column;padding-top:var(--st)}
+.modal .fila{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;height:50px}
+.modal .red{display:flex;gap:10px;padding:8px 16px}
+.modal textarea{flex:1;font-size:19px;min-height:160px;padding-top:6px}
+.modal .cnt{color:var(--tx2);font-size:13px;padding:0 16px}
+.modal .cnt.mal{color:#f4212e}
+.campo{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:14px}
+.campo label{display:block;color:var(--tx2);font-size:13px}
+.campo input{width:100%;font-size:17px;padding:4px 0}
+.edit .campo{margin:0 16px 14px}
+
+/* ---------- Medidor ---------- */
 .tarjetas{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px}
 .tj{background:var(--bg2);border-radius:16px;padding:14px}
 .tj .k{color:var(--tx2);font-size:13px}
 .tj .v{font-size:24px;font-weight:800;margin-top:4px}
 .tj .s{color:var(--tx2);font-size:12px;margin-top:2px}
 .barra{height:8px;border-radius:4px;background:var(--bg3);overflow:hidden;margin-top:8px}
-.barra i{display:block;height:100%;background:var(--azul)}
-.barra i.alto{background:var(--rosa)}
+.barra i{display:block;height:100%;background:#7cd992}
+.barra i.alto{background:#ff453a}
 table{width:100%;border-collapse:collapse;font-size:13px}
 td,th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
 th{color:var(--tx2);font-weight:600}
 td.num,th.num{text-align:right}
 .seccion{padding:16px 16px 6px;font-weight:800;font-size:17px}
-.login{padding:64px 32px;max-width:400px;margin:0 auto}
-.login h2{font-size:31px;margin:0 0 28px}
-.campo{border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-bottom:14px}
-.campo label{display:block;color:var(--tx2);font-size:13px}
-.campo input{width:100%;font-size:17px;padding:4px 0}
-.login .btn{width:100%;height:44px;margin-top:6px}
 .aviso{color:var(--tx2);font-size:13px;margin-top:16px}
-.err{color:#f4212e;font-size:14px;min-height:20px}
-.modal{position:fixed;inset:0;z-index:50;background:#000;display:flex;flex-direction:column;padding-top:var(--safe-t)}
-.modal .fila{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;height:53px}
-.modal .red{display:flex;gap:10px;padding:8px 16px}
-.modal textarea{flex:1;font-size:20px;min-height:160px;padding-top:6px}
-.modal .cnt{color:var(--tx2);font-size:13px;padding:0 16px}
-.modal .cnt.mal{color:#f4212e}
-.toast{position:fixed;left:50%;bottom:calc(80px + var(--safe-b));transform:translateX(-50%);background:var(--azul);color:#fff;padding:10px 18px;border-radius:6px;font-weight:600;z-index:60;max-width:90%}
-.edit .campo{margin:0 16px 14px}
-.cargando{padding:40px;text-align:center;color:var(--tx2)}
-.mas{display:block;width:100%;padding:16px;color:var(--azul)}
+
+/* ---------- apps sencillas ---------- */
+.lista{margin:16px;border-radius:12px;background:var(--bg2);overflow:hidden}
+.lista .it{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #26262a}
+.lista .it:last-child{border-bottom:0}
+.lista .it .k{flex:1}
+.lista .it .v{color:var(--tx2)}
+.titulo-grande{font-size:32px;font-weight:800;padding:calc(var(--st) + 10px) 16px 4px}
+.dia{padding:10px 16px 4px;color:var(--tx2);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.dia.hoy{color:#ff3d8b}
+.evento{display:flex;gap:12px;margin:6px 16px;padding:12px;border-radius:12px;background:var(--bg2);border-left:4px solid var(--c,#ff3d8b)}
+.evento .h{color:var(--tx2);min-width:46px}
+.splash{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;gap:14px}
+.splash .logo{width:96px;height:96px;border-radius:24px;overflow:hidden}
+.splash h2{margin:0;font-size:26px}
+.splash p{margin:0;color:rgba(255,255,255,.6);max-width:280px}
+.hilo{background:#0c0a0f}
+.hilo .conv .av{width:50px;height:50px;font-size:20px}
+.aviso-hilo{margin:12px 16px;padding:10px 14px;border-radius:12px;background:rgba(255,214,10,.12);color:#ffd60a;font-size:13px;text-align:center}
+.chatfondo{background:#0c0a0f radial-gradient(rgba(255,61,139,.06) 1px,transparent 1px) 0 0/18px 18px}
+
+/* ---------- bloqueo / entrar ---------- */
+.bloqueo{position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;padding:calc(var(--st) + 30px) 28px calc(var(--sb) + 20px)}
+.bloqueo .fecha{font-size:19px;font-weight:600;color:rgba(255,255,255,.85)}
+.bloqueo .hora{font-size:92px;font-weight:700;line-height:1;letter-spacing:-2px;margin-top:2px;background:linear-gradient(#fff,#ffd0e4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.bloqueo .caja{margin-top:auto;width:100%;padding:18px;border-radius:24px;background:rgba(20,10,26,.55);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);border:1px solid rgba(255,255,255,.1)}
+.bloqueo .caja .campo{border-color:rgba(255,255,255,.15);background:rgba(0,0,0,.25)}
+.bloqueo .btn{width:100%;height:44px;margin-top:4px}
+.bloqueo .err{color:#ff6b6b;font-size:14px;min-height:20px}
 </style>
 </head>
 <body>
-<div id="app"><div class="cargando">Cargando…</div></div>
+<div id="movil">
+  <div class="fondo"></div>
+  <div class="isla"></div>
+  <div class="estado" id="estado"><span id="relojE">9:41</span><span class="der">
+    <svg width="18" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+    <svg width="16" height="12" viewBox="0 0 16 12" fill="#fff"><path d="M8 2.6c2.3 0 4.4.9 6 2.4l1.2-1.3A10.4 10.4 0 0 0 8 .8C5.2.8 2.7 1.9.8 3.7L2 5c1.6-1.5 3.7-2.4 6-2.4zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.2-1.3A6.7 6.7 0 0 0 8 4.4c-1.8 0-3.4.7-4.6 1.8l1.2 1.3c.9-.8 2.1-1.3 3.4-1.3zm0 3.5c-.6 0-1.1.2-1.5.6L8 11.8l1.5-1.5c-.4-.4-.9-.6-1.5-.6z"/></svg>
+    <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="rgba(255,255,255,.4)"/><rect x="2" y="2" width="17" height="9" rx="2" fill="#fff"/><path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2z" fill="rgba(255,255,255,.4)"/></svg>
+  </span></div>
+  <div class="home" id="home"></div>
+  <div class="app oculta" id="app"></div>
+</div>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
@@ -151,15 +242,23 @@ const SB_URL = 'https://wtxiqvzercgharibvubw.supabase.co';
 const SB_KEY = 'sb_publishable_pX2v_ef5m1pjFfAEKiZEgw_xsEgixkC';
 const sb = createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true, storageKey: 'red-hermanas' } });
 
-const S = { plat: 'x', cuentas: new Map(), porUser: new Map(), yo: {}, likes: new Set(), likesC: new Set(), mios: new Set(), sigo: new Set(), red: '', urls: new Map(), noLeidos: 0, limite: 40 };
-const $app = document.getElementById('app');
+const S = { plat: 'x', cuentas: new Map(), porUser: new Map(), yo: {}, likes: new Set(), likesC: new Set(), mios: new Set(), sigo: new Set(), red: '', urls: new Map(), noLeidos: 0, limite: 40, email: '', appAbierta: null, origen: null };
+const $movil = document.getElementById('movil'), $home = document.getElementById('home'), $app = document.getElementById('app');
+
+/* ---------- modo: marco de móvil en el ordenador, pantalla completa en el móvil ---------- */
+const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+function modo() {
+  const pantalla = standalone || innerWidth < 520;
+  document.body.className = (pantalla ? 'pantalla' : 'marco') + (standalone ? ' standalone' : '');
+  if (!pantalla) $movil.style.setProperty('--escala', Math.min(1, (innerHeight - 40) / 852, (innerWidth - 40) / 393));
+}
+modo(); addEventListener('resize', modo);
 
 /* ---------- utilidades ---------- */
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const I = {
   casa: '<path d="M12 1.7 1.5 9.6l1.2 1.6L4 10.2V21h6v-6h4v6h6V10.2l1.3 1 1.2-1.6z"/>',
   sobre: '<path d="M1.998 5.5c0-1.38 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.12 2.5 2.5v13c0 1.38-1.119 2.5-2.5 2.5h-15c-1.381 0-2.5-1.12-2.5-2.5zm2.5-.5c-.276 0-.5.22-.5.5v.58l8.002 5.38 8-5.38V5.5c0-.28-.224-.5-.5-.5zm15.5 3.5-8 5.38-8.002-5.38V18.5c0 .28.224.5.5.5h15c.276 0 .5-.22.5-.5z"/>',
-  grafica: '<path d="M8.75 21V3h2v18zM18 21V8.5h2V21zM4 21l.004-10h2L6 21zm9.248 0v-7h2v7z"/>',
   persona: '<path d="M5.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C15.318 13.65 13.838 13 12 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C7.627 11.85 9.648 11 12 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H3.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46zM12 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM8 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4z"/>',
   resp: '<path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13z"/>',
   rp: '<path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/>',
@@ -169,12 +268,11 @@ const I = {
   atras: '<path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"/>',
   pluma: '<path d="M23 3c-6.62-.1-10.38 2.42-13.05 6.03C7.29 12.61 6 17.33 6 22h2c0-1.01.07-2.01.19-3H12c4.1 0 7.48-3.08 7.94-7.05C22.79 10.47 23.17 6.64 23 3zm-7 8h-1.5v2H16c.63-.09 1.2-.27 1.72-.52C17.25 15.58 14.89 17 12 17H8.48c.2-.95.46-1.88.79-2.79C10.38 11.17 13.28 6.13 21 5c-.07 1.96-.49 4.27-5 6z"/>',
   recarga: '<path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>',
-  salir: '<path d="M16 13v-2H7V8l-5 4 5 4v-3zM20 3h-9c-1.1 0-2 .9-2 2v4h2V5h9v14h-9v-4H9v4c0 1.1.9 2 2 2h9c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>',
   verif: '<path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"/>',
+  chev: '<path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
 };
 const svg = (k, cls = 'ico') => `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true">${I[k]}</svg>`;
 const verif = c => c?.verificada ? `<svg viewBox="0 0 24 24" class="verif${c.tipo === 'marca' ? ' oro' : ''}">${I.verif}</svg>` : '';
-
 function num(n) {
   n = Number(n) || 0;
   if (n < 10000) return n.toLocaleString('es-ES');
@@ -182,27 +280,28 @@ function num(n) {
   return (Math.round(n / 1e5) / 10).toLocaleString('es-ES') + ' M';
 }
 const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sept', 'oct', 'nov', 'dic'];
+const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 function hace(f) {
   const d = new Date(f), s = (Date.now() - d) / 1000;
   if (s < 60) return Math.max(1, Math.floor(s)) + ' s';
   if (s < 3600) return Math.floor(s / 60) + ' min';
   if (s < 86400) return Math.floor(s / 3600) + ' h';
-  const a = d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : '';
-  return d.getDate() + ' ' + MES[d.getMonth()] + a;
+  return d.getDate() + ' ' + MES[d.getMonth()] + (d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : '');
 }
 function quedan(f) {
   const s = (new Date(f) - Date.now()) / 1000;
   if (s < 3600) return Math.max(1, Math.round(s / 60)) + ' min';
   if (s < 86400) return Math.round(s / 3600) + ' h';
-  return Math.round(s / 86400) + ' días';
+  const d = Math.round(s / 86400); return d + (d === 1 ? ' día' : ' días');
 }
 function fechaLarga(f) {
   const d = new Date(f);
   return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) + ' · ' + d.getDate() + ' ' + MES[d.getMonth()] + '. ' + d.getFullYear();
 }
+const R = '#/vox';
 function texto(t) {
   return esc(t)
-    .replace(/(^|[^\w])@(\w{1,30})/g, (m, a, u) => `${a}<a class="m" href="#/u/${u}" data-stop>@${u}</a>`)
+    .replace(/(^|[^\w])@(\w{1,30})/g, (m, a, u) => `${a}<a class="m" href="${R}/u/${u}">@${u}</a>`)
     .replace(/(^|\s)#([\wáéíóúñü]+)/gi, (m, a, h) => `${a}<span class="h">#${h}</span>`);
 }
 const COLORES = ['#c2185b', '#7b1fa2', '#512da8', '#1976d2', '#0097a7', '#388e3c', '#f57c00', '#5d4037', '#455a64', '#d81b60'];
@@ -215,17 +314,66 @@ function avatar(c, cls = 'av') {
 }
 function toast(m) {
   const t = document.createElement('div'); t.className = 'toast'; t.textContent = m;
-  document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+  $movil.appendChild(t); setTimeout(() => t.remove(), 2400);
 }
 async function firmar(rutas) {
   const falta = [...new Set(rutas.filter(r => r && !S.urls.has(r)))];
-  const ext = falta.filter(r => /^https?:/.test(r)); ext.forEach(r => S.urls.set(r, r));
+  falta.filter(r => /^https?:/.test(r)).forEach(r => S.urls.set(r, r));
   const priv = falta.filter(r => !/^https?:/.test(r));
   if (!priv.length) return;
   const { data } = await sb.storage.from('media').createSignedUrls(priv, 60 * 60 * 12);
   (data || []).forEach(d => d.signedUrl && S.urls.set(d.path, d.signedUrl));
 }
 const cuenta = id => S.cuentas.get(id);
+const cont = () => document.getElementById('main');
+
+/* ---------- iconos de las apps (dibujados aquí, propios) ---------- */
+const ICONOS = {
+  hilo: `<svg viewBox="0 0 60 60"><defs><linearGradient id="gh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff6aa6"/><stop offset="1" stop-color="#d4145a"/></linearGradient></defs><rect width="60" height="60" fill="url(#gh)"/><path d="M30 13c-10.5 0-19 7-19 15.6 0 4.6 2.4 8.7 6.3 11.6l-1.6 6.6 7.4-3.9c2.2.7 4.5 1 6.9 1 10.5 0 19-7 19-15.3S40.5 13 30 13z" fill="#fff"/><circle cx="22" cy="28.6" r="2.6" fill="#d4145a"/><circle cx="30" cy="28.6" r="2.6" fill="#d4145a"/><circle cx="38" cy="28.6" r="2.6" fill="#d4145a"/></svg>`,
+  vox: `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#0a0a0c"/><circle cx="30" cy="30" r="22" fill="none" stroke="#ff3d8b" stroke-opacity=".18" stroke-width="1.5"/><path d="M17 17h7.5L30 35.5 35.5 17H43L33.6 44h-7.2z" fill="#fff"/><path d="M38 17h5l-3 8.5h-4.6z" fill="#ff3d8b"/></svg>`,
+  lumen: `<svg viewBox="0 0 60 60"><defs><linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd36e"/><stop offset=".55" stop-color="#ff5f8f"/><stop offset="1" stop-color="#e0367a"/></linearGradient></defs><rect width="60" height="60" fill="url(#gl)"/><path d="M27 12c1.2 8.6 4.4 11.8 13 13-8.6 1.2-11.8 4.4-13 13-1.2-8.6-4.4-11.8-13-13 8.6-1.2 11.8-4.4 13-13z" fill="#fff"/><path d="M42 33c.6 4.3 2.2 5.9 6.5 6.5-4.3.6-5.9 2.2-6.5 6.5-.6-4.3-2.2-5.9-6.5-6.5 4.3-.6 5.9-2.2 6.5-6.5z" fill="#fff" opacity=".85"/></svg>`,
+  nocturna: `<svg viewBox="0 0 60 60"><defs><radialGradient id="gn" cx=".3" cy=".25" r=".9"><stop offset="0" stop-color="#4a1458"/><stop offset="1" stop-color="#110316"/></radialGradient></defs><rect width="60" height="60" fill="url(#gn)"/><path d="M36 13a17 17 0 1 0 11 29.8A14 14 0 0 1 36 13z" fill="#ff3d8b"/><path d="M40.5 23.5c-1.6-1.6-4.2-1.3-5.2.6-1-1.9-3.6-2.2-5.2-.6-1.5 1.5-1.4 3.9.3 5.4l4.9 4.3 4.9-4.3c1.7-1.5 1.8-3.9.3-5.4z" fill="#fff"/><circle cx="18" cy="16" r="1.2" fill="#fff" opacity=".8"/><circle cx="46" cy="44" r="1" fill="#fff" opacity=".6"/></svg>`,
+  agenda: () => { const d = new Date(); return `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#17131c"/><rect width="60" height="19" fill="#ff3d8b"/><text x="30" y="14" text-anchor="middle" font-size="10" font-weight="800" fill="#fff" font-family="-apple-system,Helvetica,Arial" letter-spacing="1">${DIAS[d.getDay()].slice(0, 3).toUpperCase()}</text><text x="30" y="49" text-anchor="middle" font-size="27" font-weight="700" fill="#fff" font-family="-apple-system,Helvetica,Arial">${d.getDate()}</text></svg>`; },
+  galeria: `<svg viewBox="0 0 60 60"><defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b1f5c"/><stop offset="1" stop-color="#140a20"/></linearGradient></defs><rect width="60" height="60" fill="url(#gg)"/><g transform="rotate(-12 30 30)"><rect x="13" y="14" width="26" height="30" rx="2" fill="#e9e2f0"/><rect x="16" y="17" width="20" height="18" fill="#7a2cff"/></g><g transform="rotate(9 30 30)"><rect x="21" y="16" width="26" height="30" rx="2" fill="#fff"/><rect x="24" y="19" width="20" height="18" fill="#ff3d8b"/><circle cx="39" cy="24" r="2.6" fill="#ffd36e"/><path d="M24 37l7-8 5 5 3-3 5 6z" fill="#7a0f3c" opacity=".7"/></g></svg>`,
+  sonar: `<svg viewBox="0 0 60 60"><defs><linearGradient id="gs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#262236"/><stop offset="1" stop-color="#0c0a12"/></linearGradient></defs><rect width="60" height="60" fill="url(#gs)"/>${[[14, 14], [20, 24], [26, 32], [32, 20], [38, 28], [44, 12]].map(([x, h]) => `<rect x="${x - 2}" y="${30 - h / 2}" width="4" height="${h}" rx="2" fill="#ff3d8b"/>`).join('')}</svg>`,
+  medidor: `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#1c1c1f"/><path d="M14 38a16 16 0 1 1 32 0" fill="none" stroke="#3a3a40" stroke-width="5" stroke-linecap="round"/><path d="M14 38a16 16 0 0 1 22-14.8" fill="none" stroke="#7cd992" stroke-width="5" stroke-linecap="round"/><path d="M30 38l9-11" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="30" cy="38" r="3.2" fill="#fff"/><text x="30" y="51" text-anchor="middle" font-size="7" font-weight="700" fill="#888" font-family="-apple-system,Helvetica,Arial">TOKENS</text></svg>`,
+  ajustes: `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#1c1820"/><g transform="translate(30 30)" fill="#ff3d8b">${Array.from({ length: 8 }, (_, i) => `<rect x="-3.4" y="-19" width="6.8" height="9" rx="2" transform="rotate(${i * 45})"/>`).join('')}<circle r="13"/></g><circle cx="30" cy="30" r="5.5" fill="#1c1820"/></svg>`,
+};
+const APPS = [
+  { id: 'hilo', nombre: 'Hilo' }, { id: 'vox', nombre: 'Vox' }, { id: 'lumen', nombre: 'Lumen' }, { id: 'nocturna', nombre: 'Nocturna' },
+  { id: 'agenda', nombre: 'Agenda' }, { id: 'galeria', nombre: 'Galería' }, { id: 'sonar', nombre: 'Sonar' }, { id: 'medidor', nombre: 'Medidor' }, { id: 'ajustes', nombre: 'Ajustes' },
+];
+const DOCK = ['hilo', 'vox', 'lumen', 'nocturna'];
+const icono = (id, badge = 0) => { const a = APPS.find(x => x.id === id); const ic = typeof ICONOS[id] === 'function' ? ICONOS[id]() : ICONOS[id];
+  return `<a class="ic" href="#/${id}" data-app="${id}"><div class="cara">${ic}</div><span class="nom">${a.nombre}</span>${badge ? `<span class="badge">${badge}</span>` : ''}</a>`; };
+
+/* ---------- agenda (provisional: sale del lore y de las bios) ---------- */
+const AGENDA = [
+  { dia: 1, quien: 'VeeNoir', que: 'Directo · LoL', hora: '21:00', c: '#ff3d8b' },
+  { dia: 3, quien: 'VeeNoir', que: 'Directo · LoL', hora: '21:00', c: '#ff3d8b' },
+  { dia: 5, quien: 'Yoruha', que: 'Directo de canto', hora: '22:00', c: '#a78bfa' },
+  { dia: 6, quien: 'VeeNoir', que: 'Directo · GTA 6', hora: '21:00', c: '#ff3d8b' },
+];
+function proximos(n = 3) {
+  const ahora = new Date(), out = [];
+  for (let k = 0; k < 8 && out.length < n; k++) {
+    const d = new Date(ahora); d.setDate(d.getDate() + k);
+    for (const e of AGENDA.filter(e => e.dia === d.getDay())) {
+      const [h, m] = e.hora.split(':'); const f = new Date(d); f.setHours(+h, +m, 0, 0);
+      if (f > ahora - 2 * 3600e3) out.push({ ...e, f, k });
+    }
+  }
+  return out.slice(0, n);
+}
+const cuando = e => e.k === 0 ? 'Hoy' : e.k === 1 ? 'Mañana' : DIAS[e.f.getDay()].replace(/^./, c => c.toUpperCase());
+
+/* ---------- reloj ---------- */
+function reloj() {
+  const d = new Date(), h = d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  const e = document.getElementById('relojE'); if (e) e.textContent = h.replace(/^0/, '');
+  const b = document.getElementById('relojB'); if (b) b.textContent = h;
+}
+setInterval(reloj, 15000); reloj();
 
 /* ---------- arranque ---------- */
 async function cargarCuentas() {
@@ -249,91 +397,163 @@ async function cargarMio() {
 }
 async function arrancar() {
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) return pantallaLogin();
+  if (!session) return pantallaBloqueo();
+  S.email = session.user.email || '';
   const { data: ok, error } = await sb.rpc('es_alberto');
-  if (error || !ok) {
-    $app.innerHTML = `<div class="login"><h2>Sin acceso</h2><p class="aviso">Esta cuenta (${esc(session.user.email)}) no tiene permiso para entrar.</p><button class="btn borde" id="fuera">Salir</button></div>`;
-    document.getElementById('fuera').onclick = async () => { await sb.auth.signOut(); location.reload(); };
-    return;
-  }
+  if (error || !ok) return pantallaBloqueo(`Esta cuenta (${session.user.email}) no tiene acceso.`, true);
   const { data: cfg } = await sb.from('config').select('valor').eq('clave', 'nombre_red').maybeSingle();
   S.red = (cfg?.valor && cfg.valor !== '(sin nombre)') ? cfg.valor : '';
-  document.title = S.red || 'Red';
+  if (S.red) APPS.find(a => a.id === 'vox').nombre = S.red;
   await cargarCuentas(); await cargarMio();
-  window.addEventListener('hashchange', ruta);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && /^#?\/?$|^#\/md/.test(location.hash)) ruta(); });
-  ruta();
+  addEventListener('hashchange', ruta);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { if (!S.appAbierta) pintarHome(); else if (/^#\/vox(\/md)?$/.test(location.hash)) ruta(); } });
+  pintarHome(); ruta();
 }
 
-function pantallaLogin() {
-  $app.innerHTML = `<div class="login">
-    <h2>Entra en la red</h2>
-    <div class="campo"><label>Correo</label><input id="em" type="email" autocomplete="username" inputmode="email"></div>
-    <div class="campo"><label>Contraseña</label><input id="pw" type="password" autocomplete="current-password"></div>
-    <div class="err" id="er"></div>
-    <button class="btn" id="entrar">Entrar</button>
-    <button class="btn borde" id="crear" style="margin-top:12px">Crear mi cuenta (la primera vez)</button>
-    <p class="aviso">Solo puede entrar una persona: la primera cuenta que se crea queda como la tuya y cualquier otra no ve nada.</p>
-  </div>`;
-  const em = () => document.getElementById('em').value.trim(), pw = () => document.getElementById('pw').value;
-  const er = m => document.getElementById('er').textContent = m;
-  document.getElementById('entrar').onclick = async () => {
+function pantallaBloqueo(error = '', soloSalir = false) {
+  $home.innerHTML = ''; $app.classList.add('oculta');
+  const d = new Date();
+  const b = document.createElement('div'); b.className = 'bloqueo';
+  b.innerHTML = `<div class="fecha">${DIAS[d.getDay()].replace(/^./, c => c.toUpperCase())}, ${d.getDate()} de ${['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'][d.getMonth()]}</div>
+    <div class="hora" id="relojB"></div>
+    <div class="caja">${soloSalir ? `<div class="err">${esc(error)}</div><button class="btn borde" id="fuera">Salir</button>` : `
+      <div class="campo"><label>Correo</label><input id="em" type="email" autocomplete="username" inputmode="email"></div>
+      <div class="campo"><label>Contraseña</label><input id="pw" type="password" autocomplete="current-password"></div>
+      <div class="err" id="er">${esc(error)}</div>
+      <button class="btn" id="entrar">Desbloquear</button>
+      <button class="btn borde" id="crear" style="margin-top:10px">Crear mi cuenta (la primera vez)</button>`}
+    </div>`;
+  $movil.appendChild(b); reloj();
+  if (soloSalir) { b.querySelector('#fuera').onclick = async () => { await sb.auth.signOut(); location.reload(); }; return; }
+  const em = () => b.querySelector('#em').value.trim(), pw = () => b.querySelector('#pw').value, er = m => b.querySelector('#er').textContent = m;
+  const dentro = () => { b.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-100%)' }], { duration: 380, easing: 'cubic-bezier(.4,0,.2,1)' }).onfinish = () => b.remove(); location.hash = '#/'; arrancar(); };
+  b.querySelector('#entrar').onclick = async () => {
     er('');
     const { error } = await sb.auth.signInWithPassword({ email: em(), password: pw() });
     if (error) return er(error.message === 'Invalid login credentials' ? 'Correo o contraseña incorrectos' : error.message);
-    location.hash = '#/'; arrancar();
+    dentro();
   };
-  document.getElementById('crear').onclick = async () => {
+  b.querySelector('#crear').onclick = async () => {
     er('');
     if (pw().length < 8) return er('La contraseña, de 8 caracteres o más');
     const { error } = await sb.auth.signUp({ email: em(), password: pw() });
     if (error) return er(error.message);
     const r = await sb.auth.signInWithPassword({ email: em(), password: pw() });
     if (r.error) return er('Cuenta creada, pero falta confirmarla: ' + r.error.message);
-    location.hash = '#/'; arrancar();
+    dentro();
   };
 }
 
-/* ---------- marco ---------- */
-function marco(titulo, html, { atras = false, plats = false, sub = '', extra = '' } = {}) {
-  const h = location.hash || '#/';
-  const nav = (r, ico, on, badge = '') => `<a href="${r}" class="${on ? 'on' : ''}">${svg(ico)}${badge}</a>`;
+/* ---------- pantalla de inicio ---------- */
+async function pintarHome() {
+  const prox = proximos(2);
+  const badges = { vox: S.noLeidos };
+  $home.innerHTML = `
+    <div class="widgets">
+      <a class="wg" href="#/agenda" data-app="agenda"><span class="et">Próximo</span>
+        ${prox.map(e => `<div class="ev"><b style="color:${e.c}">${e.quien}</b><span>${cuando(e)} · ${e.hora}</span></div>`).join('') || '<div class="ev"><span>Nada esta semana</span></div>'}</a>
+      <a class="wg" href="#/vox" data-app="vox" id="wgVox"><span class="et">${esc(APPS.find(a => a.id === 'vox').nombre)}</span><div class="ev"><span>Cargando…</span></div></a>
+    </div>
+    <div class="grid">${APPS.filter(a => !DOCK.includes(a.id)).map(a => icono(a.id, badges[a.id])).join('')}</div>
+    <div class="puntos"><i class="on"></i></div>
+    <div class="dock">${DOCK.map(id => icono(id, badges[id])).join('')}</div>`;
+  // widget con lo último de las hermanas
+  try {
+    const her = [...S.cuentas.values()].filter(c => c.tipo === 'hermana' && c.plataforma === 'x').map(c => c.id);
+    if (her.length) {
+      const { data } = await sb.from('posts').select('cuenta_id,texto,creado').in('cuenta_id', her).is('repost_de', null).not('texto', 'is', null).order('creado', { ascending: false }).limit(1);
+      const p = data?.[0], w = document.getElementById('wgVox');
+      if (p && w) { const c = cuenta(p.cuenta_id); w.innerHTML = `<span class="et">${esc(APPS.find(a => a.id === 'vox').nombre)}</span><div class="post">${avatar(c)}<div class="cuerpo"><div class="cab"><span class="n" style="font-size:13px">${esc(c.nombre)}</span><span class="t" style="font-size:12px">· ${hace(p.creado)}</span></div><div class="tx">${esc(p.texto)}</div></div></div>`; }
+    }
+  } catch (e) { console.warn(e); }
+}
+$home.addEventListener('click', e => { const a = e.target.closest('[data-app]'); if (a) S.origen = (a.querySelector('.cara') || a).getBoundingClientRect(); });
+
+/* ---------- abrir y cerrar apps ---------- */
+function abrirApp(id) {
+  if (S.appAbierta === id) return;
+  const nueva = !S.appAbierta;
+  S.appAbierta = id;
+  $app.classList.remove('oculta');
+  $app.dataset.app = id;
+  if (nueva) {
+    $home.classList.add('atras');
+    const m = $movil.getBoundingClientRect(), o = S.origen;
+    const k = m.width / 393;
+    const ox = o ? (o.left + o.width / 2 - m.left) / k : 196, oy = o ? (o.top + o.height / 2 - m.top) / k : 700;
+    $app.style.transformOrigin = `${ox}px ${oy}px`;
+    $app.animate([{ transform: 'scale(.16)', opacity: 0, borderRadius: '60px' }, { transform: 'scale(1)', opacity: 1, borderRadius: getComputedStyle($movil).borderRadius }],
+      { duration: 380, easing: 'cubic-bezier(.2,.9,.25,1)' });
+  }
+}
+function cerrarApp() {
+  if (!S.appAbierta) return;
+  S.appAbierta = null;
+  $home.classList.remove('atras');
+  pintarHome();
+  const a = $app.animate([{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(.16)', opacity: 0 }], { duration: 280, easing: 'cubic-bezier(.4,0,.6,1)' });
+  a.onfinish = () => { if (!S.appAbierta) { $app.classList.add('oculta'); $app.innerHTML = ''; } };
+}
+const aCasa = () => { location.hash = '#/'; };
+
+/* marco de una app: cabecera + contenido + barra de abajo opcional */
+function marco(titulo, html, { atras = false, sub = '', extra = '', nav = null, clase = '', top = true } = {}) {
+  $app.querySelectorAll('.modal').forEach(m => m.remove());
   $app.innerHTML = `
-  <div class="top"><div class="fila">
-    ${atras ? `<button class="atras" onclick="history.length>1?history.back():location.hash='#/'">${svg('atras')}</button>` : ''}
+  ${top ? `<div class="top"><div class="fila">
+    ${atras ? `<button class="atras" id="btAtras">${svg('atras')}</button>` : ''}
     <h1>${titulo}${sub ? `<div class="sub">${sub}</div>` : ''}</h1>${extra}
-  </div>
-  ${plats ? `<div class="plats">${[['x', 'X'], ['ig', 'Instagram'], ['of', 'OnlyFans']].map(([k, n]) => `<button data-plat="${k}" class="${S.plat === k ? 'on' : ''}">${n}</button>`).join('')}</div>` : ''}
-  </div>
-  <main id="main">${html}</main>
-  <nav class="nav"><div class="in">
-    ${nav('#/', 'casa', h === '#/' || h === '#' || h === '')}
-    ${nav('#/md', 'sobre', h.startsWith('#/md'), S.noLeidos ? `<span class="punto">${S.noLeidos}</span>` : '')}
-    ${nav('#/consumo', 'grafica', h.startsWith('#/consumo'))}
-    ${nav('#/u/' + (S.yo[S.plat]?.usuario || S.yo.x?.usuario || ''), 'persona', h === '#/u/' + (S.yo[S.plat]?.usuario || ''))}
-  </div></nav>`;
-  $app.querySelectorAll('[data-plat]').forEach(b => b.onclick = () => { S.plat = b.dataset.plat; ruta(); });
+  </div></div>` : ''}
+  <main id="main" class="cont ${clase} ${nav ? '' : 'sinnav'}">${html}</main>
+  ${nav || ''}
+  <button class="indicador" id="btCasa" aria-label="Inicio"><i></i></button>`;
+  const at = document.getElementById('btAtras'); if (at) at.onclick = () => history.back();
+  document.getElementById('btCasa').onclick = aCasa;
 }
 
 async function ruta() {
   const h = decodeURIComponent(location.hash.replace(/^#/, '')) || '/';
-  window.scrollTo(0, 0);
+  const [, app, ...resto] = h.split('/');
+  if (!app) return cerrarApp();
+  if (!APPS.some(a => a.id === app)) { location.hash = '#/'; return; }
+  abrirApp(app);
   try {
-    let m;
-    if (h === '/' || h === '') return vistaInicio();
-    if ((m = h.match(/^\/p\/(\d+)$/))) return vistaPost(+m[1]);
-    if ((m = h.match(/^\/u\/(.*)$/))) return vistaPerfil(m[1]);
-    if (h === '/md') return vistaMD();
-    if ((m = h.match(/^\/md\/(.+)$/))) return vistaChat(m[1]);
-    if (h === '/consumo') return vistaConsumo();
-    location.hash = '#/';
+    const r = resto.join('/');
+    switch (app) {
+      case 'vox': {
+        let m;
+        if (!r) return vistaInicio();
+        if ((m = r.match(/^p\/(\d+)$/))) return vistaPost(+m[1]);
+        if ((m = r.match(/^u\/(.*)$/))) return vistaPerfil(m[1]);
+        if (r === 'md') return vistaMD();
+        if ((m = r.match(/^md\/(.+)$/))) return vistaChat(m[1]);
+        return vistaInicio();
+      }
+      case 'medidor': return vistaConsumo();
+      case 'hilo': return r ? vistaHiloChat(r) : vistaHilo();
+      case 'agenda': return vistaAgenda();
+      case 'ajustes': return vistaAjustes();
+      case 'lumen': return splash('lumen', 'Lumen', 'Fotos de VeeNoir, Yoruha y el privado de Aika. Llega en la fase 2.');
+      case 'nocturna': return splash('nocturna', 'Nocturna', 'Contenido de pago de VeeNoir, todo bloqueado hasta que haya fotos aprobadas. Fase 4.');
+      case 'galeria': return splash('galeria', 'Galería', 'Aquí saldrán las fotos que te manden ellas cuando haya hojas de referencia aprobadas.', '#fff');
+      case 'sonar': return splash('sonar', 'Sonar', 'Los covers y canciones de Yoruha, cuando Shiro empiece a sacarlos.');
+    }
   } catch (e) {
     console.error(e);
     marco('Error', `<div class="vacio">${esc(e.message || e)}</div>`, { atras: true });
   }
 }
 
-/* ---------- posts ---------- */
+/* ---------- Vox: la red tipo X ---------- */
+function navVox() {
+  const h = location.hash, yo = S.yo.x?.usuario || '';
+  const it = (r, ico, on, badge = '') => `<a href="${r}" class="${on ? 'on' : ''}">${svg(ico)}${badge}</a>`;
+  return `<nav class="nav"><div class="in">
+    ${it(R, 'casa', h === R)}
+    ${it(R + '/md', 'sobre', h.startsWith(R + '/md'), S.noLeidos ? `<span class="punto">${S.noLeidos}</span>` : '')}
+    ${it(R + '/u/' + yo, 'persona', h === R + '/u/' + yo)}
+  </div></nav>`;
+}
 async function traerPosts(q) {
   const { data, error } = await q;
   if (error) throw error;
@@ -342,29 +562,25 @@ async function traerPosts(q) {
   if (ids.length) { const r = await sb.from('v_posts').select('*').in('id', ids); orig = r.data || []; }
   const todos = new Map([...data, ...orig].map(p => [p.id, p]));
   await firmar([...todos.values()].map(p => p.imagen_url));
-  const yo = S.yo[S.plat];
+  const yo = S.yo.x;
   if (yo) S.mios = new Set(data.filter(p => p.cuenta_id === yo.id && p.repost_de && !p.cita).map(p => p.repost_de));
   return { lista: data, todos };
 }
-
 function encuesta(p) {
   const e = p.encuesta; if (!e?.opciones) return '';
   const votos = e.votos || e.opciones.map(() => 0), total = votos.reduce((a, b) => a + b, 0);
   const cerrada = e.cierra && new Date(e.cierra) < new Date();
   const votada = e.voto_alberto != null || cerrada;
   const max = Math.max(...votos);
-  return `<div class="enc" data-stop>${e.opciones.map((o, i) => votada
+  return `<div class="enc">${e.opciones.map((o, i) => votada
     ? `<div class="op ${votos[i] === max ? 'win' : ''}"><i class="b" style="width:${total ? votos[i] / total * 100 : 0}%"></i><span>${esc(o)}${e.voto_alberto === i ? ' ✓' : ''}</span><span>${total ? Math.round(votos[i] / total * 100) : 0}%</span></div>`
     : `<button class="op votar" data-votar="${p.id}" data-i="${i}">${esc(o)}</button>`).join('')}
     <div class="pie">${num(total)} votos · ${cerrada ? 'Resultados finales' : e.cierra ? 'Quedan ' + quedan(e.cierra) : 'Encuesta'}</div></div>`;
 }
-
 function htmlPost(p, todos, { detalle = false } = {}) {
-  let rtDe = '';
-  let base = p;
+  let rtDe = '', base = p;
   if (p.repost_de && !p.cita) {
-    const quien = cuenta(p.cuenta_id);
-    rtDe = `<div class="rt">${svg('rp')}${esc(quien?.nombre || '')} ha reposteado</div>`;
+    rtDe = `<div class="rt">${svg('rp')}${esc(cuenta(p.cuenta_id)?.nombre || '')} ha reposteado</div>`;
     base = todos.get(p.repost_de); if (!base) return '';
   }
   const c = cuenta(base.cuenta_id) || { nombre: '?', usuario: '?' };
@@ -376,35 +592,34 @@ function htmlPost(p, todos, { detalle = false } = {}) {
     ${img ? `<div class="media"><img src="${esc(img)}" alt="" loading="lazy"></div>` : ''}
     ${encuesta(base)}
     ${citada ? `<div class="cita" data-ir="${citada.id}"><div class="cab">${avatar(cuenta(citada.cuenta_id))}<span class="n">${esc(cuenta(citada.cuenta_id)?.nombre)}</span><span class="u">@${esc(cuenta(citada.cuenta_id)?.usuario)}</span><span class="t">· ${hace(citada.creado)}</span></div><div class="tx">${texto(citada.texto || '')}</div></div>` : ''}`;
-  const acciones = `<div class="acc" data-stop>
+  const acciones = `<div class="acc">
       <button data-ir="${base.id}">${svg('resp')}<span>${base.n_comentarios ? num(base.n_comentarios) : ''}</span></button>
       <button class="rp ${rpOn ? 'on' : ''}" data-rp="${base.id}">${svg('rp')}<span>${base.n_reposts ? num(base.n_reposts) : ''}</span></button>
       <button class="lk ${lkOn ? 'on' : ''}" data-lk="${base.id}">${svg(lkOn ? 'lkOn' : 'lk')}<span>${base.n_likes ? num(base.n_likes) : ''}</span></button>
-      <button>${svg('vistas')}<span>${base.vistas_sim ? num(base.vistas_sim) : ''}</span></button>
+      <button data-nada="1">${svg('vistas')}<span>${base.vistas_sim ? num(base.vistas_sim) : ''}</span></button>
     </div>`;
   if (detalle) {
     return `<div class="det" style="padding:12px 16px 0;border-bottom:1px solid var(--line)">
-      <a class="cab" href="#/u/${esc(c.usuario)}" style="gap:10px">${avatar(c)}<div style="min-width:0"><div class="cab"><span class="n">${esc(c.nombre)}</span>${verif(c)}</div><div class="cab"><span class="u">@${esc(c.usuario)}</span></div></div></a>
+      <a class="cab" href="${R}/u/${esc(c.usuario)}" style="gap:10px">${avatar(c)}<div style="min-width:0"><div class="cab"><span class="n">${esc(c.nombre)}</span>${verif(c)}</div><div class="cab"><span class="u">@${esc(c.usuario)}</span></div></div></a>
       ${cuerpo}
       <div class="meta">${fechaLarga(base.creado)} · <b style="color:var(--tx)">${num(base.vistas_sim)}</b> visualizaciones</div>
       <div class="cifras"><span><b>${num(base.n_reposts)}</b> reposts</span><span><b>${num(base.n_likes)}</b> me gusta</span></div>
       ${acciones}</div>`;
   }
   return `${rtDe}<article class="post" data-ir="${base.id}">
-    <a href="#/u/${esc(c.usuario)}" data-stop>${avatar(c)}</a>
+    <a href="${R}/u/${esc(c.usuario)}">${avatar(c)}</a>
     <div class="cuerpo">
       <div class="cab"><span class="n">${esc(c.nombre)}</span>${verif(c)}<span class="u">@${esc(c.usuario)}</span><span class="t">· ${hace(base.creado)}</span></div>
       ${cuerpo}${acciones}
     </div></article>`;
 }
-
 function enganchar(root, recargar) {
   root.onclick = async ev => {
-    const t = ev.target.closest('[data-lk],[data-rp],[data-votar],[data-lkc],[data-respc],[data-ir],a');
-    if (!t) return;
-    if (t.tagName === 'A') return; // enlaces normales
+    const t = ev.target.closest('[data-lk],[data-rp],[data-votar],[data-lkc],[data-respc],[data-ir],[data-nada],a');
+    if (!t || t.tagName === 'A') return;
     ev.preventDefault(); ev.stopPropagation();
-    const yo = S.yo[S.plat]; if (!yo) return toast('No tienes cuenta en esta plataforma');
+    if (t.dataset.nada) return;
+    const yo = S.yo.x; if (!yo) return toast('No tienes cuenta aquí');
     if (t.dataset.lk) {
       const id = +t.dataset.lk, on = S.likes.has(id);
       const span = t.querySelector('span'); const n = parseInt((span.textContent || '0').replace(/\./g, '')) || 0;
@@ -416,13 +631,8 @@ function enganchar(root, recargar) {
     }
     if (t.dataset.rp) {
       const id = +t.dataset.rp, on = S.mios.has(id);
-      if (on) { await sb.from('posts').delete().eq('cuenta_id', yo.id).eq('repost_de', id).eq('cita', false); S.mios.delete(id); toast('Repost deshecho'); }
-      else {
-        const cita = confirm('¿Citar con un comentario? (Cancelar = repost normal)');
-        if (cita) return redactar({ citaDe: id, alAcabar: recargar });
-        await sb.from('posts').insert({ cuenta_id: yo.id, plataforma: S.plat, repost_de: id, origen: 'web' }); S.mios.add(id); toast('Reposteado');
-      }
-      return recargar();
+      if (on) { await sb.from('posts').delete().eq('cuenta_id', yo.id).eq('repost_de', id).eq('cita', false); S.mios.delete(id); toast('Repost deshecho'); return recargar(); }
+      return menuRepost(id, recargar);
     }
     if (t.dataset.votar) {
       const id = +t.dataset.votar, i = +t.dataset.i;
@@ -438,60 +648,60 @@ function enganchar(root, recargar) {
       return recargar();
     }
     if (t.dataset.respc) { const ta = document.getElementById('resptx'); ta.dataset.a = t.dataset.respc; ta.placeholder = 'Responder a @' + t.dataset.u; ta.focus(); return; }
-    if (t.dataset.ir) location.hash = '#/p/' + t.dataset.ir;
+    if (t.dataset.ir) location.hash = R + '/p/' + t.dataset.ir;
   };
 }
-
-function proximamente(nombre, fase) {
-  return `<div class="vacio"><h2>${nombre}</h2>Llega en la fase ${fase}. De momento la red es solo X.</div>`;
+function menuRepost(id, recargar) {
+  const m = document.createElement('div'); m.className = 'modal'; m.style.background = 'rgba(0,0,0,.5)'; m.style.justifyContent = 'flex-end';
+  m.innerHTML = `<div style="background:#16181c;border-radius:20px 20px 0 0;padding:18px 16px calc(var(--sb) + 18px)">
+    <button class="btn" style="width:100%;height:46px" id="r1">Repostear</button>
+    <button class="btn borde" style="width:100%;height:46px;margin-top:10px" id="r2">Citar</button>
+    <button style="width:100%;height:46px;margin-top:6px;color:var(--tx2)" id="r3">Cancelar</button></div>`;
+  $app.appendChild(m);
+  m.onclick = e => { if (e.target === m) m.remove(); };
+  m.querySelector('#r3').onclick = () => m.remove();
+  m.querySelector('#r2').onclick = () => { m.remove(); redactar({ citaDe: id, alAcabar: recargar }); };
+  m.querySelector('#r1').onclick = async () => {
+    m.remove();
+    await sb.from('posts').insert({ cuenta_id: S.yo.x.id, plataforma: 'x', repost_de: id, origen: 'web' }); S.mios.add(id); toast('Reposteado'); recargar();
+  };
 }
-
 async function vistaInicio() {
-  const titulo = S.red || 'Inicio';
-  if (S.plat !== 'x') return marco(titulo, proximamente(S.plat === 'ig' ? 'Instagram' : 'OnlyFans', S.plat === 'ig' ? 2 : 4), { plats: true });
-  marco(titulo, '<div class="cargando">Cargando…</div>', { plats: true, extra: `<button class="atras" id="rec">${svg('recarga')}</button>` });
-  document.getElementById('rec').onclick = () => { S.limite = 40; ruta(); };
+  const titulo = esc(APPS.find(a => a.id === 'vox').nombre);
+  marco(titulo, '<div class="cargando">Cargando…</div>', { nav: navVox(), extra: `<button class="casa" id="rec">${svg('recarga')}</button>` });
+  document.getElementById('rec').onclick = () => { S.limite = 40; vistaInicio(); };
   const { lista, todos } = await traerPosts(sb.from('v_posts').select('*').eq('plataforma', 'x').order('creado', { ascending: false }).limit(S.limite));
-  const main = document.getElementById('main');
+  const main = cont();
   main.innerHTML = (lista.length ? lista.map(p => htmlPost(p, todos)).join('') : '<div class="vacio"><h2>Nada todavía</h2>Cuando publiquen, sale aquí.</div>')
     + (lista.length >= S.limite ? '<button class="mas" id="mas">Ver más</button>' : '');
   enganchar(main, vistaInicio);
   const mas = document.getElementById('mas'); if (mas) mas.onclick = e => { e.stopPropagation(); S.limite += 40; vistaInicio(); };
-  fab();
+  if (S.yo.x) { const b = document.createElement('button'); b.className = 'fab'; b.innerHTML = svg('pluma'); b.onclick = () => redactar({ alAcabar: vistaInicio }); $app.appendChild(b); }
 }
-
-function fab() {
-  if (!S.yo[S.plat]) return;
-  const b = document.createElement('button'); b.className = 'fab'; b.innerHTML = svg('pluma');
-  b.onclick = () => redactar({ alAcabar: ruta });
-  document.getElementById('main').appendChild(b);
-}
-
 function redactar({ citaDe = null, alAcabar }) {
-  const yo = S.yo[S.plat];
+  const yo = S.yo.x;
   const m = document.createElement('div'); m.className = 'modal';
   m.innerHTML = `<div class="fila"><button id="cx">Cancelar</button><button class="btn azul" id="pub" disabled>Publicar</button></div>
     <div class="red">${avatar(yo)}<textarea id="tx" placeholder="${citaDe ? 'Añade un comentario' : '¿Qué está pasando?'}" maxlength="560"></textarea></div>
     <div class="cnt" id="cnt">280</div>`;
-  document.body.appendChild(m);
+  $app.appendChild(m);
   const tx = m.querySelector('#tx'), pub = m.querySelector('#pub'), cnt = m.querySelector('#cnt');
   tx.focus();
   tx.oninput = () => { const r = 280 - tx.value.length; cnt.textContent = r; cnt.classList.toggle('mal', r < 0); pub.disabled = !tx.value.trim() || r < 0; };
   m.querySelector('#cx').onclick = () => m.remove();
   pub.onclick = async () => {
     pub.disabled = true;
-    const fila = { cuenta_id: yo.id, plataforma: S.plat, texto: tx.value.trim(), origen: 'web' };
+    const fila = { cuenta_id: yo.id, plataforma: 'x', texto: tx.value.trim(), origen: 'web' };
     if (citaDe) Object.assign(fila, { repost_de: citaDe, cita: true });
     const { error } = await sb.from('posts').insert(fila);
     if (error) { pub.disabled = false; return toast(error.message); }
     m.remove(); toast('Publicado'); alAcabar && alAcabar();
   };
 }
-
 async function vistaPost(id) {
-  marco('Post', '<div class="cargando">Cargando…</div>', { atras: true });
+  marco('Post', '<div class="cargando">Cargando…</div>', { atras: true, nav: navVox() });
   const { lista, todos } = await traerPosts(sb.from('v_posts').select('*').eq('id', id));
-  const p = lista[0]; if (!p) return document.getElementById('main').innerHTML = '<div class="vacio">Este post ya no existe.</div>';
+  const p = lista[0]; if (!p) return cont().innerHTML = '<div class="vacio">Este post ya no existe.</div>';
   const base = p.repost_de && !p.cita ? todos.get(p.repost_de) : p;
   const { data: com } = await sb.from('comentarios').select('*').eq('post_id', base.id).order('creado');
   const ids = (com || []).map(c => c.id);
@@ -503,17 +713,17 @@ async function vistaPost(id) {
     const k = cuenta(c.cuenta_id) || { nombre: '?', usuario: '?' };
     const a = c.responde_a ? cuenta(porId.get(c.responde_a)?.cuenta_id) : autor;
     const on = S.likesC.has(c.id), n = (c.likes_sim || 0) + (lc.get(c.id) || 0);
-    return `<article class="post"><a href="#/u/${esc(k.usuario)}">${avatar(k)}</a><div class="cuerpo">
+    return `<article class="post"><a href="${R}/u/${esc(k.usuario)}">${avatar(k)}</a><div class="cuerpo">
       <div class="cab"><span class="n">${esc(k.nombre)}</span>${verif(k)}<span class="u">@${esc(k.usuario)}</span><span class="t">· ${hace(c.creado)}</span></div>
-      <div class="enresp">En respuesta a <a href="#/u/${esc(a?.usuario)}">@${esc(a?.usuario)}</a></div>
+      <div class="enresp">En respuesta a <a href="${R}/u/${esc(a?.usuario)}">@${esc(a?.usuario)}</a></div>
       <div class="tx">${texto(c.texto)}</div>
-      <div class="acc"><button data-respc="${c.id}" data-u="${esc(k.usuario)}">${svg('resp')}</button><button>${svg('rp')}</button>
-      <button class="lk ${on ? 'on' : ''}" data-lkc="${c.id}">${svg(on ? 'lkOn' : 'lk')}<span>${n ? num(n) : ''}</span></button><button>${svg('vistas')}</button></div>
+      <div class="acc"><button data-respc="${c.id}" data-u="${esc(k.usuario)}">${svg('resp')}</button><button data-nada="1">${svg('rp')}</button>
+      <button class="lk ${on ? 'on' : ''}" data-lkc="${c.id}">${svg(on ? 'lkOn' : 'lk')}<span>${n ? num(n) : ''}</span></button><button data-nada="1">${svg('vistas')}</button></div>
     </div></article>`;
   };
-  const main = document.getElementById('main');
+  const main = cont();
   main.innerHTML = htmlPost(base, todos, { detalle: true }) +
-    (S.yo[S.plat] ? `<div class="resp">${avatar(S.yo[S.plat])}<textarea id="resptx" placeholder="Postea tu respuesta" rows="1"></textarea><button class="btn azul" id="enviar">Responder</button></div>` : '') +
+    (S.yo.x ? `<div class="resp">${avatar(S.yo.x)}<textarea id="resptx" placeholder="Postea tu respuesta" rows="1"></textarea><button class="btn azul" id="enviar">Responder</button></div>` : '') +
     (com || []).map(htmlC).join('');
   enganchar(main, () => vistaPost(id));
   const env = document.getElementById('enviar');
@@ -521,18 +731,16 @@ async function vistaPost(id) {
     e.stopPropagation();
     const ta = document.getElementById('resptx'); const t = ta.value.trim(); if (!t) return;
     env.disabled = true;
-    const { error } = await sb.from('comentarios').insert({ post_id: base.id, cuenta_id: S.yo[S.plat].id, texto: t, responde_a: ta.dataset.a ? +ta.dataset.a : null, origen: 'web' });
+    const { error } = await sb.from('comentarios').insert({ post_id: base.id, cuenta_id: S.yo.x.id, texto: t, responde_a: ta.dataset.a ? +ta.dataset.a : null, origen: 'web' });
     if (error) { env.disabled = false; return toast(error.message); }
     vistaPost(id);
   };
 }
-
 async function vistaPerfil(usuario) {
-  const c = S.porUser.get(S.plat + ':' + usuario.toLowerCase()) || S.porUser.get('x:' + usuario.toLowerCase());
-  if (!c) return marco('Perfil', '<div class="vacio"><h2>Esta cuenta no existe</h2>Prueba a buscar otra.</div>', { atras: true });
+  const c = S.porUser.get('x:' + usuario.toLowerCase());
+  if (!c) return marco('Perfil', '<div class="vacio"><h2>Esta cuenta no existe</h2></div>', { atras: true, nav: navVox() });
   const esYo = c.tipo === 'alberto';
-  marco(esc(c.nombre), '<div class="cargando">Cargando…</div>', { atras: !esYo, extra: esYo ? `<button class="atras" id="salir" title="Salir">${svg('salir')}</button>` : '' });
-  if (esYo) document.getElementById('salir').onclick = async () => { if (confirm('¿Cerrar sesión?')) { await sb.auth.signOut(); location.hash = '#/'; location.reload(); } };
+  marco(esc(c.nombre), '<div class="cargando">Cargando…</div>', { atras: !esYo, nav: navVox() });
   const [segs, sigs, postsR] = await Promise.all([
     sb.from('seguimientos').select('seguidor', { count: 'exact', head: true }).eq('seguido', c.id),
     sb.from('seguimientos').select('seguido', { count: 'exact', head: true }).eq('seguidor', c.id),
@@ -540,12 +748,11 @@ async function vistaPerfil(usuario) {
   ]);
   const sigo = S.sigo.has(c.id);
   const ban = c.banner_url && S.urls.get(c.banner_url);
-  const main = document.getElementById('main');
-  main.innerHTML = `<div class="perfil">
+  cont().innerHTML = `<div class="perfil">
     <div class="banner">${ban ? `<img src="${esc(ban)}" alt="">` : ''}</div>
     <div class="fila1">${avatar(c, 'av avg')}
       <div style="display:flex;gap:8px">${esYo ? '<button class="btn borde" id="editar">Editar perfil</button>'
-      : `<a class="btn borde" href="#/md/${c.id}" style="width:36px;padding:0">${svg('sobre')}</a><button class="btn ${sigo ? 'borde' : ''}" id="seguir">${sigo ? 'Siguiendo' : 'Seguir'}</button>`}</div></div>
+      : `<a class="btn borde" href="${R}/md/${c.id}" style="width:36px;padding:0">${svg('sobre')}</a><button class="btn ${sigo ? 'borde' : ''}" id="seguir">${sigo ? 'Siguiendo' : 'Seguir'}</button>`}</div></div>
     <div class="info">
       <div class="nombre">${esc(c.nombre)}${verif(c)}</div>
       <div class="u">@${esc(c.usuario)}</div>
@@ -558,15 +765,13 @@ async function vistaPerfil(usuario) {
   enganchar(document.getElementById('lista'), () => vistaPerfil(usuario));
   const sg = document.getElementById('seguir');
   if (sg) sg.onclick = async () => {
-    const yo = S.yo[S.plat]; if (!yo) return;
+    const yo = S.yo.x; if (!yo) return;
     if (sigo) { await sb.from('seguimientos').delete().eq('seguidor', yo.id).eq('seguido', c.id); S.sigo.delete(c.id); }
     else { await sb.from('seguimientos').insert({ seguidor: yo.id, seguido: c.id }); S.sigo.add(c.id); }
     vistaPerfil(usuario);
   };
-  const ed = document.getElementById('editar');
-  if (ed) ed.onclick = () => editarPerfil(c);
+  const ed = document.getElementById('editar'); if (ed) ed.onclick = () => editarPerfil(c);
 }
-
 function editarPerfil(c) {
   const m = document.createElement('div'); m.className = 'modal edit';
   m.innerHTML = `<div class="fila"><button id="cx">Cancelar</button><b>Editar perfil</b><button class="btn" id="ok">Guardar</button></div>
@@ -574,46 +779,44 @@ function editarPerfil(c) {
     <div class="campo"><label>Usuario (sin @)</label><input id="u" value="${esc(c.usuario)}" maxlength="30" autocapitalize="off"></div>
     <div class="campo"><label>Biografía</label><textarea id="b" rows="3" maxlength="160" style="width:100%">${esc(c.bio || '')}</textarea></div>
     <div class="campo"><label>Ubicación</label><input id="l" value="${esc(c.ubicacion || '')}" maxlength="30"></div>`;
-  document.body.appendChild(m);
+  $app.appendChild(m);
   m.querySelector('#cx').onclick = () => m.remove();
   m.querySelector('#ok').onclick = async () => {
     const u = m.querySelector('#u').value.trim().replace(/^@/, '');
     if (!/^\w{2,30}$/.test(u)) return toast('Usuario: letras, números y _');
     const { error } = await sb.from('cuentas').update({ nombre: m.querySelector('#n').value.trim() || c.nombre, usuario: u, bio: m.querySelector('#b').value.trim(), ubicacion: m.querySelector('#l').value.trim() }).eq('id', c.id);
     if (error) return toast(error.code === '23505' ? 'Ese usuario ya existe' : error.message);
-    m.remove(); await cargarCuentas(); location.hash = '#/u/' + u; ruta();
+    m.remove(); await cargarCuentas(); location.hash = R + '/u/' + u;
   };
 }
-
-/* ---------- MD ---------- */
 async function vistaMD() {
-  if (S.plat !== 'x') return marco('Mensajes', proximamente('Mensajes', S.plat === 'ig' ? 2 : 4), { plats: true });
-  marco('Mensajes', '<div class="cargando">Cargando…</div>', { plats: true });
+  marco('Mensajes', '<div class="cargando">Cargando…</div>', { nav: navVox() });
   const yo = S.yo.x;
   const { data, error } = await sb.from('mensajes').select('*').eq('plataforma', 'x').or(`de.eq.${yo.id},para.eq.${yo.id}`).order('creado', { ascending: false }).limit(500);
   if (error) throw error;
   const convs = new Map();
   for (const m of data) { const otro = m.de === yo.id ? m.para : m.de; if (!convs.has(otro)) convs.set(otro, { ult: m, nuevos: 0 }); if (m.para === yo.id && !m.leido) convs.get(otro).nuevos++; }
-  document.getElementById('main').innerHTML = [...convs].map(([id, v]) => {
+  cont().innerHTML = [...convs].map(([id, v]) => {
     const c = cuenta(id) || { nombre: '?', usuario: '?' };
-    return `<a class="conv ${v.nuevos ? 'nueva' : ''}" href="#/md/${id}">${avatar(c)}<div class="cuerpo">
+    return `<a class="conv ${v.nuevos ? 'nueva' : ''}" href="${R}/md/${id}">${avatar(c)}<div class="cuerpo">
       <div class="cab"><span class="n">${esc(c.nombre)}</span>${verif(c)}<span class="u">@${esc(c.usuario)}</span><span class="t">· ${hace(v.ult.creado)}</span></div>
       <div class="ult">${v.ult.de === yo.id ? 'Tú: ' : ''}${esc(v.ult.texto)}</div></div>${v.nuevos ? '<span class="punto" style="position:static">' + v.nuevos + '</span>' : ''}</a>`;
   }).join('') || '<div class="vacio"><h2>Sin mensajes</h2>Entra en un perfil y dale al sobre para escribirle.</div>';
 }
-
 async function vistaChat(otroId) {
-  const c = cuenta(otroId); const yo = S.yo.x;
+  const c = cuenta(otroId), yo = S.yo.x;
   if (!c || !yo) return marco('Mensajes', '<div class="vacio">Conversación no encontrada.</div>', { atras: true });
   marco(esc(c.nombre), '<div class="cargando">Cargando…</div>', { atras: true, sub: '@' + esc(c.usuario) });
   const { data } = await sb.from('mensajes').select('*').eq('plataforma', 'x')
     .or(`and(de.eq.${yo.id},para.eq.${c.id}),and(de.eq.${c.id},para.eq.${yo.id})`).order('creado');
   const nuevos = (data || []).filter(m => m.para === yo.id && !m.leido).map(m => m.id);
   if (nuevos.length) { await sb.from('mensajes').update({ leido: true }).in('id', nuevos); S.noLeidos = Math.max(0, S.noLeidos - nuevos.length); }
-  const main = document.getElementById('main');
-  main.innerHTML = `<div class="burbujas">${(data || []).map(m => `<div class="bb ${m.de === yo.id ? 'yo' : 'el'}">${esc(m.texto)}${m.propina ? `<b> · propina ${m.propina} €</b>` : ''}<span class="hora">${hace(m.creado)}</span></div>`).join('') || `<div class="vacio">Escríbele a @${esc(c.usuario)}.</div>`}</div>
-    <div class="escribir"><textarea id="mtx" rows="1" placeholder="Escribe un mensaje"></textarea><button class="btn azul" id="menv">Enviar</button></div>`;
-  window.scrollTo(0, document.body.scrollHeight);
+  const main = cont(); main.classList.remove('sinnav');
+  main.innerHTML = `<div class="burbujas">${(data || []).map(m => `<div class="bb ${m.de === yo.id ? 'yo' : 'el'}">${esc(m.texto)}${m.propina ? `<b> · propina ${m.propina} €</b>` : ''}<span class="hora">${hace(m.creado)}</span></div>`).join('') || `<div class="vacio">Escríbele a @${esc(c.usuario)}.</div>`}</div>`;
+  const esc2 = document.createElement('div'); esc2.className = 'escribir';
+  esc2.innerHTML = `<textarea id="mtx" rows="1" placeholder="Escribe un mensaje"></textarea><button class="btn azul" id="menv">Enviar</button>`;
+  $app.insertBefore(esc2, document.getElementById('btCasa'));
+  main.scrollTop = main.scrollHeight;
   document.getElementById('menv').onclick = async () => {
     const t = document.getElementById('mtx').value.trim(); if (!t) return;
     const { error } = await sb.from('mensajes').insert({ plataforma: 'x', de: yo.id, para: c.id, texto: t, origen: 'web' });
@@ -622,9 +825,9 @@ async function vistaChat(otroId) {
   };
 }
 
-/* ---------- consumo ---------- */
+/* ---------- Medidor ---------- */
 async function vistaConsumo() {
-  marco('Consumo', '<div class="cargando">Cargando…</div>', { sub: 'Llamadas a modelos de la red' });
+  marco('Medidor', '<div class="cargando">Cargando…</div>', { sub: 'Lo que gastan los modelos de este móvil' });
   const desde = new Date(Date.now() - 7 * 864e5).toISOString();
   const [ult, cfg, sem] = await Promise.all([
     sb.from('consumo').select('*').order('creado', { ascending: false }).limit(30),
@@ -643,11 +846,11 @@ async function vistaConsumo() {
   const salt = filas.filter(r => r.saltada).length, errs = filas.filter(r => r.error).length;
   const tope = t.tope_diario_tokens || 0, pct = tope ? Math.min(100, hoyT / tope * 100) : 0;
   const porQuien = {}; filas.forEach(r => { porQuien[r.quien] = (porQuien[r.quien] || 0) + tot(r); });
-  document.getElementById('main').innerHTML = `
+  cont().innerHTML = `
     <div class="tarjetas">
       <div class="tj" style="grid-column:1/-1"><div class="k">Hoy</div><div class="v">${num(hoyT)} tokens</div>
         <div class="barra"><i class="${pct > 80 ? 'alto' : ''}" style="width:${pct}%"></i></div>
-        <div class="s">Tope diario: ${num(tope)} · ${Math.round(pct)} % · <a href="#" id="cambiaTope" style="color:var(--azul)">cambiar</a></div></div>
+        <div class="s">Tope diario: ${num(tope)} · ${Math.round(pct)} % · <a href="#" id="cambiaTope" style="color:#ff8ab8">cambiar</a></div></div>
       <div class="tj"><div class="k">Últimos 7 días</div><div class="v">${num(semT)}</div><div class="s">${filas.length} llamadas</div></div>
       <div class="tj"><div class="k">Media por tanda</div><div class="v">${num(media)}</div><div class="s">${tandas.length} tandas · ${msMed} s de media</div></div>
       <div class="tj"><div class="k">Saltadas por tope</div><div class="v">${salt}</div><div class="s">7 días</div></div>
@@ -663,7 +866,7 @@ async function vistaConsumo() {
     <p class="aviso">Modelo de las reacciones: ${esc(t.modelo || '?')} · tanda ${t.activa === false ? 'parada' : 'activa'} · máx. ${t.max_posts_por_tanda || '?'} posts por tanda.</p></div>`;
   document.getElementById('cambiaTope').onclick = async e => {
     e.preventDefault();
-    const v = prompt('Tope diario de tokens para la red (entrada + salida):', tope);
+    const v = prompt('Tope diario de tokens (entrada + salida):', tope);
     if (v === null) return; const n = parseInt(v.replace(/\D/g, ''));
     if (!n) return toast('Número no válido');
     const { error } = await sb.from('config').update({ valor: { ...t, tope_diario_tokens: n } }).eq('clave', 'tanda');
@@ -672,8 +875,61 @@ async function vistaConsumo() {
   };
 }
 
-sb.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT') pantallaLogin(); });
-arrancar().catch(e => { console.error(e); $app.innerHTML = `<div class="vacio">Error al arrancar: ${esc(e.message || e)}</div>`; });
+/* ---------- Hilo (el chat con ellas; aún sin conectar) ---------- */
+const HERMANAS = [
+  { id: 'valeria', nombre: 'Valeria', color: '#ff3d8b', ult: 'sin conectar' },
+  { id: 'aika', nombre: 'Aika', color: '#d9452b', ult: 'sin conectar' },
+  { id: 'shiro', nombre: 'Shiro', color: '#8e8e9a', ult: 'sin conectar' },
+  { id: 'grupo', nombre: 'Las tres', color: '#7a2cff', ult: 'sin conectar' },
+];
+const avH = (h, t = 50) => `<div class="av" style="width:${t}px;height:${t}px;font-size:${t * .4}px;background:${h.color}">${h.id === 'grupo' ? '3' : h.nombre[0]}</div>`;
+function vistaHilo() {
+  marco('Chats', `<div class="aviso-hilo">Hilo aún no está conectado con Hermes. Aquí irá vuestro chat de siempre.</div>
+    ${HERMANAS.map(h => `<a class="conv" href="#/hilo/${h.id}">${avH(h)}<div class="cuerpo"><div class="cab"><span class="n">${h.nombre}</span></div><div class="ult">${h.ult}</div></div>${svg('chev')}</a>`).join('')}`, { clase: 'hilo' });
+}
+function vistaHiloChat(id) {
+  const h = HERMANAS.find(x => x.id === id); if (!h) return vistaHilo();
+  marco(h.nombre, `<div class="burbujas"><div class="aviso-hilo" style="align-self:center">Cuando Hilo esté conectado, aquí hablarás con ${h.id === 'grupo' ? 'las tres' : h.nombre}.</div></div>`,
+    { atras: true, clase: 'chatfondo', sub: h.id === 'grupo' ? 'Valeria, Aika, Shiro' : 'sin conectar' });
+  const e = document.createElement('div'); e.className = 'escribir';
+  e.innerHTML = `<textarea rows="1" placeholder="Mensaje" disabled></textarea><button class="btn azul" disabled>Enviar</button>`;
+  $app.insertBefore(e, document.getElementById('btCasa'));
+}
+
+/* ---------- Agenda ---------- */
+function vistaAgenda() {
+  const hoy = new Date();
+  let html = '';
+  for (let k = 0; k < 7; k++) {
+    const d = new Date(hoy); d.setDate(d.getDate() + k);
+    const evs = AGENDA.filter(e => e.dia === d.getDay());
+    html += `<div class="dia ${k === 0 ? 'hoy' : ''}">${k === 0 ? 'Hoy' : k === 1 ? 'Mañana' : DIAS[d.getDay()]} · ${d.getDate()} ${MES[d.getMonth()]}</div>`;
+    html += evs.map(e => `<div class="evento" style="--c:${e.c}"><span class="h">${e.hora}</span><div><b>${e.quien}</b><div style="color:var(--tx2)">${e.que}</div></div></div>`).join('') || '<div style="padding:4px 16px 8px;color:#444">—</div>';
+  }
+  marco('', `<div class="titulo-grande">Agenda</div>${html}<p class="aviso" style="padding:0 16px">Horarios provisionales: los acabarán poniendo ellas.</p>`, { top: false });
+}
+
+/* ---------- Ajustes ---------- */
+function vistaAjustes() {
+  const build = document.querySelector('meta[name=build]').content;
+  marco('', `<div class="titulo-grande">Ajustes</div>
+    <div class="lista">
+      <div class="it"><span class="k">Cuenta</span><span class="v">${esc(S.email)}</span></div>
+      <div class="it"><span class="k">Tu usuario en ${esc(APPS.find(a => a.id === 'vox').nombre)}</span><span class="v">@${esc(S.yo.x?.usuario || '—')}</span></div>
+      <div class="it"><span class="k">Versión</span><span class="v">${build}</span></div>
+    </div>
+    <div class="lista"><div class="it"><span class="k" style="color:var(--tx2);font-size:13px">En el iPhone: Compartir → «Añadir a pantalla de inicio» para abrirlo como una app, a pantalla completa.</span></div></div>
+    <div class="lista"><button class="it" id="salir" style="width:100%;color:#ff453a">Cerrar sesión</button></div>`, { top: false });
+  document.getElementById('salir').onclick = async () => { if (confirm('¿Cerrar sesión?')) { await sb.auth.signOut(); location.hash = '#/'; location.reload(); } };
+}
+
+/* ---------- apps que aún no están ---------- */
+function splash(id, nombre, txt, fondo = '') {
+  marco('', `<div class="splash" ${fondo ? `style="background:${fondo};color:#111"` : ''}><div class="logo">${typeof ICONOS[id] === 'function' ? ICONOS[id]() : ICONOS[id]}</div><h2>${nombre}</h2><p ${fondo ? 'style="color:#555"' : ''}>${txt}</p></div>`, { top: false });
+}
+
+sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT') location.reload(); });
+arrancar().catch(e => { console.error(e); $home.innerHTML = `<div class="vacio">Error al arrancar: ${esc(e.message || e)}</div>`; });
 </script>
 </body>
 </html>
