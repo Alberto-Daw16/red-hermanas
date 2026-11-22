@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<meta name="build" content="2026-11-21.1">
+<meta name="build" content="2026-11-22.1">
 <meta name="robots" content="noindex,nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -49,7 +49,7 @@ body.marco .isla,body.marco .estado{display:flex}
 .wg .et{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#ff8ab8}
 .wg .ev{margin-top:8px;font-size:13px;line-height:1.25}
 .wg .ev b{display:block;font-size:15px}
-.wg .ev span{color:rgba(255,255,255,.6)}
+.wg .ev span{color:rgba(255,255,255,.6);display:block}
 .wg .post{border:0;padding:0;margin-top:8px;gap:8px}
 .wg .post .av{width:26px;height:26px;font-size:12px}
 .wg .post .tx{font-size:13px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
@@ -213,6 +213,62 @@ td.num,th.num{text-align:right}
 .aviso-hilo{margin:12px 16px;padding:10px 14px;border-radius:12px;background:rgba(255,214,10,.12);color:#ffd60a;font-size:13px;text-align:center}
 .chatfondo{background:#0c0a0f radial-gradient(rgba(255,61,139,.06) 1px,transparent 1px) 0 0/18px 18px}
 
+
+/* ---------- directo ---------- */
+.vivo{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff3040;margin-right:6px;box-shadow:0 0 0 0 rgba(255,48,64,.7);animation:latido 1.6s infinite}
+@keyframes latido{0%{box-shadow:0 0 0 0 rgba(255,48,64,.6)}70%{box-shadow:0 0 0 8px rgba(255,48,64,0)}100%{box-shadow:0 0 0 0 rgba(255,48,64,0)}}
+.directo{display:flex;align-items:center;gap:10px;margin:10px 16px;padding:12px 14px;border-radius:14px;background:linear-gradient(90deg,rgba(255,48,64,.18),rgba(255,61,139,.08));border:1px solid rgba(255,48,64,.35)}
+.directo b{display:block}.directo span{color:var(--tx2);font-size:13px}
+.anillo{position:relative;border-radius:50%;padding:3px;background:conic-gradient(#ff3040,#ff3d8b,#ff3040)}
+.anillo .avg{border-color:#000}
+.chip-vivo{position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);background:#ff3040;color:#fff;font-size:10px;font-weight:800;letter-spacing:.05em;padding:2px 6px;border-radius:4px;border:2px solid #000;white-space:nowrap}
+.cuad{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.cuad a{aspect-ratio:1;overflow:hidden;background:#111}
+.cuad img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ---------- Nocturna ---------- */
+.noc{--n1:#ff3d8b;--n2:#1a0f1f;background:#0d0810}
+.noc .ban{height:150px;background:radial-gradient(70% 90% at 20% 30%,rgba(255,61,139,.55),transparent),radial-gradient(60% 80% at 85% 60%,rgba(122,44,255,.5),transparent),#1a0f1f;position:relative}
+.noc .ban img{width:100%;height:100%;object-fit:cover}
+.noc .ban .stats{position:absolute;right:16px;bottom:10px;text-align:right;font-size:13px;color:rgba(255,255,255,.85);text-shadow:0 1px 4px #000}
+.noc .cabp{position:relative;z-index:2;padding:0 16px;margin-top:-38px;display:flex;align-items:flex-end;justify-content:space-between}
+.noc .cabp .av{width:80px;height:80px;font-size:30px;border:4px solid #0d0810}
+.noc .quien{padding:8px 16px 0}
+.noc .quien .nombre{font-size:20px;font-weight:800;display:flex;align-items:center;gap:4px}
+.noc .quien .u{color:var(--tx2)}
+.noc .bio{padding:8px 16px;white-space:pre-wrap}
+.noc .sus{margin:6px 16px 14px;border-radius:14px;background:var(--n2);padding:14px;border:1px solid rgba(255,61,139,.25)}
+.noc .sus .k{font-size:12px;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.noc .btn-n{display:flex;justify-content:space-between;align-items:center;width:100%;height:48px;border-radius:24px;background:var(--n1);color:#fff;font-weight:800;padding:0 20px;margin-top:10px}
+.noc .btn-n.borde{background:transparent;border:1.5px solid var(--n1);color:var(--n1)}
+.noc .fila-btn{display:flex;gap:10px}
+.noc .fila-btn .btn-n{flex:1;justify-content:center}
+.nocp{border-top:8px solid #07040a;padding:12px 0 6px}
+.nocp .cab{padding:0 16px;gap:8px}
+.nocp .cab .av{width:36px;height:36px;font-size:14px}
+.nocp .tx{padding:8px 16px}
+.nocp .acc{padding:0 8px;margin:6px 0 0;justify-content:flex-start;gap:14px;max-width:none}
+.bloq{position:relative;height:330px;margin-top:4px;overflow:hidden;background:#1a0f1f;cursor:pointer}
+.bloq img{position:absolute;inset:-30px;width:calc(100% + 60px);height:calc(100% + 60px);object-fit:cover;filter:blur(28px) brightness(.7)}
+.bloq .manchas{position:absolute;inset:-40px;background:radial-gradient(35% 40% at 30% 35%,#ff3d8b,transparent),radial-gradient(40% 45% at 70% 65%,#7a2cff,transparent),radial-gradient(30% 30% at 60% 25%,#ff9f6e,transparent);filter:blur(30px);opacity:.75}
+.bloq .candado{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}
+.bloq .candado svg{width:44px;height:44px;fill:#fff;opacity:.95}
+.bloq .candado b{background:rgba(0,0,0,.45);padding:9px 18px;border-radius:22px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.bloq .candado span{font-size:13px;color:rgba(255,255,255,.8)}
+.noimg{margin-top:4px;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:24px;background:linear-gradient(135deg,#251329,#120a16);text-align:center}
+.noimg span{font-size:12px;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.noimg p{margin:0;font-style:italic;color:#ffc2da}
+.nocimg{display:block;width:100%;margin-top:4px}
+.gasto{padding:4px 16px 12px;color:var(--tx2);font-size:12px}
+.hoja{background:#16101a;border-radius:20px 20px 0 0;padding:18px 16px calc(var(--sb) + 18px)}
+.hoja h3{margin:0 0 4px}
+.hoja .p{color:var(--tx2);font-size:13px;margin-bottom:12px}
+.importes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.importes button{height:44px;border-radius:12px;background:#241a2a;font-weight:700}
+.importes button.on{background:#ff3d8b}
+.bb.pago{background:linear-gradient(135deg,#3a1636,#1d1022);border:1px solid rgba(255,61,139,.4)}
+.bb .ver{display:block;margin-top:8px;text-align:center;background:#ff3d8b;color:#fff;border-radius:14px;padding:7px;font-weight:700}
+
 /* ---------- bloqueo / entrar ---------- */
 .bloqueo{position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;padding:calc(var(--st) + 30px) 28px calc(var(--sb) + 20px)}
 .bloqueo .fecha{font-size:19px;font-weight:600;color:rgba(255,255,255,.85)}
@@ -340,20 +396,46 @@ const ICONOS = {
   ajustes: `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#1c1820"/><g transform="translate(30 30)" fill="#ff3d8b">${Array.from({ length: 8 }, (_, i) => `<rect x="-3.4" y="-19" width="6.8" height="9" rx="2" transform="rotate(${i * 45})"/>`).join('')}<circle r="13"/></g><circle cx="30" cy="30" r="5.5" fill="#1c1820"/></svg>`,
 };
 const APPS = [
-  { id: 'hilo', nombre: 'Hilo' }, { id: 'vox', nombre: 'Vox' }, { id: 'lumen', nombre: 'Lumen' }, { id: 'nocturna', nombre: 'Nocturna' },
+  { id: 'hilo', nombre: 'Hilo' }, { id: 'vox', nombre: 'Vox' }, { id: 'nocturna', nombre: 'Nocturna' },
   { id: 'agenda', nombre: 'Agenda' }, { id: 'galeria', nombre: 'Galería' }, { id: 'sonar', nombre: 'Sonar' }, { id: 'medidor', nombre: 'Medidor' }, { id: 'ajustes', nombre: 'Ajustes' },
 ];
-const DOCK = ['hilo', 'vox', 'lumen', 'nocturna'];
+const DOCK = ['hilo', 'vox', 'nocturna', 'agenda'];
 const icono = (id, badge = 0) => { const a = APPS.find(x => x.id === id); const ic = typeof ICONOS[id] === 'function' ? ICONOS[id]() : ICONOS[id];
   return `<a class="ic" href="#/${id}" data-app="${id}"><div class="cara">${ic}</div><span class="nom">${a.nombre}</span>${badge ? `<span class="badge">${badge}</span>` : ''}</a>`; };
 
 /* ---------- agenda (provisional: sale del lore y de las bios) ---------- */
-const AGENDA = [
-  { dia: 1, quien: 'VeeNoir', que: 'Directo · LoL', hora: '21:00', c: '#ff3d8b' },
-  { dia: 3, quien: 'VeeNoir', que: 'Directo · LoL', hora: '21:00', c: '#ff3d8b' },
-  { dia: 5, quien: 'Yoruha', que: 'Directo de canto', hora: '22:00', c: '#a78bfa' },
-  { dia: 6, quien: 'VeeNoir', que: 'Directo · GTA 6', hora: '21:00', c: '#ff3d8b' },
+let AGENDA = [
+  { dia: 1, quien: 'VeeNoir', usuario: 'veenoir', que: 'Directo · LoL', hora: '21:00', dur: 180, c: '#ff3d8b' },
+  { dia: 3, quien: 'VeeNoir', usuario: 'veenoir', que: 'Directo · LoL', hora: '21:00', dur: 180, c: '#ff3d8b' },
+  { dia: 5, quien: 'Yoruha', usuario: 'yoruha_', que: 'Directo de canto', hora: '22:00', dur: 90, c: '#a78bfa' },
+  { dia: 6, quien: 'VeeNoir', usuario: 'veenoir', que: 'Directo · GTA 6', hora: '21:00', dur: 180, c: '#ff3d8b' },
 ];
+/* directo: si ahora cae dentro de un evento de la agenda */
+function enDirecto(usuario = null) {
+  const ahora = new Date();
+  for (const k of [0, -1]) {
+    const d = new Date(ahora); d.setDate(d.getDate() + k);
+    for (const e of AGENDA.filter(e => e.dia === d.getDay() && (!usuario || e.usuario === usuario))) {
+      const [h, m] = e.hora.split(':'); const ini = new Date(d); ini.setHours(+h, +m, 0, 0);
+      const fin = new Date(+ini + (e.dur || 120) * 60e3);
+      if (ahora >= ini && ahora < fin) return { ...e, ini, fin };
+    }
+  }
+  return null;
+}
+function espectadores(ev) {
+  const base = ev.usuario === 'veenoir' ? 2400 : 650;
+  const t = (Date.now() - ev.ini) / 60e3, dur = ev.dur || 120;
+  const curva = Math.min(1, t / 20) * (1 - Math.max(0, (t - dur * .7) / (dur * .3)) * .5);
+  const ruido = Math.sin(Date.now() / 47000) * .06 + Math.sin(Date.now() / 13000) * .03;
+  return Math.max(12, Math.round(base * curva * (1 + ruido)));
+}
+/* las cifras simuladas crecen poco a poco desde que se publica */
+function crece(total, creado, horas = 3) {
+  total = Number(total) || 0; if (!total) return 0;
+  const t = Math.max(0, (Date.now() - new Date(creado)) / 36e5);
+  return Math.round(total * (1 - Math.exp(-t / horas)));
+}
 function proximos(n = 3) {
   const ahora = new Date(), out = [];
   for (let k = 0; k < 8 && out.length < n; k++) {
@@ -394,6 +476,7 @@ async function cargarMio() {
   S.likesC = new Set((l.data || []).filter(x => x.comentario_id).map(x => x.comentario_id));
   S.sigo = new Set((s.data || []).map(x => x.seguido));
   S.noLeidos = m.count || 0;
+  if (S.yo.of) { const r = await sb.from('mensajes').select('id', { count: 'exact', head: true }).eq('para', S.yo.of.id).eq('leido', false); S.noLeidosOf = r.count || 0; }
 }
 async function arrancar() {
   const { data: { session } } = await sb.auth.getSession();
@@ -403,6 +486,8 @@ async function arrancar() {
   if (error || !ok) return pantallaBloqueo(`Esta cuenta (${session.user.email}) no tiene acceso.`, true);
   const { data: cfg } = await sb.from('config').select('valor').eq('clave', 'nombre_red').maybeSingle();
   S.red = (cfg?.valor && cfg.valor !== '(sin nombre)') ? cfg.valor : '';
+  const { data: cfgs } = await sb.from('config').select('clave,valor').in('clave', ['agenda', 'nocturna', 'vapid_publica']);
+  for (const c of cfgs || []) { if (c.clave === 'agenda' && Array.isArray(c.valor)) AGENDA = c.valor; else S[c.clave] = c.valor; }
   if (S.red) APPS.find(a => a.id === 'vox').nombre = S.red;
   await cargarCuentas(); await cargarMio();
   addEventListener('hashchange', ruta);
@@ -446,12 +531,13 @@ function pantallaBloqueo(error = '', soloSalir = false) {
 
 /* ---------- pantalla de inicio ---------- */
 async function pintarHome() {
-  const prox = proximos(2);
-  const badges = { vox: S.noLeidos };
+  const prox = proximos(3), vivo = enDirecto(), luego = vivo && prox.find(e => e.usuario !== vivo.usuario);
+  if (!vivo) prox.length = Math.min(prox.length, 2);
+  const badges = { vox: S.noLeidos, nocturna: S.noLeidosOf || 0 };
   $home.innerHTML = `
     <div class="widgets">
-      <a class="wg" href="#/agenda" data-app="agenda"><span class="et">Próximo</span>
-        ${prox.map(e => `<div class="ev"><b style="color:${e.c}">${e.quien}</b><span>${cuando(e)} · ${e.hora}</span></div>`).join('') || '<div class="ev"><span>Nada esta semana</span></div>'}</a>
+      <a class="wg" href="${vivo ? R + '/u/' + vivo.usuario : '#/agenda'}" data-app="${vivo ? 'vox' : 'agenda'}">${vivo ? `<span class="et"><i class="vivo"></i>En directo</span><div class="ev"><b style="color:${vivo.c}">${vivo.quien}</b><span>${vivo.que}</span><span>${num(espectadores(vivo))} viendo</span></div>` : '<span class="et">Próximo</span>'}
+        ${vivo ? (luego ? `<div class="ev"><span>Luego: ${luego.quien} · ${cuando(luego)}</span></div>` : '') : (prox.map(e => `<div class="ev"><b style="color:${e.c}">${e.quien}</b><span>${cuando(e)} · ${e.hora}</span></div>`).join('') || '<div class="ev"><span>Nada esta semana</span></div>')}</a>
       <a class="wg" href="#/vox" data-app="vox" id="wgVox"><span class="et">${esc(APPS.find(a => a.id === 'vox').nombre)}</span><div class="ev"><span>Cargando…</span></div></a>
     </div>
     <div class="grid">${APPS.filter(a => !DOCK.includes(a.id)).map(a => icono(a.id, badges[a.id])).join('')}</div>
@@ -533,9 +619,8 @@ async function ruta() {
       case 'hilo': return r ? vistaHiloChat(r) : vistaHilo();
       case 'agenda': return vistaAgenda();
       case 'ajustes': return vistaAjustes();
-      case 'lumen': return splash('lumen', 'Lumen', 'Fotos de VeeNoir, Yoruha y el privado de Aika. Llega en la fase 2.');
-      case 'nocturna': return splash('nocturna', 'Nocturna', 'Contenido de pago de VeeNoir, todo bloqueado hasta que haya fotos aprobadas. Fase 4.');
-      case 'galeria': return splash('galeria', 'Galería', 'Aquí saldrán las fotos que te manden ellas cuando haya hojas de referencia aprobadas.', '#fff');
+            case 'nocturna': return r === 'md' ? vistaNocMD() : vistaNocturna();
+      case 'galeria': return vistaGaleria();
       case 'sonar': return splash('sonar', 'Sonar', 'Los covers y canciones de Yoruha, cuando Shiro empiece a sacarlos.');
     }
   } catch (e) {
@@ -559,7 +644,7 @@ async function traerPosts(q) {
   if (error) throw error;
   const ids = [...new Set(data.map(p => p.repost_de).filter(Boolean))].filter(id => !data.some(p => p.id === id));
   let orig = [];
-  if (ids.length) { const r = await sb.from('v_posts').select('*').in('id', ids); orig = r.data || []; }
+  if (ids.length) { const r = await sb.from('v_posts2').select('*').in('id', ids); orig = r.data || []; }
   const todos = new Map([...data, ...orig].map(p => [p.id, p]));
   await firmar([...todos.values()].map(p => p.imagen_url));
   const yo = S.yo.x;
@@ -587,6 +672,9 @@ function htmlPost(p, todos, { detalle = false } = {}) {
   const citada = base.cita && base.repost_de && todos.get(base.repost_de);
   const img = base.imagen_url && S.urls.get(base.imagen_url);
   const lkOn = S.likes.has(base.id), rpOn = S.mios.has(base.id);
+  const nL = base.n_likes - base.likes_sim + crece(base.likes_sim, base.creado, 3);
+  const nR = base.n_reposts - base.reposts_sim + crece(base.reposts_sim, base.creado, 4);
+  const nV = crece(base.vistas_sim, base.creado, 5);
   const cuerpo = `
     ${base.texto ? `<div class="tx">${texto(base.texto)}</div>` : ''}
     ${img ? `<div class="media"><img src="${esc(img)}" alt="" loading="lazy"></div>` : ''}
@@ -594,16 +682,16 @@ function htmlPost(p, todos, { detalle = false } = {}) {
     ${citada ? `<div class="cita" data-ir="${citada.id}"><div class="cab">${avatar(cuenta(citada.cuenta_id))}<span class="n">${esc(cuenta(citada.cuenta_id)?.nombre)}</span><span class="u">@${esc(cuenta(citada.cuenta_id)?.usuario)}</span><span class="t">· ${hace(citada.creado)}</span></div><div class="tx">${texto(citada.texto || '')}</div></div>` : ''}`;
   const acciones = `<div class="acc">
       <button data-ir="${base.id}">${svg('resp')}<span>${base.n_comentarios ? num(base.n_comentarios) : ''}</span></button>
-      <button class="rp ${rpOn ? 'on' : ''}" data-rp="${base.id}">${svg('rp')}<span>${base.n_reposts ? num(base.n_reposts) : ''}</span></button>
-      <button class="lk ${lkOn ? 'on' : ''}" data-lk="${base.id}">${svg(lkOn ? 'lkOn' : 'lk')}<span>${base.n_likes ? num(base.n_likes) : ''}</span></button>
-      <button data-nada="1">${svg('vistas')}<span>${base.vistas_sim ? num(base.vistas_sim) : ''}</span></button>
+      <button class="rp ${rpOn ? 'on' : ''}" data-rp="${base.id}">${svg('rp')}<span>${nR ? num(nR) : ''}</span></button>
+      <button class="lk ${lkOn ? 'on' : ''}" data-lk="${base.id}">${svg(lkOn ? 'lkOn' : 'lk')}<span>${nL ? num(nL) : ''}</span></button>
+      <button data-nada="1">${svg('vistas')}<span>${nV ? num(nV) : ''}</span></button>
     </div>`;
   if (detalle) {
     return `<div class="det" style="padding:12px 16px 0;border-bottom:1px solid var(--line)">
       <a class="cab" href="${R}/u/${esc(c.usuario)}" style="gap:10px">${avatar(c)}<div style="min-width:0"><div class="cab"><span class="n">${esc(c.nombre)}</span>${verif(c)}</div><div class="cab"><span class="u">@${esc(c.usuario)}</span></div></div></a>
       ${cuerpo}
-      <div class="meta">${fechaLarga(base.creado)} · <b style="color:var(--tx)">${num(base.vistas_sim)}</b> visualizaciones</div>
-      <div class="cifras"><span><b>${num(base.n_reposts)}</b> reposts</span><span><b>${num(base.n_likes)}</b> me gusta</span></div>
+      <div class="meta">${fechaLarga(base.creado)} · <b style="color:var(--tx)">${num(nV)}</b> visualizaciones</div>
+      <div class="cifras"><span><b>${num(nR)}</b> reposts</span><span><b>${num(nL)}</b> me gusta</span></div>
       ${acciones}</div>`;
   }
   return `${rtDe}<article class="post" data-ir="${base.id}">
@@ -670,9 +758,10 @@ async function vistaInicio() {
   const titulo = esc(APPS.find(a => a.id === 'vox').nombre);
   marco(titulo, '<div class="cargando">Cargando…</div>', { nav: navVox(), extra: `<button class="casa" id="rec">${svg('recarga')}</button>` });
   document.getElementById('rec').onclick = () => { S.limite = 40; vistaInicio(); };
-  const { lista, todos } = await traerPosts(sb.from('v_posts').select('*').eq('plataforma', 'x').order('creado', { ascending: false }).limit(S.limite));
+  const { lista, todos } = await traerPosts(sb.from('v_posts2').select('*').eq('plataforma', 'x').order('creado', { ascending: false }).limit(S.limite));
   const main = cont();
-  main.innerHTML = (lista.length ? lista.map(p => htmlPost(p, todos)).join('') : '<div class="vacio"><h2>Nada todavía</h2>Cuando publiquen, sale aquí.</div>')
+  const vivo = enDirecto();
+  main.innerHTML = (vivo ? bannerDirecto(vivo) : '') + (lista.length ? lista.map(p => htmlPost(p, todos)).join('') : '<div class="vacio"><h2>Nada todavía</h2>Cuando publiquen, sale aquí.</div>')
     + (lista.length >= S.limite ? '<button class="mas" id="mas">Ver más</button>' : '');
   enganchar(main, vistaInicio);
   const mas = document.getElementById('mas'); if (mas) mas.onclick = e => { e.stopPropagation(); S.limite += 40; vistaInicio(); };
@@ -683,15 +772,26 @@ function redactar({ citaDe = null, alAcabar }) {
   const m = document.createElement('div'); m.className = 'modal';
   m.innerHTML = `<div class="fila"><button id="cx">Cancelar</button><button class="btn azul" id="pub" disabled>Publicar</button></div>
     <div class="red">${avatar(yo)}<textarea id="tx" placeholder="${citaDe ? 'Añade un comentario' : '¿Qué está pasando?'}" maxlength="560"></textarea></div>
-    <div class="cnt" id="cnt">280</div>`;
+    <div id="prev" style="padding:0 16px 0 66px"></div>
+    <div class="cnt" id="cnt" style="display:flex;justify-content:space-between;align-items:center">${citaDe ? '<span></span>' : `<label style="color:var(--azul);font-weight:600">Foto<input type="file" accept="image/*" id="foto" hidden></label>`}<span id="cnum">280</span></div>`;
   $app.appendChild(m);
-  const tx = m.querySelector('#tx'), pub = m.querySelector('#pub'), cnt = m.querySelector('#cnt');
+  const tx = m.querySelector('#tx'), pub = m.querySelector('#pub'), cnt = m.querySelector('#cnum');
+  let archivo = null;
   tx.focus();
-  tx.oninput = () => { const r = 280 - tx.value.length; cnt.textContent = r; cnt.classList.toggle('mal', r < 0); pub.disabled = !tx.value.trim() || r < 0; };
+  const comprobar = () => { const r = 280 - tx.value.length; cnt.textContent = r; cnt.classList.toggle('mal', r < 0); pub.disabled = !(tx.value.trim() || archivo) || r < 0; };
+  tx.oninput = comprobar;
+  const fi = m.querySelector('#foto');
+  if (fi) fi.onchange = () => { archivo = fi.files[0] || null; m.querySelector('#prev').innerHTML = archivo ? `<div class="media"><img src="${URL.createObjectURL(archivo)}" alt=""></div>` : ''; comprobar(); };
   m.querySelector('#cx').onclick = () => m.remove();
   pub.onclick = async () => {
     pub.disabled = true;
-    const fila = { cuenta_id: yo.id, plataforma: 'x', texto: tx.value.trim(), origen: 'web' };
+    const fila = { cuenta_id: yo.id, plataforma: 'x', texto: tx.value.trim() || null, origen: 'web' };
+    if (archivo) {
+      const ruta = `alberto/${Date.now()}.${(archivo.name.split('.').pop() || 'jpg').toLowerCase()}`;
+      const up = await sb.storage.from('media').upload(ruta, archivo, { contentType: archivo.type });
+      if (up.error) { pub.disabled = false; return toast(up.error.message); }
+      fila.imagen_url = ruta;
+    }
     if (citaDe) Object.assign(fila, { repost_de: citaDe, cita: true });
     const { error } = await sb.from('posts').insert(fila);
     if (error) { pub.disabled = false; return toast(error.message); }
@@ -700,7 +800,7 @@ function redactar({ citaDe = null, alAcabar }) {
 }
 async function vistaPost(id) {
   marco('Post', '<div class="cargando">Cargando…</div>', { atras: true, nav: navVox() });
-  const { lista, todos } = await traerPosts(sb.from('v_posts').select('*').eq('id', id));
+  const { lista, todos } = await traerPosts(sb.from('v_posts2').select('*').eq('id', id));
   const p = lista[0]; if (!p) return cont().innerHTML = '<div class="vacio">Este post ya no existe.</div>';
   const base = p.repost_de && !p.cita ? todos.get(p.repost_de) : p;
   const { data: com } = await sb.from('comentarios').select('*').eq('post_id', base.id).order('creado');
@@ -712,7 +812,7 @@ async function vistaPost(id) {
   const htmlC = c => {
     const k = cuenta(c.cuenta_id) || { nombre: '?', usuario: '?' };
     const a = c.responde_a ? cuenta(porId.get(c.responde_a)?.cuenta_id) : autor;
-    const on = S.likesC.has(c.id), n = (c.likes_sim || 0) + (lc.get(c.id) || 0);
+    const on = S.likesC.has(c.id), n = crece(c.likes_sim, c.creado, 2) + (lc.get(c.id) || 0);
     return `<article class="post"><a href="${R}/u/${esc(k.usuario)}">${avatar(k)}</a><div class="cuerpo">
       <div class="cab"><span class="n">${esc(k.nombre)}</span>${verif(k)}<span class="u">@${esc(k.usuario)}</span><span class="t">· ${hace(c.creado)}</span></div>
       <div class="enresp">En respuesta a <a href="${R}/u/${esc(a?.usuario)}">@${esc(a?.usuario)}</a></div>
@@ -744,13 +844,15 @@ async function vistaPerfil(usuario) {
   const [segs, sigs, postsR] = await Promise.all([
     sb.from('seguimientos').select('seguidor', { count: 'exact', head: true }).eq('seguido', c.id),
     sb.from('seguimientos').select('seguido', { count: 'exact', head: true }).eq('seguidor', c.id),
-    traerPosts(sb.from('v_posts').select('*').eq('cuenta_id', c.id).order('creado', { ascending: false }).limit(50)),
+    traerPosts(sb.from('v_posts2').select('*').eq('cuenta_id', c.id).order('creado', { ascending: false }).limit(50)),
   ]);
   const sigo = S.sigo.has(c.id);
   const ban = c.banner_url && S.urls.get(c.banner_url);
+  const vivo = enDirecto(c.usuario);
+  const fotos = postsR.lista.filter(p => !p.repost_de && p.imagen_url && S.urls.get(p.imagen_url));
   cont().innerHTML = `<div class="perfil">
     <div class="banner">${ban ? `<img src="${esc(ban)}" alt="">` : ''}</div>
-    <div class="fila1">${avatar(c, 'av avg')}
+    <div class="fila1"><div class="${vivo ? 'anillo' : ''}">${avatar(c, 'av avg')}${vivo ? '<span class="chip-vivo">EN DIRECTO</span>' : ''}</div>
       <div style="display:flex;gap:8px">${esYo ? '<button class="btn borde" id="editar">Editar perfil</button>'
       : `<a class="btn borde" href="${R}/md/${c.id}" style="width:36px;padding:0">${svg('sobre')}</a><button class="btn ${sigo ? 'borde' : ''}" id="seguir">${sigo ? 'Siguiendo' : 'Seguir'}</button>`}</div></div>
     <div class="info">
@@ -760,8 +862,15 @@ async function vistaPerfil(usuario) {
       <div class="datos">${c.ubicacion ? `<span>${esc(c.ubicacion)}</span>` : ''}</div>
       <div class="datos" style="margin-top:8px"><span><b>${num((c.siguiendo || 0) + (sigs.count || 0))}</b> Siguiendo</span><span><b>${num((c.seguidores || 0) + (segs.count || 0))}</b> Seguidores</span></div>
     </div>
-    <div class="tabs"><button class="on">Posts</button></div>
-  </div><div id="lista">${postsR.lista.map(p => htmlPost(p, postsR.todos)).join('') || '<div class="vacio">Aún no ha publicado nada.</div>'}</div>`;
+    ${vivo ? bannerDirecto(vivo) : ''}
+    <div class="tabs"><button class="on" data-tab="posts">Posts</button><button data-tab="fotos">Fotos</button></div>
+  </div><div id="lista">${postsR.lista.map(p => htmlPost(p, postsR.todos)).join('') || '<div class="vacio">Aún no ha publicado nada.</div>'}</div>
+  <div id="cuadricula" style="display:none">${fotos.length ? `<div class="cuad">${fotos.map(p => `<a href="${R}/p/${p.id}"><img src="${esc(S.urls.get(p.imagen_url))}" loading="lazy" alt=""></a>`).join('')}</div>` : '<div class="vacio">Sin fotos todavía.</div>'}</div>`;
+  cont().querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
+    cont().querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('on', x === b));
+    document.getElementById('lista').style.display = b.dataset.tab === 'posts' ? '' : 'none';
+    document.getElementById('cuadricula').style.display = b.dataset.tab === 'fotos' ? '' : 'none';
+  });
   enganchar(document.getElementById('lista'), () => vistaPerfil(usuario));
   const sg = document.getElementById('seguir');
   if (sg) sg.onclick = async () => {
@@ -910,17 +1019,234 @@ function vistaAgenda() {
 }
 
 /* ---------- Ajustes ---------- */
-function vistaAjustes() {
+async function vistaAjustes() {
   const build = document.querySelector('meta[name=build]').content;
+  const av = await estadoAvisos();
   marco('', `<div class="titulo-grande">Ajustes</div>
     <div class="lista">
       <div class="it"><span class="k">Cuenta</span><span class="v">${esc(S.email)}</span></div>
       <div class="it"><span class="k">Tu usuario en ${esc(APPS.find(a => a.id === 'vox').nombre)}</span><span class="v">@${esc(S.yo.x?.usuario || '—')}</span></div>
       <div class="it"><span class="k">Versión</span><span class="v">${build}</span></div>
     </div>
+    <div class="lista">
+      <div class="it"><span class="k">Avisos al móvil</span>${av === 'no' ? '<span class="v">solo desde la pantalla de inicio</span>' : `<button class="btn ${av === 'si' ? 'borde' : 'azul'}" id="avisos" style="height:32px">${av === 'si' ? 'Desactivar' : 'Activar'}</button>`}</div>
+      <div class="it"><span class="k" style="color:var(--tx2);font-size:13px">Te avisa cuando publiquen, te mencionen o te escriban. Calla de 0:00 a 9:00 y luego te lo junta.</span></div>
+    </div>
     <div class="lista"><div class="it"><span class="k" style="color:var(--tx2);font-size:13px">En el iPhone: Compartir → «Añadir a pantalla de inicio» para abrirlo como una app, a pantalla completa.</span></div></div>
     <div class="lista"><button class="it" id="salir" style="width:100%;color:#ff453a">Cerrar sesión</button></div>`, { top: false });
+  const ba = document.getElementById('avisos'); if (ba) ba.onclick = () => av === 'si' ? desactivarAvisos() : activarAvisos();
   document.getElementById('salir').onclick = async () => { if (confirm('¿Cerrar sesión?')) { await sb.auth.signOut(); location.hash = '#/'; location.reload(); } };
+}
+
+
+/* ---------- Directo ---------- */
+function bannerDirecto(ev) {
+  return `<a class="directo" href="${R}/u/${esc(ev.usuario)}"><i class="vivo"></i><div class="cuerpo"><b>${esc(ev.quien)} está en directo</b><span>${esc(ev.que)} · ${num(espectadores(ev))} viendo</span></div>${svg('chev')}</a>`;
+}
+
+/* ---------- Nocturna (solo Valeria; dinero de mentira) ---------- */
+const eur = n => (Number(n) || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+const CANDADO = '<svg viewBox="0 0 24 24"><path d="M12 1.5a5 5 0 0 0-5 5V9H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6.5a5 5 0 0 0-5-5zm-3 5a3 3 0 1 1 6 0V9H9V6.5zm3 7a2 2 0 0 1 1 3.73V19h-2v-1.77A2 2 0 0 1 12 13.5z"/></svg>';
+async function datosNoc() {
+  const val = [...S.cuentas.values()].find(c => c.plataforma === 'of' && c.tipo === 'hermana');
+  const yo = S.yo.of;
+  if (!val || !yo) return null;
+  const ahora = new Date().toISOString();
+  const [sus, todas, des, prop, posts, lk] = await Promise.all([
+    sb.from('suscripciones').select('*').eq('creadora', val.id).gt('hasta', ahora).order('hasta', { ascending: false }).limit(1),
+    sb.from('suscripciones').select('precio'),
+    sb.from('desbloqueos').select('post_id,mensaje_id,precio'),
+    sb.from('propinas').select('importe'),
+    sb.from('v_posts2').select('*').eq('cuenta_id', val.id).is('repost_de', null).order('creado', { ascending: false }).limit(80),
+    sb.from('likes').select('post_id').eq('cuenta_id', yo.id),
+  ]);
+  const D = des.data || [];
+  const gastado = [...(todas.data || []).map(x => +x.precio), ...D.map(x => +x.precio), ...(prop.data || []).map(x => +x.importe)].reduce((a, b) => a + b, 0);
+  const P = posts.data || [];
+  await firmar(P.map(p => p.imagen_url));
+  return { val, yo, sus: sus.data?.[0] || null, desP: new Set(D.filter(d => d.post_id).map(d => d.post_id)), desM: new Set(D.filter(d => d.mensaje_id).map(d => d.mensaje_id)), posts: P, likes: new Set((lk.data || []).map(x => x.post_id)), gastado };
+}
+function navNoc() {
+  const h = location.hash;
+  return `<nav class="nav"><div class="in">
+    <a href="#/nocturna" class="${h === '#/nocturna' ? 'on' : ''}">${svg('casa')}</a>
+    <a href="#/nocturna/md" class="${h === '#/nocturna/md' ? 'on' : ''}">${svg('sobre')}${S.noLeidosOf ? `<span class="punto">${S.noLeidosOf}</span>` : ''}</a>
+  </div></nav>`;
+}
+function hoja(html) {
+  const m = document.createElement('div'); m.className = 'modal'; m.style.background = 'rgba(0,0,0,.55)'; m.style.justifyContent = 'flex-end';
+  m.innerHTML = `<div class="hoja">${html}</div>`;
+  $app.appendChild(m);
+  m.onclick = e => { if (e.target === m) m.remove(); };
+  return m;
+}
+function pagar(titulo, detalle, importe, alPagar) {
+  const m = hoja(`<h3>${titulo}</h3><div class="p">${detalle}</div>
+    <div class="lista" style="margin:0 0 12px"><div class="it"><span class="k">Tarjeta</span><span class="v">•••• 0000 (de mentira)</span></div><div class="it"><span class="k">Total</span><span class="v" style="color:#fff;font-weight:700">${eur(importe)}</span></div></div>
+    <button class="btn azul" style="width:100%;height:46px" id="okp">Pagar ${eur(importe)}</button>
+    <button style="width:100%;height:44px;margin-top:6px;color:var(--tx2)" id="nop">Cancelar</button>`);
+  m.querySelector('#nop').onclick = () => m.remove();
+  m.querySelector('#okp').onclick = async () => { m.querySelector('#okp').disabled = true; const err = await alPagar(); if (err) { toast(err.message || err); m.querySelector('#okp').disabled = false; return; } m.remove(); };
+}
+function propina(N, postId, alAcabar) {
+  let imp = 5;
+  const m = hoja(`<h3>Propina para ${esc(N.val.nombre)}</h3><div class="p">Dinero de mentira. Ella lo ve en su resumen.</div>
+    <div class="importes">${[3, 5, 10, 20].map(v => `<button data-v="${v}" class="${v === imp ? 'on' : ''}">${v} €</button>`).join('')}</div>
+    <div class="campo"><label>Mensaje (opcional)</label><input id="pm" maxlength="200"></div>
+    <button class="btn azul" style="width:100%;height:46px" id="okp">Enviar propina</button>`);
+  m.querySelectorAll('[data-v]').forEach(b => b.onclick = () => { imp = +b.dataset.v; m.querySelectorAll('[data-v]').forEach(x => x.classList.toggle('on', x === b)); m.querySelector('#okp').textContent = `Enviar ${imp} €`; });
+  m.querySelector('#okp').onclick = async () => {
+    const txt = m.querySelector('#pm').value.trim();
+    const r1 = await sb.from('propinas').insert({ para: N.val.id, post_id: postId || null, importe: imp, mensaje: txt || null });
+    if (r1.error) return toast(r1.error.message);
+    await sb.from('mensajes').insert({ plataforma: 'of', de: N.yo.id, para: N.val.id, texto: txt || 'propina', propina: imp, origen: 'web' });
+    m.remove(); toast(`Propina de ${imp} € enviada`); alAcabar && alAcabar();
+  };
+}
+function mediaNoc(p, N) {
+  const img = p.imagen_url && S.urls.get(p.imagen_url);
+  const visible = p.de_pago ? N.desP.has(p.id) : !!N.sus;
+  if (visible) {
+    if (img) return `<img class="nocimg" src="${esc(img)}" alt="" loading="lazy">`;
+    if (p.media_n || p.oculto || p.de_pago) return `<div class="noimg"><span>${p.media_n ? p.media_n + ' fotos · ' : ''}pendientes de hoja aprobada</span>${p.oculto ? `<p>${esc(p.oculto)}</p>` : ''}</div>`;
+    return '';
+  }
+  if (!p.de_pago && !img && !p.media_n) return '';
+  return `<div class="bloq" ${p.de_pago ? `data-desb="${p.id}"` : 'data-sus="1"'}>${img ? `<img src="${esc(img)}" alt="">` : '<div class="manchas"></div>'}
+    <div class="candado">${CANDADO}<b>${p.de_pago ? 'Desbloquear · ' + eur(p.precio) : 'Suscríbete para verlo'}</b>${p.media_n ? `<span>${p.media_n} fotos</span>` : ''}</div></div>`;
+}
+async function vistaNocturna() {
+  marco('', '<div class="cargando">Cargando…</div>', { top: false, nav: navNoc(), clase: 'noc' });
+  const N = await datosNoc();
+  if (!N) return cont().innerHTML = '<div class="vacio" style="padding-top:120px"><h2>Nocturna</h2>Aún no hay cuenta de Valeria aquí.</div>';
+  const precio = S.nocturna?.precio_mes || 9.99;
+  const fotos = N.posts.reduce((a, p) => a + (p.media_n || (p.imagen_url ? 1 : 0)), 0);
+  const likes = N.posts.reduce((a, p) => a + crece(p.likes_sim, p.creado, 4) + (N.likes.has(p.id) ? 1 : 0), 0);
+  const ban = N.val.banner_url && S.urls.get(N.val.banner_url);
+  const c = N.val;
+  cont().innerHTML = `
+    <div class="ban" style="margin-top:0">${ban ? `<img src="${esc(ban)}" alt="">` : ''}<div class="stats" style="padding-top:var(--st)">${N.posts.length} posts · ${fotos} fotos · ${num(likes)} me gusta</div></div>
+    <div class="cabp">${avatar(c)}</div>
+    <div class="quien"><div class="nombre">${esc(c.nombre)}${verif(c)}</div><div class="u">@${esc(c.usuario)} · ${enDirecto('veenoir') ? '<span style="color:#ff3040">en directo en Vox</span>' : 'disponible'}</div></div>
+    ${c.bio ? `<div class="bio">${esc(c.bio)}</div>` : ''}
+    <div class="sus">${N.sus
+      ? `<div class="k">Suscrito</div><div style="margin-top:4px">Se renueva el ${new Date(N.sus.hasta).getDate()} ${MES[new Date(N.sus.hasta).getMonth()]}</div>
+         ${S.nocturna?.bienvenida ? `<div style="margin-top:8px;color:#ffc2da;font-style:italic">«${esc(S.nocturna.bienvenida)}»</div>` : ''}
+         <div class="fila-btn"><a class="btn-n" href="#/nocturna/md">Mensaje</a><button class="btn-n borde" id="tip">Propina</button></div>`
+      : `<div class="k">Suscripción</div><button class="btn-n" id="sus"><span>SUSCRÍBETE</span><span>${eur(precio)} al mes</span></button>`}
+    </div>
+    <div class="gasto">Llevas gastado ${eur(N.gastado)} (de mentira)</div>
+    <div id="muro">${N.posts.map(p => `<article class="nocp">
+      <div class="cab">${avatar(c)}<span class="n">${esc(c.nombre)}</span>${verif(c)}<span class="t">· ${hace(p.creado)}</span>${p.de_pago ? `<span class="t" style="margin-left:auto;color:#ff8ab8">${eur(p.precio)}</span>` : ''}</div>
+      ${p.texto ? `<div class="tx">${esc(p.texto)}</div>` : ''}
+      ${mediaNoc(p, N)}
+      <div class="acc"><button class="lk ${N.likes.has(p.id) ? 'on' : ''}" data-lko="${p.id}">${svg(N.likes.has(p.id) ? 'lkOn' : 'lk')}<span>${num(crece(p.likes_sim, p.creado, 4) + (N.likes.has(p.id) ? 1 : 0))}</span></button>
+        <button data-tipp="${p.id}" style="font-weight:600">${eur(0).replace('0,00 ', '')} Propina</button></div>
+    </article>`).join('') || '<div class="vacio">Aún no ha subido nada.</div>'}</div>`;
+  const recargar = () => vistaNocturna();
+  const bs = document.getElementById('sus');
+  if (bs) bs.onclick = () => pagar('Suscribirte a ' + esc(c.nombre), 'Un mes. Se renueva solo… de mentira.', precio, async () => {
+    const r = await sb.from('suscripciones').insert({ creadora: c.id, precio, hasta: new Date(Date.now() + 30 * 864e5).toISOString() });
+    if (r.error) return r.error; toast('Suscrito'); recargar();
+  });
+  const bt = document.getElementById('tip'); if (bt) bt.onclick = () => propina(N, null, recargar);
+  document.getElementById('muro').onclick = async e => {
+    const t = e.target.closest('[data-desb],[data-sus],[data-lko],[data-tipp]'); if (!t) return;
+    if (t.dataset.sus) return document.getElementById('sus')?.click();
+    if (t.dataset.tipp) return N.sus ? propina(N, +t.dataset.tipp, recargar) : toast('Suscríbete primero');
+    if (t.dataset.desb) {
+      const p = N.posts.find(x => x.id === +t.dataset.desb);
+      return pagar('Desbloquear', `${esc(p.texto || 'Contenido de pago')}${p.media_n ? ` · ${p.media_n} fotos` : ''}`, p.precio, async () => {
+        const r = await sb.from('desbloqueos').insert({ post_id: p.id, precio: p.precio });
+        if (r.error) return r.error; toast('Desbloqueado'); recargar();
+      });
+    }
+    if (t.dataset.lko) {
+      const id = +t.dataset.lko;
+      if (N.likes.has(id)) await sb.from('likes').delete().eq('cuenta_id', N.yo.id).eq('post_id', id);
+      else await sb.from('likes').insert({ cuenta_id: N.yo.id, post_id: id });
+      recargar();
+    }
+  };
+}
+async function vistaNocMD() {
+  marco('', '<div class="cargando">Cargando…</div>', { top: false, nav: navNoc() });
+  const N = await datosNoc();
+  if (!N) return cont().innerHTML = '<div class="vacio">Sin cuenta.</div>';
+  const { data } = await sb.from('mensajes').select('*').eq('plataforma', 'of')
+    .or(`and(de.eq.${N.yo.id},para.eq.${N.val.id}),and(de.eq.${N.val.id},para.eq.${N.yo.id})`).order('creado');
+  const msgs = data || [];
+  await firmar(msgs.map(m => m.imagen_url));
+  const nuevos = msgs.filter(m => m.para === N.yo.id && !m.leido).map(m => m.id);
+  if (nuevos.length) { await sb.from('mensajes').update({ leido: true }).in('id', nuevos); S.noLeidosOf = 0; }
+  $app.querySelector('.nav')?.remove();
+  marco(esc(N.val.nombre), '', { atras: true, sub: '@' + esc(N.val.usuario) + ' · Nocturna', clase: 'chatfondo' });
+  const burb = m => {
+    const yo = m.de === N.yo.id;
+    if (m.precio && !yo && !N.desM.has(m.id)) return `<div class="bb el pago">${esc(m.texto || '')}<span class="ver" data-desm="${m.id}">${CANDADO.replace('<svg', '<svg style="width:14px;height:14px;fill:#fff;vertical-align:-2px"')} Desbloquear · ${eur(m.precio)}</span><span class="hora">${hace(m.creado)}</span></div>`;
+    const img = m.imagen_url && S.urls.get(m.imagen_url);
+    return `<div class="bb ${yo ? 'yo' : 'el'}">${m.propina ? `<b>Propina de ${eur(m.propina)}</b><br>` : ''}${m.texto && m.texto !== 'propina' ? esc(m.texto) : ''}${img ? `<img src="${esc(img)}" style="display:block;width:100%;border-radius:12px;margin-top:6px">` : ''}${m.precio && m.oculto ? `<div style="margin-top:6px;font-style:italic;color:#ffc2da">${esc(m.oculto)}</div>` : ''}<span class="hora">${hace(m.creado)}</span></div>`;
+  };
+  const main = cont();
+  main.innerHTML = `<div class="burbujas">${msgs.map(burb).join('') || `<div class="vacio">${N.sus ? 'Escríbele algo.' : 'Suscríbete para escribirle.'}</div>`}</div>`;
+  main.scrollTop = main.scrollHeight;
+  main.onclick = e => {
+    const t = e.target.closest('[data-desm]'); if (!t) return;
+    const m = msgs.find(x => x.id === +t.dataset.desm);
+    pagar('Desbloquear mensaje', esc(m.texto || ''), m.precio, async () => { const r = await sb.from('desbloqueos').insert({ mensaje_id: m.id, precio: m.precio }); if (r.error) return r.error; vistaNocMD(); });
+  };
+  if (N.sus) {
+    const e = document.createElement('div'); e.className = 'escribir';
+    e.innerHTML = `<button class="btn borde" id="mtip" style="padding:0 12px">€</button><textarea id="mtx" rows="1" placeholder="Mensaje"></textarea><button class="btn azul" id="menv">Enviar</button>`;
+    $app.insertBefore(e, document.getElementById('btCasa'));
+    document.getElementById('mtip').onclick = () => propina(N, null, vistaNocMD);
+    document.getElementById('menv').onclick = async () => {
+      const t = document.getElementById('mtx').value.trim(); if (!t) return;
+      const { error } = await sb.from('mensajes').insert({ plataforma: 'of', de: N.yo.id, para: N.val.id, texto: t, origen: 'web' });
+      if (error) return toast(error.message);
+      vistaNocMD();
+    };
+  }
+}
+
+/* ---------- Galería: lo que han publicado con foto ---------- */
+async function vistaGaleria() {
+  marco('', '<div class="cargando">Cargando…</div>', { top: false });
+  const her = [...S.cuentas.values()].filter(c => c.tipo === 'hermana').map(c => c.id);
+  const { data } = await sb.from('posts').select('id,cuenta_id,imagen_url,plataforma,de_pago,creado').in('cuenta_id', her.length ? her : ['00000000-0000-0000-0000-000000000000']).not('imagen_url', 'is', null).order('creado', { ascending: false }).limit(120);
+  const N = S.yo.of ? await datosNoc() : null;
+  const vis = (data || []).filter(p => p.imagen_url).filter(p => p.plataforma !== 'of' || (p.de_pago ? N?.desP.has(p.id) : !!N?.sus));
+  await firmar(vis.map(p => p.imagen_url));
+  cont().innerHTML = `<div class="titulo-grande">Galería</div>` + (vis.length
+    ? `<div class="cuad" style="margin-top:8px">${vis.map(p => `<a href="${p.plataforma === 'of' ? '#/nocturna' : R + '/p/' + p.id}"><img src="${esc(S.urls.get(p.imagen_url))}" loading="lazy" alt=""></a>`).join('')}</div>`
+    : '<div class="vacio">Aquí salen las fotos que publiquen ellas en Vox y lo que desbloquees en Nocturna.</div>');
+}
+
+/* ---------- Avisos al iPhone ---------- */
+const b64u8 = b => { const p = '='.repeat((4 - b.length % 4) % 4); const r = atob((b + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from([...r].map(c => c.charCodeAt(0))); };
+async function estadoAvisos() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return 'no';
+  const reg = await navigator.serviceWorker.getRegistration();
+  const sub = reg && await reg.pushManager.getSubscription();
+  return sub ? 'si' : 'off';
+}
+async function activarAvisos() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return toast('Aquí no hay avisos: ábrelo desde la pantalla de inicio del iPhone');
+  if (!S.vapid_publica) return toast('Falta la clave de avisos en el servidor');
+  const reg = await navigator.serviceWorker.register('sw.js');
+  await navigator.serviceWorker.ready;
+  if (await Notification.requestPermission() !== 'granted') return toast('Sin permiso para avisos');
+  const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64u8(S.vapid_publica) });
+  const j = sub.toJSON();
+  const { error } = await sb.from('push_subs').upsert({ endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth });
+  if (error) return toast(error.message);
+  toast('Avisos activados'); vistaAjustes();
+}
+async function desactivarAvisos() {
+  const reg = await navigator.serviceWorker.getRegistration();
+  const sub = reg && await reg.pushManager.getSubscription();
+  if (sub) { await sb.from('push_subs').delete().eq('endpoint', sub.endpoint); await sub.unsubscribe(); }
+  toast('Avisos desactivados'); vistaAjustes();
 }
 
 /* ---------- apps que aún no están ---------- */
