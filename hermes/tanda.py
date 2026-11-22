@@ -26,9 +26,9 @@ Reglas fijas:
 - Español de España, como se escribe en X de verdad: corto, minúsculas frecuentes, jerga, memes, faltas leves a veces. Nada de sonar a IA ni a anuncio (salvo las marcas, que suenan a community manager).
 - Es una PARODIA tipo GTA y se escribe como Twitter de verdad: tacos y groserías sin miedo (joder, hostia, puta, coño, gilipollas…) y comentarios salidos o guarros de los que hay en cualquier red (tetas, culo, «qué buena estás», «me casaba», babosos, simps, gente que se pasa y otros que le paran los pies). Lo que NO: describir actos sexuales, nada con menores, nada de odio por raza, religión, orientación o similar, ni amenazas.
 - Nada de comentarios educados de anuncio ni de frases redondas: la gente escribe rápido, mal y con mala leche o con hype.
-- Famosos: si hace falta uno, inventado y parodia al estilo GTA (nombre falso). Nunca gente real.
+- Famosos: los de parodia que hay en la lista (Máximo Pixel, LOLA CRUZ, KEVIN BO$$, Afrodita Vex) u otros inventados al estilo GTA. Nunca gente real ni nombres que se parezcan a los de alguien real.
 - Todos los usuarios son inventados. Nunca nombres ni @ de gente real, ni enlaces reales, ni marcas reales.
-- La red se llama Cuervo (tipo X). Nocturna es la de pago (tipo OnlyFans). Las creadoras de Nocturna (Mila, Dalia, Kumi, Bea y VeeNoir) promocionan su Nocturna en Cuervo.
+- La red se llama Raven (tipo X). Nocturna es la de pago (tipo OnlyFans). Las creadoras de Nocturna (Mila, Dalia, Kumi, Bea, Afrodita Vex y VeeNoir) promocionan su Nocturna en Raven.
 - NO TE INVENTES HECHOS. La gente solo sabe lo que sale abajo: lo publicado, la agenda y la memoria de cada fijo.
   Nada de «te vi ayer en…», planes, sitios, viajes, parejas, nombres nuevos ni cosas que no consten. Si no consta, no se afirma.
 - Cada comentario reacciona a lo que dice ESE post (o a la respuesta a la que contesta). Nada de comentarios genéricos que valdrían para cualquier post.
@@ -228,7 +228,7 @@ def montar(desde, maximo):
         if c["tipo"] in ("hermana", "alberto"):
             partes.append(f"- @{c['usuario']} ({c['nombre']}, {c['seguidores']} seguidores): {corto(c['personalidad'] or 'usuario real, Alberto', 200)}")
 
-    partes.append("\n## Lo que ya han publicado las hermanas en Cuervo (contexto; no lo contradigas)")
+    partes.append("\n## Lo que ya han publicado las hermanas en Raven (contexto; no lo contradigas)")
     for c in cuentas:
         if c["tipo"] == "hermana":
             ult = red.sel("posts", cuenta_id=f"eq.{c['id']}", repost_de="is.null", texto="not.is.null", **{"and": f"(creado.lte.{ahora})"},
