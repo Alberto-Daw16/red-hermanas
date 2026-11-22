@@ -115,15 +115,40 @@ def llamar_modelo(mensajes, modelo):
     if not token:
         raise RuntimeError("No hay XAI_API_KEY ni token de xai-oauth localizable (ver _token_hermes en tanda.py)")
     base = os.environ.get("XAI_BASE_URL", "https://api.x.ai/v1").rstrip("/")
-    cuerpo = {"model": modelo, "messages": mensajes, "response_format": {"type": "json_object"}, "temperature": 0.9}
+    cuerpo = {"model": modelo, "messages": mensajes, "response_format": {"type": "json_object"}, "temperature": 0.9,
+              "stream": True, "stream_options": {"include_usage": True}}
+    esfuerzo = os.environ.get("XAI_RAZONAMIENTO") or (red.config("tanda", {}) or {}).get("razonamiento")
+    if esfuerzo:
+        cuerpo["reasoning_effort"] = esfuerzo  # solo si el modelo lo admite (p. ej. "low")
     req = urllib.request.Request(base + "/chat/completions", data=json.dumps(cuerpo).encode(), method="POST",
-                                 headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"})
+                                 headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json",
+                                          "Accept": "text/event-stream"})
+    # En streaming el servidor va mandando trozos y la conexión no se queda muda mientras el modelo piensa.
+    texto, uso = [], {}
     try:
-        with urllib.request.urlopen(req, timeout=600) as r:
-            d = json.loads(r.read().decode())
+        with urllib.request.urlopen(req, timeout=900) as r:
+            for linea in r:
+                linea = linea.decode("utf-8", "replace").strip()
+                if not linea.startswith("data:"):
+                    continue
+                dato = linea[5:].strip()
+                if dato == "[DONE]":
+                    break
+                try:
+                    j = json.loads(dato)
+                except Exception:
+                    continue
+                if j.get("usage"):
+                    uso = j["usage"]
+                for ch in j.get("choices") or []:
+                    trozo = (ch.get("delta") or {}).get("content")
+                    if trozo:
+                        texto.append(trozo)
     except urllib.error.HTTPError as e:
         raise RuntimeError(f"xAI {e.code}: {e.read().decode(errors='replace')[:400]}") from None
-    return d["choices"][0]["message"]["content"], d.get("usage") or {}
+    if not texto:
+        raise RuntimeError("xAI no devolvió texto")
+    return "".join(texto), uso
 
 
 def leer_json(texto):
