@@ -25,6 +25,11 @@ Generas en una sola respuesta cómo reacciona la gente simulada a lo nuevo. Todo
 Reglas fijas:
 - Español de España, como se escribe en X de verdad: corto, minúsculas frecuentes, jerga, memes, faltas leves a veces. Nada de sonar a IA ni a anuncio (salvo las marcas, que suenan a community manager).
 - Todos los usuarios son inventados. Nunca nombres ni @ de gente real, ni enlaces reales, ni marcas reales.
+- NO TE INVENTES HECHOS. La gente solo sabe lo que sale abajo: lo publicado, la agenda y la memoria de cada fijo.
+  Nada de «te vi ayer en…», planes, sitios, viajes, parejas, nombres nuevos ni cosas que no consten. Si no consta, no se afirma.
+- Cada comentario reacciona a lo que dice ESE post (o a la respuesta a la que contesta). Nada de comentarios genéricos que valdrían para cualquier post.
+- Juegos, anime y actualidad: solo cosas generales y seguras. Sin cifras, parches, fechas, fichajes ni noticias concretas que no estén en el post.
+- Los fans no conocen la vida privada de nadie; solo lo público. No contradigas lo que ya han publicado (lista abajo).
 - Picante sí (bait, indirectas, coqueteo), sexual explícito NO. El hater es pesado, borde y patético, pero nunca odio por raza, religión, orientación, etc., ni amenazas, ni doxxeo.
 - Nunca hables de Cristina, de academias, de aviación ni del trabajo de Alberto.
 - Yoruha es una cantante anónima: nadie conoce su cara, su nombre real ni su ciudad, y nadie la relaciona con VeeNoir.
@@ -39,12 +44,16 @@ Reglas fijas:
 - Si Alberto ha comentado o mandado MD a un personaje, ese personaje le contesta (en comentario o MD) si tiene sentido.
 - posts_nuevos: como mucho 3 en total y solo si pega (indirecta de la rival, la marca que tantea una colabo, Nerea avisando del directo, el hater haciendo ratio con cita…).
 - md: como mucho 4 (fans, marcas o fijos a las hermanas; o respuestas a los MD de Alberto).
+- Los posts marcados [Nocturna] son de la página de pago de VeeNoir: para esos pon solo "likes" (80–600), sin comentarios.
+- TIEMPO: cada comentario, respuesta, post nuevo y MD lleva "en_min": dentro de cuántos minutos aparece (0–480). Repártelos:
+  los primeros comentarios de un post reciente, pronto (2–40); el resto, a lo largo de las horas; las respuestas, después de lo que contestan.
+  Una conversación (A comenta, B contesta, A replica) va escalonada. Que no salga todo en el mismo minuto.
 
 Devuelve SOLO un objeto JSON con esta forma (omite listas vacías):
-{"posts":[{"id":123,"vistas":0,"likes":0,"reposts":0,"comentarios":[{"usuario":"pau_tilt","texto":"...","likes":0,"responde_a":null}]}],
- "respuestas":[{"comentario_id":45,"usuario":"nereitaa_vlc","texto":"...","likes":0}],
- "posts_nuevos":[{"usuario":"kiarapls","texto":"...","cita":null}],
- "md":[{"de":"voltaenergy","para":"veenoir","texto":"..."}],
+{"posts":[{"id":123,"vistas":0,"likes":0,"reposts":0,"comentarios":[{"usuario":"pau_tilt","texto":"...","likes":0,"responde_a":null,"en_min":5}]}],
+ "respuestas":[{"comentario_id":45,"usuario":"nereitaa_vlc","texto":"...","likes":0,"en_min":30}],
+ "posts_nuevos":[{"usuario":"kiarapls","texto":"...","cita":null,"en_min":90}],
+ "md":[{"de":"voltaenergy","para":"veenoir","texto":"...","en_min":120}],
  "fans_nuevos":[{"usuario":"ahri_mainlover","nombre":"Ahri main 🦊","bio":"..."}],
  "memoria":[{"usuario":"realtalk_88x","nota":"frase corta de lo que recordará"}]}
 "responde_a" dentro de comentarios: null, o el índice (0,1,2…) de otro comentario de la misma lista al que responde.
@@ -125,6 +134,25 @@ def leer_json(texto):
 
 
 # ---------- material de la tanda ----------
+def minutos(iso):
+    try:
+        return max(0, int((datetime.now(timezone.utc) - datetime.fromisoformat(iso.replace("Z", "+00:00"))).total_seconds() // 60))
+    except Exception:
+        return 0
+
+
+def en(minutos_, despues_de=None):
+    """Hora ISO dentro de `minutos_` (0–480), y nunca antes de `despues_de` + 1 min."""
+    m = max(0, min(480, int(minutos_ or 0)))
+    t = datetime.now(timezone.utc).timestamp() + m * 60
+    if despues_de:
+        try:
+            t = max(t, datetime.fromisoformat(str(despues_de).replace("Z", "+00:00")).timestamp() + random.randint(60, 300))
+        except Exception:
+            pass
+    return datetime.fromtimestamp(t, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def corto(t, n=280):
     t = (t or "").strip()
     return t if len(t) <= n else t[:n] + "…"
@@ -138,10 +166,13 @@ def montar(desde, maximo):
     ids_fijos = [c["id"] for c in cuentas if c["tipo"] in ("fijo", "marca", "fan")]
     clave = ",".join(ids_her + ids_alb)
 
-    posts = red.sel("posts", plataforma=f"eq.{PLAT}", cuenta_id=f"in.({clave})", creado=f"gt.{desde}",
-                    select="id,cuenta_id,texto,imagen_url,encuesta,repost_de,cita,creado", order="creado.asc", limit=maximo)
+    ids_her_of = [c["id"] for c in red.sel("cuentas", plataforma="eq.of", tipo="eq.hermana", select="id")]
+    clave_p = ",".join(ids_her + ids_alb + ids_her_of)
+    ahora = red.ahora_iso()
+    posts = red.sel("posts", cuenta_id=f"in.({clave_p})", creado=f"gt.{desde}", **{"and": f"(creado.lte.{ahora})"},
+                    select="id,cuenta_id,plataforma,texto,imagen_url,encuesta,repost_de,cita,de_pago,media_n,creado", order="creado.asc", limit=maximo)
     posts = [p for p in posts if not (p["repost_de"] and not p["cita"])]  # los reposts sin texto no generan reacciones
-    coms = red.sel("comentarios", cuenta_id=f"in.({clave})", creado=f"gt.{desde}",
+    coms = red.sel("comentarios", cuenta_id=f"in.({clave})", creado=f"gt.{desde}", **{"and": f"(creado.lte.{ahora})"},
                    select="id,post_id,cuenta_id,texto,responde_a", order="creado.asc", limit=30)
     mds = red.sel("mensajes", plataforma=f"eq.{PLAT}", de=f"in.({','.join(ids_alb) or '0'})", para=f"in.({','.join(ids_fijos) or '0'})",
                   creado=f"gt.{desde}", select="id,de,para,texto", order="creado.asc", limit=20) if ids_fijos and ids_alb else []
@@ -162,6 +193,19 @@ def montar(desde, maximo):
         if c["tipo"] in ("hermana", "alberto"):
             partes.append(f"- @{c['usuario']} ({c['nombre']}, {c['seguidores']} seguidores): {corto(c['personalidad'] or 'usuario real, Alberto', 200)}")
 
+    partes.append("\n## Lo que ya han publicado las hermanas en Vox (contexto; no lo contradigas)")
+    for c in cuentas:
+        if c["tipo"] == "hermana":
+            ult = red.sel("posts", cuenta_id=f"eq.{c['id']}", repost_de="is.null", texto="not.is.null", **{"and": f"(creado.lte.{ahora})"},
+                          select="texto,creado", order="creado.desc", limit=8)
+            for p in ult:
+                partes.append(f"- @{c['usuario']} ({p['creado'][:10]}): «{corto(p['texto'], 160)}»")
+    try:
+        agenda = red.config("agenda", []) or []
+        dias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"]
+        partes.append("\n## Agenda de directos: " + "; ".join(f"{e['quien']} {dias[e['dia']]} {e['hora']} ({e['que']})" for e in agenda))
+    except Exception:
+        pass
     if posts:
         partes.append("\n## Posts nuevos a los que reaccionar")
         for p in posts:
@@ -172,7 +216,10 @@ def montar(desde, maximo):
                 extra += " [lleva imagen]"
             if p.get("cita"):
                 extra += f" [cita al post {p['repost_de']}]"
-            partes.append(f"- post {p['id']} de {u(p['cuenta_id'])}: «{corto(p['texto'])}»{extra}")
+            if p.get("plataforma") == "of":
+                extra += f" [Nocturna{', de pago' if p.get('de_pago') else ''}{', ' + str(p['media_n']) + ' fotos' if p.get('media_n') else ''}]"
+            quien = u(p['cuenta_id']) if p['cuenta_id'] in por_id else "@veenoir"
+            partes.append(f"- post {p['id']} de {quien}, hace {minutos(p['creado'])} min: «{corto(p['texto'])}»{extra}")
     if coms:
         partes.append("\n## Comentarios nuevos de Alberto o de las hermanas (se les puede contestar en 'respuestas')")
         cache = {}
@@ -216,34 +263,36 @@ def aplicar(res, cuentas):
         pid = p.get("id")
         if not isinstance(pid, int):
             continue
-        actual = red.sel("posts", id=f"eq.{pid}", select="likes_sim,reposts_sim,vistas_sim")
+        actual = red.sel("posts", id=f"eq.{pid}", select="likes_sim,reposts_sim,vistas_sim,plataforma,creado")
         if not actual:
             continue
         a = actual[0]
         red.upd("posts", {"likes_sim": a["likes_sim"] + num(p.get("likes")), "reposts_sim": a["reposts_sim"] + num(p.get("reposts")),
                           "vistas_sim": a["vistas_sim"] + num(p.get("vistas"))}, id=f"eq.{pid}")
         creados = []
-        for c in p.get("comentarios", []) or []:
+        for c in ([] if a["plataforma"] == "of" else (p.get("comentarios", []) or [])):
             k = cuenta_de(c.get("usuario"))
             if not k or not c.get("texto"):
                 creados.append(None); continue
             ref = c.get("responde_a")
-            resp = creados[ref] if isinstance(ref, int) and 0 <= ref < len(creados) else None
+            padre = creados[ref] if isinstance(ref, int) and 0 <= ref < len(creados) else None
+            cuando = en(c.get("en_min"), padre["creado"] if padre else a["creado"])
             r = red.ins("comentarios", {"post_id": pid, "cuenta_id": k["id"], "texto": c["texto"][:500], "likes_sim": num(c.get("likes")),
-                                        "responde_a": resp, "origen": "tanda"})[0]
-            creados.append(r["id"]); n["comentarios"] += 1
+                                        "responde_a": padre["id"] if padre else None, "origen": "tanda", "creado": cuando})[0]
+            creados.append(r); n["comentarios"] += 1
     for c in res.get("respuestas", []) or []:
         k = cuenta_de(c.get("usuario"))
-        orig = red.sel("comentarios", id=f"eq.{c.get('comentario_id')}", select="id,post_id") if isinstance(c.get("comentario_id"), int) else []
+        orig = red.sel("comentarios", id=f"eq.{c.get('comentario_id')}", select="id,post_id,creado") if isinstance(c.get("comentario_id"), int) else []
         if k and orig and c.get("texto"):
             red.ins("comentarios", {"post_id": orig[0]["post_id"], "cuenta_id": k["id"], "texto": c["texto"][:500],
-                                    "likes_sim": num(c.get("likes")), "responde_a": orig[0]["id"], "origen": "tanda"})
+                                    "likes_sim": num(c.get("likes")), "responde_a": orig[0]["id"], "origen": "tanda",
+                                    "creado": en(c.get("en_min"), orig[0]["creado"])})
             n["respuestas"] += 1
     for p in (res.get("posts_nuevos", []) or [])[:3]:
         k = cuenta_de(p.get("usuario"))
         if k and p.get("texto"):
             fila = {"cuenta_id": k["id"], "plataforma": PLAT, "texto": p["texto"][:560], "origen": "tanda",
-                    "likes_sim": random.randint(5, 400), "vistas_sim": random.randint(300, 9000)}
+                    "likes_sim": random.randint(5, 400), "vistas_sim": random.randint(300, 9000), "creado": en(p.get("en_min"))}
             if isinstance(p.get("cita"), int) and red.sel("posts", id=f"eq.{p['cita']}", select="id"):
                 fila.update(repost_de=p["cita"], cita=True)
             red.ins("posts", fila); n["posts"] += 1
@@ -251,7 +300,7 @@ def aplicar(res, cuentas):
         de = cuenta_de(m.get("de"))
         para = por_user.get((m.get("para") or "").lstrip("@").lower())
         if de and para and m.get("texto"):
-            red.ins("mensajes", {"plataforma": PLAT, "de": de["id"], "para": para["id"], "texto": m["texto"][:1000], "origen": "tanda"})
+            red.ins("mensajes", {"plataforma": PLAT, "de": de["id"], "para": para["id"], "texto": m["texto"][:1000], "origen": "tanda", "creado": en(m.get("en_min"))})
             n["md"] += 1
     for m in res.get("memoria", []) or []:
         k = por_user.get((m.get("usuario") or "").lstrip("@").lower())

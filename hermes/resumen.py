@@ -54,6 +54,18 @@ def main():
     rp = red.sel("posts", cuenta_id=f"in.({ids_alb})", repost_de=f"in.({pids})", creado=f"gt.{desde}", select="repost_de,cita,texto")
     for r in rp[:2]:
         lineas.append(f"- Alberto ha {'citado' if r['cita'] else 'reposteado'} tu #{r['repost_de']}" + (f": «{corto(r['texto'])}»" if r['cita'] else ""))
+    # Nocturna: lo que ha pagado Alberto (dinero de mentira)
+    if any(c["plataforma"] == "of" for c in mias):
+        ids_of = ",".join(c["id"] for c in mias if c["plataforma"] == "of")
+        sus = red.sel("suscripciones", creadora=f"in.({ids_of})", creado=f"gt.{desde}", select="precio")
+        if sus:
+            lineas.append(f"- Alberto se ha suscrito a tu Nocturna ({sus[0]['precio']} €)")
+        des = red.sel("desbloqueos", creado=f"gt.{desde}", select="post_id,mensaje_id,precio")
+        for d in des[:4]:
+            lineas.append(f"- Alberto ha desbloqueado {'tu post #' + str(d['post_id']) if d['post_id'] else 'un mensaje tuyo de pago'} ({d['precio']} €)")
+        tips = red.sel("propinas", para=f"in.({ids_of})", creado=f"gt.{desde}", select="importe,mensaje")
+        for t in tips[:4]:
+            lineas.append(f"- Alberto te ha dado {t['importe']} € de propina" + (f": «{corto(t['mensaje'])}»" if t.get("mensaje") else ""))
     sg = red.sel("seguimientos", seguidor=f"in.({ids_alb})", seguido=f"in.({ids_mias})", creado=f"gt.{desde}", select="seguido")
     if sg:
         lineas.append("- Alberto ha empezado a seguirte en " + ", ".join(plat[s["seguido"]] for s in sg))

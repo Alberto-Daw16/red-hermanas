@@ -4,6 +4,8 @@
   publicar.py post      --quien valeria --texto "..." [--imagen f.png] [--encuesta "a|b|c" --horas 24] [--cita ID] [--origen noche]
   publicar.py responder --quien valeria --post ID [--a-comentario ID] --texto "..."
   publicar.py md        --quien valeria --para usuario --texto "..."
+  publicar.py post      --quien valeria --plataforma of --texto "..." [--precio 7.99] [--fotos 14] [--oculto "..."]   (Nocturna)
+  publicar.py md        --quien valeria --plataforma of --para alberto_16 --texto "..." [--precio 3.99 --oculto "..."]
   publicar.py like      --quien valeria --post ID
   publicar.py repost    --quien valeria --post ID
 
@@ -26,9 +28,12 @@ def main():
     p = base("post"); p.add_argument("--texto", default=""); p.add_argument("--imagen")
     p.add_argument("--encuesta"); p.add_argument("--horas", type=int, default=24)
     p.add_argument("--cita", type=int); p.add_argument("--origen", default="chat")
-    p.add_argument("--precio", type=float, help="solo OnlyFans: post de pago")
+    p.add_argument("--precio", type=float, help="solo Nocturna: post de pago")
+    p.add_argument("--oculto", help="solo Nocturna: lo que se lee al desbloquearlo")
+    p.add_argument("--fotos", type=int, help="solo Nocturna: cuántas fotos tiene el set")
     p = base("responder"); p.add_argument("--post", type=int, required=True); p.add_argument("--a-comentario", type=int); p.add_argument("--texto", required=True)
     p = base("md"); p.add_argument("--para", required=True); p.add_argument("--texto", required=True)
+    p.add_argument("--precio", type=float, help="solo Nocturna: mensaje de pago"); p.add_argument("--oculto"); p.add_argument("--imagen")
     p = base("like"); p.add_argument("--post", type=int, required=True)
     p = base("repost"); p.add_argument("--post", type=int, required=True)
     a = ap.parse_args()
@@ -49,6 +54,10 @@ def main():
                 fila.update(repost_de=a.cita, cita=True)
             if a.precio:
                 fila.update(de_pago=True, precio=a.precio)
+            if a.oculto:
+                fila["oculto"] = a.oculto
+            if a.fotos:
+                fila["media_n"] = a.fotos
             r = red.ins("posts", fila)[0]
             print(json.dumps({"ok": True, "post": r["id"]}))
         elif a.accion == "responder":
@@ -58,7 +67,12 @@ def main():
             dest = red.sel("cuentas", plataforma=f"eq.{a.plataforma}", usuario=f"ilike.{a.para.lstrip('@')}", select="id")
             if not dest:
                 sys.exit(f"No existe @{a.para} en {a.plataforma}")
-            red.ins("mensajes", {"plataforma": a.plataforma, "de": yo["id"], "para": dest[0]["id"], "texto": a.texto, "origen": "hermana"})
+            fila = {"plataforma": a.plataforma, "de": yo["id"], "para": dest[0]["id"], "texto": a.texto, "origen": "hermana"}
+            if a.precio:
+                fila.update(precio=a.precio, oculto=a.oculto)
+            if a.imagen:
+                fila["imagen_url"] = red.subir_imagen(a.imagen, f"{a.quien}/md-{int(time.time())}{os.path.splitext(a.imagen)[1] or '.png'}")
+            red.ins("mensajes", fila)
             print(json.dumps({"ok": True}))
         elif a.accion == "like":
             red.ins("likes", {"cuenta_id": yo["id"], "post_id": a.post})
