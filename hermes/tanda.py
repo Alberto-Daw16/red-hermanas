@@ -24,7 +24,11 @@ Generas en una sola respuesta cómo reacciona la gente simulada a lo nuevo. Todo
 
 Reglas fijas:
 - Español de España, como se escribe en X de verdad: corto, minúsculas frecuentes, jerga, memes, faltas leves a veces. Nada de sonar a IA ni a anuncio (salvo las marcas, que suenan a community manager).
+- Es una PARODIA tipo GTA y se escribe como Twitter de verdad: tacos y groserías sin miedo (joder, hostia, puta, coño, gilipollas…) y comentarios salidos o guarros de los que hay en cualquier red (tetas, culo, «qué buena estás», «me casaba», babosos, simps, gente que se pasa y otros que le paran los pies). Lo que NO: describir actos sexuales, nada con menores, nada de odio por raza, religión, orientación o similar, ni amenazas.
+- Nada de comentarios educados de anuncio ni de frases redondas: la gente escribe rápido, mal y con mala leche o con hype.
+- Famosos: si hace falta uno, inventado y parodia al estilo GTA (nombre falso). Nunca gente real.
 - Todos los usuarios son inventados. Nunca nombres ni @ de gente real, ni enlaces reales, ni marcas reales.
+- La red se llama Cuervo (tipo X). Nocturna es la de pago (tipo OnlyFans). Las creadoras de Nocturna (Mila, Dalia, Kumi, Bea y VeeNoir) promocionan su Nocturna en Cuervo.
 - NO TE INVENTES HECHOS. La gente solo sabe lo que sale abajo: lo publicado, la agenda y la memoria de cada fijo.
   Nada de «te vi ayer en…», planes, sitios, viajes, parejas, nombres nuevos ni cosas que no consten. Si no consta, no se afirma.
 - Cada comentario reacciona a lo que dice ESE post (o a la respuesta a la que contesta). Nada de comentarios genéricos que valdrían para cualquier post.
@@ -44,7 +48,10 @@ Reglas fijas:
 - Si Alberto ha comentado o mandado MD a un personaje, ese personaje le contesta (en comentario o MD) si tiene sentido.
 - Varía: que el hater no repita sus muletillas («ratio», «nadie te ha preguntado») en cada comentario; mira su memoria y cambia de ataque.
 - "memoria": solo lo que ese personaje ha hecho DE VERDAD en esta respuesta (un comentario, un post, un MD que aparezca arriba). Nunca algo que no hayas generado.
-- posts_nuevos: como mucho 3 en total y solo si pega (indirecta de la rival, la marca que tantea una colabo, Nerea avisando del directo, el hater haciendo ratio con cita…).
+- posts_nuevos: entre 6 y 10. Que la red tenga VIDA, como el feed de Snapmatic en GTA: además de lo que pase con las hermanas (indirecta de la rival, la marca que tantea una colabo, Nerea avisando del directo, el hater con cita…), gente random y fans contando su vida (curro, gym, comida, partidas, memes, quejas del día), las creadoras promocionando, algún hilo absurdo. Pueden mencionarse entre ellos (@usuario) y crear piques.
+- "foto": en 3 o 4 de esos posts, un prompt corto EN INGLÉS para generar la foto que acompaña al post (selfie de gente inventada, comida, gym, setup, paisaje, meme sin texto…). Siempre gente inventada, nunca famosos ni personajes con copyright, nada de desnudos (sexy vale).
+- "nocturna": como mucho 2 posts nuevos de las creadoras (NO de VeeNoir, que escribe ella) en su página de pago: texto gancho con picardía, "precio" (null = solo suscriptores, o 4.99–14.99), "fotos" (3–15) y "oculto" (lo que se lee al desbloquear; picardía, sin describir actos).
+- fans_nuevos: con "avatar" = prompt corto en inglés de su foto de perfil (persona inventada, avatar de anime genérico, mascota, meme sin texto…).
 - md: como mucho 4 (fans, marcas o fijos a las hermanas; o respuestas a los MD de Alberto).
 - Los posts marcados [Nocturna] son de la página de pago de VeeNoir: para esos pon solo "likes" (80–600), sin comentarios.
 - TIEMPO: cada comentario, respuesta, post nuevo y MD lleva "en_min": dentro de cuántos minutos aparece (0–480). Repártelos:
@@ -54,9 +61,10 @@ Reglas fijas:
 Devuelve SOLO un objeto JSON con esta forma (omite listas vacías):
 {"posts":[{"id":123,"vistas":0,"likes":0,"reposts":0,"comentarios":[{"usuario":"pau_tilt","texto":"...","likes":0,"responde_a":null,"en_min":5}]}],
  "respuestas":[{"comentario_id":45,"usuario":"nereitaa_vlc","texto":"...","likes":0,"en_min":30}],
- "posts_nuevos":[{"usuario":"kiarapls","texto":"...","cita":null,"en_min":90}],
+ "posts_nuevos":[{"usuario":"kiarapls","texto":"...","cita":null,"en_min":90,"foto":null}],
  "md":[{"de":"voltaenergy","para":"veenoir","texto":"...","en_min":120}],
- "fans_nuevos":[{"usuario":"ahri_mainlover","nombre":"Ahri main 🦊","bio":"..."}],
+ "fans_nuevos":[{"usuario":"ahri_mainlover","nombre":"Ahri main 🦊","bio":"...","avatar":"anime fox girl icon, flat colors"}],
+ "nocturna":[{"usuario":"dalianox","texto":"...","precio":null,"fotos":6,"oculto":"...","en_min":200}],
  "memoria":[{"usuario":"realtalk_88x","nota":"frase corta de lo que recordará"}]}
 "responde_a" dentro de comentarios: null, o el índice (0,1,2…) de otro comentario de la misma lista al que responde.
 """
@@ -220,7 +228,7 @@ def montar(desde, maximo):
         if c["tipo"] in ("hermana", "alberto"):
             partes.append(f"- @{c['usuario']} ({c['nombre']}, {c['seguidores']} seguidores): {corto(c['personalidad'] or 'usuario real, Alberto', 200)}")
 
-    partes.append("\n## Lo que ya han publicado las hermanas en Vox (contexto; no lo contradigas)")
+    partes.append("\n## Lo que ya han publicado las hermanas en Cuervo (contexto; no lo contradigas)")
     for c in cuentas:
         if c["tipo"] == "hermana":
             ult = red.sel("posts", cuenta_id=f"eq.{c['id']}", repost_de="is.null", texto="not.is.null", **{"and": f"(creado.lte.{ahora})"},
@@ -270,7 +278,8 @@ def aplicar(res, cuentas):
     por_user = {c["usuario"].lower(): c for c in cuentas}
     prohibidas = {c["usuario"].lower() for c in cuentas if c["tipo"] in ("hermana", "alberto")}
     fans_info = {f.get("usuario", "").lower().lstrip("@"): f for f in res.get("fans_nuevos", []) or []}
-    n = {"comentarios": 0, "respuestas": 0, "posts": 0, "md": 0, "fans": 0}
+    n = {"comentarios": 0, "respuestas": 0, "posts": 0, "md": 0, "fans": 0, "nocturna": 0, "fotos": 0}
+    cola = []
 
     def cuenta_de(usuario):
         usuario = (usuario or "").lstrip("@").strip()
@@ -283,6 +292,8 @@ def aplicar(res, cuentas):
                                         "usuario": usuario, "bio": (info.get("bio") or "")[:160],
                                         "seguidores": random.randint(8, 2400), "siguiendo": random.randint(50, 900)})[0]
             por_user[k] = nueva; n["fans"] += 1
+            if info.get("avatar"):
+                cola.append({"tipo": "avatar", "cuenta_id": nueva["id"], "prompt": str(info["avatar"])[:400] + " Square profile picture."})
         return por_user[k]
 
     num = lambda v: max(0, int(v or 0))
@@ -315,20 +326,40 @@ def aplicar(res, cuentas):
                                     "likes_sim": num(c.get("likes")), "responde_a": orig[0]["id"], "origen": "tanda",
                                     "creado": en(c.get("en_min"), orig[0]["creado"])})
             n["respuestas"] += 1
-    for p in (res.get("posts_nuevos", []) or [])[:3]:
+    for p in (res.get("posts_nuevos", []) or [])[:10]:
         k = cuenta_de(p.get("usuario"))
         if k and p.get("texto"):
             fila = {"cuenta_id": k["id"], "plataforma": PLAT, "texto": p["texto"][:560], "origen": "tanda",
                     "likes_sim": random.randint(5, 400), "vistas_sim": random.randint(300, 9000), "creado": en(p.get("en_min"))}
             if isinstance(p.get("cita"), int) and red.sel("posts", id=f"eq.{p['cita']}", select="id"):
                 fila.update(repost_de=p["cita"], cita=True)
-            red.ins("posts", fila); n["posts"] += 1
+            nuevo = red.ins("posts", fila)[0]; n["posts"] += 1
+            if p.get("foto") and sum(1 for c in cola if c["tipo"] == "post") < 4:
+                cola.append({"tipo": "post", "post_id": nuevo["id"], "prompt": str(p["foto"])[:500]})
     for m in (res.get("md", []) or [])[:4]:
         de = cuenta_de(m.get("de"))
         para = por_user.get((m.get("para") or "").lstrip("@").lower())
         if de and para and m.get("texto"):
             red.ins("mensajes", {"plataforma": PLAT, "de": de["id"], "para": para["id"], "texto": m["texto"][:1000], "origen": "tanda", "creado": en(m.get("en_min"))})
             n["md"] += 1
+    for p in (res.get("nocturna", []) or [])[:2]:
+        k = cuenta_de(p.get("usuario"))
+        if not k or k.get("tipo") != "fijo" or not str(k.get("quien") or "").startswith("creadora_") or not p.get("texto"):
+            continue
+        of = red.sel("cuentas", quien=f"eq.{k['quien']}", plataforma="eq.of", select="id")
+        if not of:
+            continue
+        precio = p.get("precio")
+        try:
+            precio = round(float(precio), 2) if precio else None
+        except Exception:
+            precio = None
+        red.ins("posts", {"cuenta_id": of[0]["id"], "plataforma": "of", "texto": p["texto"][:400], "de_pago": bool(precio), "precio": precio,
+                          "media_n": max(1, min(20, int(p.get("fotos") or 5))), "oculto": (p.get("oculto") or "")[:400] or None,
+                          "likes_sim": random.randint(150, 900), "origen": "tanda", "creado": en(p.get("en_min"))})
+        n["nocturna"] += 1
+    if cola:
+        red.ins("imagenes", cola); n["fotos"] = len(cola)
     for m in res.get("memoria", []) or []:
         k = por_user.get((m.get("usuario") or "").lstrip("@").lower())
         if k and k["tipo"] in ("fijo", "marca") and m.get("nota"):
