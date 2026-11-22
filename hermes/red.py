@@ -80,13 +80,13 @@ def poner_config(clave, valor):
                   {"Prefer": "resolution=merge-duplicates,return=representation"})
 
 
-def subir_imagen(ruta_local, destino):
-    """Sube a storage (bucket privado 'media') y devuelve la ruta que se guarda en posts.imagen_url."""
+def subir_imagen(ruta_local, destino, bucket="media"):
+    """Sube a storage (bucket privado 'media', o 'publico' para los iconos) y devuelve la ruta."""
     ext = os.path.splitext(ruta_local)[1].lower().lstrip(".") or "png"
     tipo = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "webp": "image/webp", "gif": "image/gif"}.get(ext, "image/png")
     with open(ruta_local, "rb") as f:
         datos = f.read()
-    _pedir("POST", f"/storage/v1/object/media/{destino}", datos, {"x-upsert": "true"}, crudo=True, tipo=tipo)
+    _pedir("POST", f"/storage/v1/object/{bucket}/{destino}", datos, {"x-upsert": "true"}, crudo=True, tipo=tipo)
     return destino
 
 

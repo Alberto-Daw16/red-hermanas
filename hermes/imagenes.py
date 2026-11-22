@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import red
 
 REFS = os.path.expanduser(os.environ.get("REFS_DIR", "~/.hermes/profiles/valeria/projects/four-girls-director-v1/references/canonical"))
-TAMANO = {"avatar": "1024x1024", "banner": "1536x1024", "post": "1024x1024", "md": "1024x1536"}
+TAMANO = {"icono": "1024x1024", "avatar": "1024x1024", "banner": "1536x1024", "post": "1024x1024", "md": "1024x1536"}
 ESTILO = " No text, no watermark, no logos of real brands."
 
 
@@ -90,7 +90,13 @@ def copiar_a_nocturna():
 
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--prueba", action="store_true"); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument("--prueba", action="store_true")
+    ap.add_argument("--rehacer", type=int, nargs="+", metavar="ID", help="vuelve a poner en cola esas imágenes (si una salió mal)")
+    a = ap.parse_args()
+    if a.rehacer:
+        for i in a.rehacer:
+            red.upd("imagenes", {"estado": "pendiente", "error": None}, id=f"eq.{i}")
+        print(f"En cola otra vez: {a.rehacer}")
     cfg = red.config("imagenes", {}) or {}
     if cfg.get("activa") is False and not a.prueba:
         print("Imágenes paradas en config."); return
@@ -111,7 +117,10 @@ def main():
             with tempfile.TemporaryDirectory() as d:
                 salida = os.path.join(d, "img.png")
                 generar(it["prompt"] + ESTILO, tam, ref, salida)
-                ruta = red.subir_imagen(salida, f"gen/{it['tipo']}-{it['id']}.png")
+                if it["tipo"] == "icono":  # iconos del móvil: bucket público, ruta fija (iconos/<app>.png)
+                    ruta = red.subir_imagen(salida, it["ruta"], bucket="publico")
+                else:
+                    ruta = red.subir_imagen(salida, f"gen/{it['tipo']}-{it['id']}.png")
             enlazar(it, ruta)
             red.upd("imagenes", {"estado": "hecha", "ruta": ruta, "hecha": red.ahora_iso(), "error": None}, id=f"eq.{it['id']}")
             red.apuntar_consumo(quien="imagenes", para=f"imagen:{it['tipo']}", modelo=os.environ.get("IMAGEN_MODELO", "gpt-image-2"),
