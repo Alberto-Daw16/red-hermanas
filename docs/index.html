@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<meta name="build" content="2026-11-22.1">
+<meta name="build" content="2026-11-22.2">
 <meta name="robots" content="noindex,nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Móvil">
+<meta name="apple-mobile-web-app-title" content="Aquelarre">
 <meta name="theme-color" content="#0b0710">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>Móvil</title>
+<title>Aquelarre</title>
 <style>
 :root{--bg:#000;--bg2:#16181c;--bg3:#202327;--line:#2f3336;--tx:#e7e9ea;--tx2:#71767b;--azul:#ff3d8b;--rosa:#ff3d8b;--verde:#00ba7c;--st:0px;--sb:0px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -269,6 +269,15 @@ td.num,th.num{text-align:right}
 .bb.pago{background:linear-gradient(135deg,#3a1636,#1d1022);border:1px solid rgba(255,61,139,.4)}
 .bb .ver{display:block;margin-top:8px;text-align:center;background:#ff3d8b;color:#fff;border-radius:14px;padding:7px;font-weight:700}
 
+/* ---------- Nocturna: creadoras ---------- */
+.tcrea{display:block;margin:0 16px 14px;border-radius:16px;overflow:hidden;background:#1a0f1f;border:1px solid rgba(255,61,139,.18)}
+.tban{height:92px;background:radial-gradient(70% 90% at 20% 30%,rgba(255,61,139,.45),transparent),radial-gradient(60% 80% at 85% 60%,rgba(122,44,255,.4),transparent),#1a0f1f}
+.tban img{width:100%;height:100%;object-fit:cover}
+.tfila{display:flex;align-items:center;gap:10px;padding:0 12px 12px;margin-top:-22px}
+.tfila .av{width:56px;height:56px;border:3px solid #1a0f1f;font-size:22px}
+.tfila .cuerpo{padding-top:24px}
+.chip-precio,.chip-sus{margin-top:24px;font-size:12px;font-weight:800;padding:6px 10px;border-radius:14px;white-space:nowrap}
+.chip-precio{background:#ff3d8b;color:#fff}.chip-sus{border:1px solid #ff3d8b;color:#ff8ab8}
 /* ---------- bloqueo / entrar ---------- */
 .bloqueo{position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;padding:calc(var(--st) + 30px) 28px calc(var(--sb) + 20px)}
 .bloqueo .fecha{font-size:19px;font-weight:600;color:rgba(255,255,255,.85)}
@@ -386,7 +395,7 @@ const cont = () => document.getElementById('main');
 /* ---------- iconos de las apps (dibujados aquí, propios) ---------- */
 const ICONOS = {
   hilo: `<svg viewBox="0 0 60 60"><defs><linearGradient id="gh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff6aa6"/><stop offset="1" stop-color="#d4145a"/></linearGradient></defs><rect width="60" height="60" fill="url(#gh)"/><path d="M30 13c-10.5 0-19 7-19 15.6 0 4.6 2.4 8.7 6.3 11.6l-1.6 6.6 7.4-3.9c2.2.7 4.5 1 6.9 1 10.5 0 19-7 19-15.3S40.5 13 30 13z" fill="#fff"/><circle cx="22" cy="28.6" r="2.6" fill="#d4145a"/><circle cx="30" cy="28.6" r="2.6" fill="#d4145a"/><circle cx="38" cy="28.6" r="2.6" fill="#d4145a"/></svg>`,
-  vox: `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#0a0a0c"/><circle cx="30" cy="30" r="22" fill="none" stroke="#ff3d8b" stroke-opacity=".18" stroke-width="1.5"/><path d="M17 17h7.5L30 35.5 35.5 17H43L33.6 44h-7.2z" fill="#fff"/><path d="M38 17h5l-3 8.5h-4.6z" fill="#ff3d8b"/></svg>`,
+  vox: `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#0a0a0c"/><circle cx="30" cy="30" r="23" fill="#ff3d8b" opacity=".12"/><path d="M14 38c4-1 8-4 11-8 2-5 6-9 12-9 3 0 5 1 7 3l6 1-5 3c0 7-4 13-11 16-5 2-11 2-16 0l4-2c-3 0-6-1-8-4z" fill="#f2f2f2"/><circle cx="38.5" cy="26" r="2" fill="#ff3d8b"/><path d="M25 44l-3 6M30 45l-1 6" stroke="#f2f2f2" stroke-width="2" stroke-linecap="round"/></svg>`,
   lumen: `<svg viewBox="0 0 60 60"><defs><linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd36e"/><stop offset=".55" stop-color="#ff5f8f"/><stop offset="1" stop-color="#e0367a"/></linearGradient></defs><rect width="60" height="60" fill="url(#gl)"/><path d="M27 12c1.2 8.6 4.4 11.8 13 13-8.6 1.2-11.8 4.4-13 13-1.2-8.6-4.4-11.8-13-13 8.6-1.2 11.8-4.4 13-13z" fill="#fff"/><path d="M42 33c.6 4.3 2.2 5.9 6.5 6.5-4.3.6-5.9 2.2-6.5 6.5-.6-4.3-2.2-5.9-6.5-6.5 4.3-.6 5.9-2.2 6.5-6.5z" fill="#fff" opacity=".85"/></svg>`,
   nocturna: `<svg viewBox="0 0 60 60"><defs><radialGradient id="gn" cx=".3" cy=".25" r=".9"><stop offset="0" stop-color="#4a1458"/><stop offset="1" stop-color="#110316"/></radialGradient></defs><rect width="60" height="60" fill="url(#gn)"/><path d="M36 13a17 17 0 1 0 11 29.8A14 14 0 0 1 36 13z" fill="#ff3d8b"/><path d="M40.5 23.5c-1.6-1.6-4.2-1.3-5.2.6-1-1.9-3.6-2.2-5.2-.6-1.5 1.5-1.4 3.9.3 5.4l4.9 4.3 4.9-4.3c1.7-1.5 1.8-3.9.3-5.4z" fill="#fff"/><circle cx="18" cy="16" r="1.2" fill="#fff" opacity=".8"/><circle cx="46" cy="44" r="1" fill="#fff" opacity=".6"/></svg>`,
   agenda: () => { const d = new Date(); return `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#17131c"/><rect width="60" height="19" fill="#ff3d8b"/><text x="30" y="14" text-anchor="middle" font-size="10" font-weight="800" fill="#fff" font-family="-apple-system,Helvetica,Arial" letter-spacing="1">${DIAS[d.getDay()].slice(0, 3).toUpperCase()}</text><text x="30" y="49" text-anchor="middle" font-size="27" font-weight="700" fill="#fff" font-family="-apple-system,Helvetica,Arial">${d.getDate()}</text></svg>`; },
@@ -396,10 +405,10 @@ const ICONOS = {
   ajustes: `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#1c1820"/><g transform="translate(30 30)" fill="#ff3d8b">${Array.from({ length: 8 }, (_, i) => `<rect x="-3.4" y="-19" width="6.8" height="9" rx="2" transform="rotate(${i * 45})"/>`).join('')}<circle r="13"/></g><circle cx="30" cy="30" r="5.5" fill="#1c1820"/></svg>`,
 };
 const APPS = [
-  { id: 'hilo', nombre: 'Hilo' }, { id: 'vox', nombre: 'Vox' }, { id: 'nocturna', nombre: 'Nocturna' },
-  { id: 'agenda', nombre: 'Agenda' }, { id: 'galeria', nombre: 'Galería' }, { id: 'sonar', nombre: 'Sonar' }, { id: 'medidor', nombre: 'Medidor' }, { id: 'ajustes', nombre: 'Ajustes' },
+  { id: 'hilo', nombre: 'Guasa' }, { id: 'vox', nombre: 'Cuervo' }, { id: 'nocturna', nombre: 'Nocturna' },
+  { id: 'sonar', nombre: 'Sonar' }, { id: 'medidor', nombre: 'Medidor' }, { id: 'ajustes', nombre: 'Ajustes' },
 ];
-const DOCK = ['hilo', 'vox', 'nocturna', 'agenda'];
+const DOCK = ['hilo', 'vox', 'nocturna', 'sonar'];
 const icono = (id, badge = 0) => { const a = APPS.find(x => x.id === id); const ic = typeof ICONOS[id] === 'function' ? ICONOS[id]() : ICONOS[id];
   return `<a class="ic" href="#/${id}" data-app="${id}"><div class="cara">${ic}</div><span class="nom">${a.nombre}</span>${badge ? `<span class="badge">${badge}</span>` : ''}</a>`; };
 
@@ -486,8 +495,9 @@ async function arrancar() {
   if (error || !ok) return pantallaBloqueo(`Esta cuenta (${session.user.email}) no tiene acceso.`, true);
   const { data: cfg } = await sb.from('config').select('valor').eq('clave', 'nombre_red').maybeSingle();
   S.red = (cfg?.valor && cfg.valor !== '(sin nombre)') ? cfg.valor : '';
-  const { data: cfgs } = await sb.from('config').select('clave,valor').in('clave', ['agenda', 'nocturna', 'vapid_publica']);
+  const { data: cfgs } = await sb.from('config').select('clave,valor').in('clave', ['agenda', 'nocturna', 'vapid_publica', 'nombres']);
   for (const c of cfgs || []) { if (c.clave === 'agenda' && Array.isArray(c.valor)) AGENDA = c.valor; else S[c.clave] = c.valor; }
+  if (S.nombres) { const N = S.nombres; if (N.chat) APPS.find(a => a.id === 'hilo').nombre = N.chat; if (N.red) APPS.find(a => a.id === 'vox').nombre = N.red; if (N.nocturna) APPS.find(a => a.id === 'nocturna').nombre = N.nocturna; if (N.movil) document.title = N.movil; }
   if (S.red) APPS.find(a => a.id === 'vox').nombre = S.red;
   await cargarCuentas(); await cargarMio();
   addEventListener('hashchange', ruta);
@@ -506,7 +516,7 @@ function pantallaBloqueo(error = '', soloSalir = false) {
       <div class="campo"><label>Contraseña</label><input id="pw" type="password" autocomplete="current-password"></div>
       <div class="err" id="er">${esc(error)}</div>
       <button class="btn" id="entrar">Desbloquear</button>
-      <button class="btn borde" id="crear" style="margin-top:10px">Crear mi cuenta (la primera vez)</button>`}
+`}
     </div>`;
   $movil.appendChild(b); reloj();
   if (soloSalir) { b.querySelector('#fuera').onclick = async () => { await sb.auth.signOut(); location.reload(); }; return; }
@@ -518,7 +528,7 @@ function pantallaBloqueo(error = '', soloSalir = false) {
     if (error) return er(error.message === 'Invalid login credentials' ? 'Correo o contraseña incorrectos' : error.message);
     dentro();
   };
-  b.querySelector('#crear').onclick = async () => {
+  const bc = b.querySelector('#crear'); if (bc) bc.onclick = async () => {
     er('');
     if (pw().length < 8) return er('La contraseña, de 8 caracteres o más');
     const { error } = await sb.auth.signUp({ email: em(), password: pw() });
@@ -536,7 +546,7 @@ async function pintarHome() {
   const badges = { vox: S.noLeidos, nocturna: S.noLeidosOf || 0 };
   $home.innerHTML = `
     <div class="widgets">
-      <a class="wg" href="${vivo ? R + '/u/' + vivo.usuario : '#/agenda'}" data-app="${vivo ? 'vox' : 'agenda'}">${vivo ? `<span class="et"><i class="vivo"></i>En directo</span><div class="ev"><b style="color:${vivo.c}">${vivo.quien}</b><span>${vivo.que}</span><span>${num(espectadores(vivo))} viendo</span></div>` : '<span class="et">Próximo</span>'}
+      <a class="wg" href="${R + '/u/' + (vivo || prox[0] || { usuario: 'veenoir' }).usuario}" data-app="vox">${vivo ? `<span class="et"><i class="vivo"></i>En directo</span><div class="ev"><b style="color:${vivo.c}">${vivo.quien}</b><span>${vivo.que}</span><span>${num(espectadores(vivo))} viendo</span></div>` : '<span class="et">Próximo</span>'}
         ${vivo ? (luego ? `<div class="ev"><span>Luego: ${luego.quien} · ${cuando(luego)}</span></div>` : '') : (prox.map(e => `<div class="ev"><b style="color:${e.c}">${e.quien}</b><span>${cuando(e)} · ${e.hora}</span></div>`).join('') || '<div class="ev"><span>Nada esta semana</span></div>')}</a>
       <a class="wg" href="#/vox" data-app="vox" id="wgVox"><span class="et">${esc(APPS.find(a => a.id === 'vox').nombre)}</span><div class="ev"><span>Cargando…</span></div></a>
     </div>
@@ -619,7 +629,7 @@ async function ruta() {
       case 'hilo': return r ? vistaHiloChat(r) : vistaHilo();
       case 'agenda': return vistaAgenda();
       case 'ajustes': return vistaAjustes();
-            case 'nocturna': return r === 'md' ? vistaNocMD() : vistaNocturna();
+            case 'nocturna': { let m; if ((m = r.match(/^c\/(.+)$/))) return vistaNocturna(m[1]); if ((m = r.match(/^md\/(.+)$/))) return vistaNocMD(m[1]); if (r === 'md') return vistaNocChats(); return vistaNocDescubrir(); }
       case 'galeria': return vistaGaleria();
       case 'sonar': return splash('sonar', 'Sonar', 'Los covers y canciones de Yoruha, cuando Shiro empiece a sacarlos.');
     }
@@ -993,12 +1003,12 @@ const HERMANAS = [
 ];
 const avH = (h, t = 50) => `<div class="av" style="width:${t}px;height:${t}px;font-size:${t * .4}px;background:${h.color}">${h.id === 'grupo' ? '3' : h.nombre[0]}</div>`;
 function vistaHilo() {
-  marco('Chats', `<div class="aviso-hilo">Hilo aún no está conectado con Hermes. Aquí irá vuestro chat de siempre.</div>
+  marco('Chats', `<div class="aviso-hilo">${esc(APPS.find(a => a.id === 'hilo').nombre)} aún no está conectado con Hermes. Aquí irá vuestro chat de siempre.</div>
     ${HERMANAS.map(h => `<a class="conv" href="#/hilo/${h.id}">${avH(h)}<div class="cuerpo"><div class="cab"><span class="n">${h.nombre}</span></div><div class="ult">${h.ult}</div></div>${svg('chev')}</a>`).join('')}`, { clase: 'hilo' });
 }
 function vistaHiloChat(id) {
   const h = HERMANAS.find(x => x.id === id); if (!h) return vistaHilo();
-  marco(h.nombre, `<div class="burbujas"><div class="aviso-hilo" style="align-self:center">Cuando Hilo esté conectado, aquí hablarás con ${h.id === 'grupo' ? 'las tres' : h.nombre}.</div></div>`,
+  marco(h.nombre, `<div class="burbujas"><div class="aviso-hilo" style="align-self:center">Cuando ${esc(APPS.find(a => a.id === 'hilo').nombre)} esté conectado, aquí hablarás con ${h.id === 'grupo' ? 'las tres' : h.nombre}.</div></div>`,
     { atras: true, clase: 'chatfondo', sub: h.id === 'grupo' ? 'Valeria, Aika, Shiro' : 'sin conectar' });
   const e = document.createElement('div'); e.className = 'escribir';
   e.innerHTML = `<textarea rows="1" placeholder="Mensaje" disabled></textarea><button class="btn azul" disabled>Enviar</button>`;
@@ -1047,8 +1057,8 @@ function bannerDirecto(ev) {
 /* ---------- Nocturna (solo Valeria; dinero de mentira) ---------- */
 const eur = n => (Number(n) || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 const CANDADO = '<svg viewBox="0 0 24 24"><path d="M12 1.5a5 5 0 0 0-5 5V9H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6.5a5 5 0 0 0-5-5zm-3 5a3 3 0 1 1 6 0V9H9V6.5zm3 7a2 2 0 0 1 1 3.73V19h-2v-1.77A2 2 0 0 1 12 13.5z"/></svg>';
-async function datosNoc() {
-  const val = [...S.cuentas.values()].find(c => c.plataforma === 'of' && c.tipo === 'hermana');
+async function datosNoc(usuario = 'veenoir') {
+  const val = [...S.cuentas.values()].find(c => c.plataforma === 'of' && c.usuario === usuario && c.tipo !== 'alberto');
   const yo = S.yo.of;
   if (!val || !yo) return null;
   const ahora = new Date().toISOString();
@@ -1069,9 +1079,35 @@ async function datosNoc() {
 function navNoc() {
   const h = location.hash;
   return `<nav class="nav"><div class="in">
-    <a href="#/nocturna" class="${h === '#/nocturna' ? 'on' : ''}">${svg('casa')}</a>
-    <a href="#/nocturna/md" class="${h === '#/nocturna/md' ? 'on' : ''}">${svg('sobre')}${S.noLeidosOf ? `<span class="punto">${S.noLeidosOf}</span>` : ''}</a>
+    <a href="#/nocturna" class="${h === '#/nocturna' || h.startsWith('#/nocturna/c/') ? 'on' : ''}">${svg('casa')}</a>
+    <a href="#/nocturna/md" class="${h.startsWith('#/nocturna/md') ? 'on' : ''}">${svg('sobre')}${S.noLeidosOf ? `<span class="punto">${S.noLeidosOf}</span>` : ''}</a>
   </div></nav>`;
+}
+const precioDe = c => (S.nocturna?.precios || {})[c.usuario] || (c.usuario === 'veenoir' ? S.nocturna?.precio_mes : 0) || 9.99;
+const creadoras = () => [...S.cuentas.values()].filter(c => c.plataforma === 'of' && c.tipo !== 'alberto').sort((a, b) => (b.tipo === 'hermana') - (a.tipo === 'hermana'));
+async function vistaNocDescubrir() {
+  marco('', '<div class="cargando">Cargando…</div>', { top: false, nav: navNoc(), clase: 'noc' });
+  const ahora = new Date().toISOString();
+  const { data: sus } = await sb.from('suscripciones').select('creadora').gt('hasta', ahora);
+  const suscrito = new Set((sus || []).map(x => x.creadora));
+  const lista = creadoras();
+  cont().innerHTML = `<div class="titulo-grande">${esc(APPS.find(a => a.id === 'nocturna').nombre)}</div>
+    <div style="padding:0 16px 8px;color:var(--tx2)">Creadoras</div>
+    ${lista.map(c => { const ban = c.banner_url && S.urls.get(c.banner_url); return `<a class="tcrea" href="#/nocturna/c/${esc(c.usuario)}">
+      <div class="tban">${ban ? `<img src="${esc(ban)}" alt="">` : ''}</div>
+      <div class="tfila">${avatar(c)}<div class="cuerpo"><div class="cab"><span class="n">${esc(c.nombre)}</span>${verif(c)}</div><div class="u" style="color:var(--tx2)">@${esc(c.usuario)}</div></div>
+      ${suscrito.has(c.id) ? '<span class="chip-sus">Suscrito</span>' : `<span class="chip-precio">${eur(precioDe(c))}/mes</span>`}</div></a>`; }).join('')}`;
+}
+async function vistaNocChats() {
+  marco('Mensajes', '<div class="cargando">Cargando…</div>', { nav: navNoc() });
+  const yo = S.yo.of; if (!yo) return;
+  const { data } = await sb.from('mensajes').select('*').eq('plataforma', 'of').or(`de.eq.${yo.id},para.eq.${yo.id}`).order('creado', { ascending: false }).limit(300);
+  const convs = new Map();
+  for (const m of data || []) { const otro = m.de === yo.id ? m.para : m.de; if (!convs.has(otro)) convs.set(otro, { ult: m, nuevos: 0 }); if (m.para === yo.id && !m.leido) convs.get(otro).nuevos++; }
+  cont().innerHTML = [...convs].map(([id, v]) => { const c = cuenta(id) || { nombre: '?', usuario: '?' };
+    return `<a class="conv ${v.nuevos ? 'nueva' : ''}" href="#/nocturna/md/${esc(c.usuario)}">${avatar(c)}<div class="cuerpo"><div class="cab"><span class="n">${esc(c.nombre)}</span>${verif(c)}<span class="t">· ${hace(v.ult.creado)}</span></div>
+      <div class="ult">${v.ult.de === yo.id ? 'Tú: ' : ''}${v.ult.precio ? 'Contenido de pago' : esc(v.ult.texto)}</div></div>${v.nuevos ? '<span class="punto" style="position:static">' + v.nuevos + '</span>' : ''}</a>`; }).join('')
+    || '<div class="vacio"><h2>Sin mensajes</h2>Suscríbete a alguien para escribirle.</div>';
 }
 function hoja(html) {
   const m = document.createElement('div'); m.className = 'modal'; m.style.background = 'rgba(0,0,0,.55)'; m.style.justifyContent = 'flex-end';
@@ -1090,7 +1126,7 @@ function pagar(titulo, detalle, importe, alPagar) {
 }
 function propina(N, postId, alAcabar) {
   let imp = 5;
-  const m = hoja(`<h3>Propina para ${esc(N.val.nombre)}</h3><div class="p">Dinero de mentira. Ella lo ve en su resumen.</div>
+  const m = hoja(`<h3>Propina para ${esc(N.val.nombre)}</h3><div class="p">Dinero de mentira.${N.val.tipo === 'hermana' ? ' Ella lo ve en su resumen.' : ''}</div>
     <div class="importes">${[3, 5, 10, 20].map(v => `<button data-v="${v}" class="${v === imp ? 'on' : ''}">${v} €</button>`).join('')}</div>
     <div class="campo"><label>Mensaje (opcional)</label><input id="pm" maxlength="200"></div>
     <button class="btn azul" style="width:100%;height:46px" id="okp">Enviar propina</button>`);
@@ -1115,11 +1151,11 @@ function mediaNoc(p, N) {
   return `<div class="bloq" ${p.de_pago ? `data-desb="${p.id}"` : 'data-sus="1"'}>${img ? `<img src="${esc(img)}" alt="">` : '<div class="manchas"></div>'}
     <div class="candado">${CANDADO}<b>${p.de_pago ? 'Desbloquear · ' + eur(p.precio) : 'Suscríbete para verlo'}</b>${p.media_n ? `<span>${p.media_n} fotos</span>` : ''}</div></div>`;
 }
-async function vistaNocturna() {
+async function vistaNocturna(usuario = 'veenoir') {
   marco('', '<div class="cargando">Cargando…</div>', { top: false, nav: navNoc(), clase: 'noc' });
-  const N = await datosNoc();
-  if (!N) return cont().innerHTML = '<div class="vacio" style="padding-top:120px"><h2>Nocturna</h2>Aún no hay cuenta de Valeria aquí.</div>';
-  const precio = S.nocturna?.precio_mes || 9.99;
+  const N = await datosNoc(usuario);
+  if (!N) return cont().innerHTML = '<div class="vacio" style="padding-top:120px"><h2>Nocturna</h2>Esta creadora no existe.</div>';
+  const precio = precioDe(N.val);
   const fotos = N.posts.reduce((a, p) => a + (p.media_n || (p.imagen_url ? 1 : 0)), 0);
   const likes = N.posts.reduce((a, p) => a + crece(p.likes_sim, p.creado, 4) + (N.likes.has(p.id) ? 1 : 0), 0);
   const ban = N.val.banner_url && S.urls.get(N.val.banner_url);
@@ -1127,12 +1163,12 @@ async function vistaNocturna() {
   cont().innerHTML = `
     <div class="ban" style="margin-top:0">${ban ? `<img src="${esc(ban)}" alt="">` : ''}<div class="stats" style="padding-top:var(--st)">${N.posts.length} posts · ${fotos} fotos · ${num(likes)} me gusta</div></div>
     <div class="cabp">${avatar(c)}</div>
-    <div class="quien"><div class="nombre">${esc(c.nombre)}${verif(c)}</div><div class="u">@${esc(c.usuario)} · ${enDirecto('veenoir') ? '<span style="color:#ff3040">en directo en Vox</span>' : 'disponible'}</div></div>
+    <div class="quien"><div class="nombre">${esc(c.nombre)}${verif(c)}</div><div class="u">@${esc(c.usuario)} · ${enDirecto(c.usuario) ? `<span style="color:#ff3040">en directo en ${esc(APPS.find(a => a.id === 'vox').nombre)}</span>` : 'disponible'}</div></div>
     ${c.bio ? `<div class="bio">${esc(c.bio)}</div>` : ''}
     <div class="sus">${N.sus
       ? `<div class="k">Suscrito</div><div style="margin-top:4px">Se renueva el ${new Date(N.sus.hasta).getDate()} ${MES[new Date(N.sus.hasta).getMonth()]}</div>
-         ${S.nocturna?.bienvenida ? `<div style="margin-top:8px;color:#ffc2da;font-style:italic">«${esc(S.nocturna.bienvenida)}»</div>` : ''}
-         <div class="fila-btn"><a class="btn-n" href="#/nocturna/md">Mensaje</a><button class="btn-n borde" id="tip">Propina</button></div>`
+         ${c.usuario === 'veenoir' && S.nocturna?.bienvenida ? `<div style="margin-top:8px;color:#ffc2da;font-style:italic">«${esc(S.nocturna.bienvenida)}»</div>` : ''}
+         <div class="fila-btn"><a class="btn-n" href="#/nocturna/md/${esc(c.usuario)}">Mensaje</a><button class="btn-n borde" id="tip">Propina</button></div>`
       : `<div class="k">Suscripción</div><button class="btn-n" id="sus"><span>SUSCRÍBETE</span><span>${eur(precio)} al mes</span></button>`}
     </div>
     <div class="gasto">Llevas gastado ${eur(N.gastado)} (de mentira)</div>
@@ -1143,7 +1179,7 @@ async function vistaNocturna() {
       <div class="acc"><button class="lk ${N.likes.has(p.id) ? 'on' : ''}" data-lko="${p.id}">${svg(N.likes.has(p.id) ? 'lkOn' : 'lk')}<span>${num(crece(p.likes_sim, p.creado, 4) + (N.likes.has(p.id) ? 1 : 0))}</span></button>
         <button data-tipp="${p.id}" style="font-weight:600">${eur(0).replace('0,00 ', '')} Propina</button></div>
     </article>`).join('') || '<div class="vacio">Aún no ha subido nada.</div>'}</div>`;
-  const recargar = () => vistaNocturna();
+  const recargar = () => vistaNocturna(usuario);
   const bs = document.getElementById('sus');
   if (bs) bs.onclick = () => pagar('Suscribirte a ' + esc(c.nombre), 'Un mes. Se renueva solo… de mentira.', precio, async () => {
     const r = await sb.from('suscripciones').insert({ creadora: c.id, precio, hasta: new Date(Date.now() + 30 * 864e5).toISOString() });
@@ -1169,9 +1205,9 @@ async function vistaNocturna() {
     }
   };
 }
-async function vistaNocMD() {
+async function vistaNocMD(usuario = 'veenoir') {
   marco('', '<div class="cargando">Cargando…</div>', { top: false, nav: navNoc() });
-  const N = await datosNoc();
+  const N = await datosNoc(usuario);
   if (!N) return cont().innerHTML = '<div class="vacio">Sin cuenta.</div>';
   const { data } = await sb.from('mensajes').select('*').eq('plataforma', 'of')
     .or(`and(de.eq.${N.yo.id},para.eq.${N.val.id}),and(de.eq.${N.val.id},para.eq.${N.yo.id})`).order('creado');
@@ -1193,18 +1229,18 @@ async function vistaNocMD() {
   main.onclick = e => {
     const t = e.target.closest('[data-desm]'); if (!t) return;
     const m = msgs.find(x => x.id === +t.dataset.desm);
-    pagar('Desbloquear mensaje', esc(m.texto || ''), m.precio, async () => { const r = await sb.from('desbloqueos').insert({ mensaje_id: m.id, precio: m.precio }); if (r.error) return r.error; vistaNocMD(); });
+    pagar('Desbloquear mensaje', esc(m.texto || ''), m.precio, async () => { const r = await sb.from('desbloqueos').insert({ mensaje_id: m.id, precio: m.precio }); if (r.error) return r.error; vistaNocMD(usuario); });
   };
   if (N.sus) {
     const e = document.createElement('div'); e.className = 'escribir';
     e.innerHTML = `<button class="btn borde" id="mtip" style="padding:0 12px">€</button><textarea id="mtx" rows="1" placeholder="Mensaje"></textarea><button class="btn azul" id="menv">Enviar</button>`;
     $app.insertBefore(e, document.getElementById('btCasa'));
-    document.getElementById('mtip').onclick = () => propina(N, null, vistaNocMD);
+    document.getElementById('mtip').onclick = () => propina(N, null, () => vistaNocMD(usuario));
     document.getElementById('menv').onclick = async () => {
       const t = document.getElementById('mtx').value.trim(); if (!t) return;
       const { error } = await sb.from('mensajes').insert({ plataforma: 'of', de: N.yo.id, para: N.val.id, texto: t, origen: 'web' });
       if (error) return toast(error.message);
-      vistaNocMD();
+      vistaNocMD(usuario);
     };
   }
 }
