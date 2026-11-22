@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<meta name="build" content="2026-11-22.2">
+<meta name="build" content="2026-11-22.3">
 <meta name="robots" content="noindex,nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -58,6 +58,7 @@ body.marco .isla,body.marco .estado{display:flex}
 .ic .cara{width:62px;height:62px;border-radius:15px;display:grid;place-items:center;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.35);transition:transform .15s}
 .ic:active .cara{transform:scale(.9);filter:brightness(.8)}
 .ic .cara svg{width:100%;height:100%;display:block}
+.ic .cara{position:relative}.ic .cara img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s}.ic .cara img.ok{opacity:1}
 .ic .nom{font-size:12px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6);white-space:nowrap}
 .ic .badge{position:absolute;top:-6px;right:0;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:#ff3b30;color:#fff;font-size:13px;font-weight:600;display:grid;place-items:center;z-index:2}
 .puntos{display:flex;justify-content:center;gap:8px;margin:auto 0 14px}
@@ -404,13 +405,16 @@ const ICONOS = {
   medidor: `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#1c1c1f"/><path d="M14 38a16 16 0 1 1 32 0" fill="none" stroke="#3a3a40" stroke-width="5" stroke-linecap="round"/><path d="M14 38a16 16 0 0 1 22-14.8" fill="none" stroke="#7cd992" stroke-width="5" stroke-linecap="round"/><path d="M30 38l9-11" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="30" cy="38" r="3.2" fill="#fff"/><text x="30" y="51" text-anchor="middle" font-size="7" font-weight="700" fill="#888" font-family="-apple-system,Helvetica,Arial">TOKENS</text></svg>`,
   ajustes: `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#1c1820"/><g transform="translate(30 30)" fill="#ff3d8b">${Array.from({ length: 8 }, (_, i) => `<rect x="-3.4" y="-19" width="6.8" height="9" rx="2" transform="rotate(${i * 45})"/>`).join('')}<circle r="13"/></g><circle cx="30" cy="30" r="5.5" fill="#1c1820"/></svg>`,
 };
+/* si Shiro ya generó el icono con GPT, se pone encima del dibujado; si no, se queda el dibujado */
+const ICONO_URL = id => `https://wtxiqvzercgharibvubw.supabase.co/storage/v1/object/public/publico/iconos/${id}.png`;
+(() => { const im = new Image(); im.onload = () => document.querySelector('link[rel=apple-touch-icon]').href = im.src; im.src = ICONO_URL('aquelarre'); })();
 const APPS = [
-  { id: 'hilo', nombre: 'Guasa' }, { id: 'vox', nombre: 'Cuervo' }, { id: 'nocturna', nombre: 'Nocturna' },
+  { id: 'hilo', nombre: 'Guasa' }, { id: 'vox', nombre: 'Raven' }, { id: 'nocturna', nombre: 'Nocturna' },
   { id: 'sonar', nombre: 'Sonar' }, { id: 'medidor', nombre: 'Medidor' }, { id: 'ajustes', nombre: 'Ajustes' },
 ];
 const DOCK = ['hilo', 'vox', 'nocturna', 'sonar'];
 const icono = (id, badge = 0) => { const a = APPS.find(x => x.id === id); const ic = typeof ICONOS[id] === 'function' ? ICONOS[id]() : ICONOS[id];
-  return `<a class="ic" href="#/${id}" data-app="${id}"><div class="cara">${ic}</div><span class="nom">${a.nombre}</span>${badge ? `<span class="badge">${badge}</span>` : ''}</a>`; };
+  return `<a class="ic" href="#/${id}" data-app="${id}"><div class="cara">${ic}<img src="${ICONO_URL(id)}" alt="" onload="this.classList.add('ok')" onerror="this.remove()"></div><span class="nom">${a.nombre}</span>${badge ? `<span class="badge">${badge}</span>` : ''}</a>`; };
 
 /* ---------- agenda (provisional: sale del lore y de las bios) ---------- */
 let AGENDA = [
