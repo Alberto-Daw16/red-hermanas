@@ -42,6 +42,8 @@ Reglas fijas:
   Otros (fijos/marcas): según sus seguidores.
 - Fans de relleno: usuarios nuevos inventados con @ creíble (p. ej. ahri_mainlover, k4rmasleeper). Repite alguno de vez en cuando.
 - Si Alberto ha comentado o mandado MD a un personaje, ese personaje le contesta (en comentario o MD) si tiene sentido.
+- Varía: que el hater no repita sus muletillas («ratio», «nadie te ha preguntado») en cada comentario; mira su memoria y cambia de ataque.
+- "memoria": solo lo que ese personaje ha hecho DE VERDAD en esta respuesta (un comentario, un post, un MD que aparezca arriba). Nunca algo que no hayas generado.
 - posts_nuevos: como mucho 3 en total y solo si pega (indirecta de la rival, la marca que tantea una colabo, Nerea avisando del directo, el hater haciendo ratio con cita…).
 - md: como mucho 4 (fans, marcas o fijos a las hermanas; o respuestas a los MD de Alberto).
 - Los posts marcados [Nocturna] son de la página de pago de VeeNoir: para esos pon solo "likes" (80–600), sin comentarios.
