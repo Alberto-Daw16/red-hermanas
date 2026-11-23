@@ -52,6 +52,7 @@ Reglas fijas:
 - "memoria": solo lo que ese personaje ha hecho DE VERDAD en esta respuesta (un comentario, un post, un MD que aparezca arriba). Nunca algo que no hayas generado.
 - posts_nuevos: entre 6 y 10. Que la red tenga VIDA, como el feed de Snapmatic en GTA: además de lo que pase con las hermanas (indirecta de la rival, la marca que tantea una colabo, Nerea avisando del directo, el hater con cita…), gente random y fans contando su vida (curro, gym, comida, partidas, memes, quejas del día), las creadoras promocionando, algún hilo absurdo. Pueden mencionarse entre ellos (@usuario) y crear piques.
 - "foto": en 3 o 4 de esos posts, un prompt corto EN INGLÉS para generar la foto que acompaña al post (selfie de gente inventada, comida, gym, setup, paisaje, meme sin texto…). Siempre gente inventada, nunca famosos ni personajes con copyright, nada de desnudos (sexy vale).
+  "sale": true si en la foto aparece el propio autor del post (selfie, foto suya); false si es comida, paisaje, setup, meme… Si sale, describe la escena y la ropa, no su cara: la cara la pone su hoja de referencia.
 - "nocturna": como mucho 2 posts nuevos de las creadoras (NO de VeeNoir, que escribe ella) en su página de pago: texto gancho con picardía, "precio" (null = solo suscriptores, o 4.99–14.99), "fotos" (3–15) y "oculto" (lo que se lee al desbloquear; picardía, sin describir actos).
 - fans_nuevos: con "avatar" = prompt corto en inglés de su foto de perfil (persona inventada, avatar de anime genérico, mascota, meme sin texto…).
 - md: como mucho 4 (fans, marcas o fijos a las hermanas; o respuestas a los MD de Alberto).
@@ -63,7 +64,7 @@ Reglas fijas:
 Devuelve SOLO un objeto JSON con esta forma (omite listas vacías):
 {"posts":[{"id":123,"vistas":0,"likes":0,"reposts":0,"comentarios":[{"usuario":"pau_tilt","texto":"...","likes":0,"responde_a":null,"en_min":5}]}],
  "respuestas":[{"comentario_id":45,"usuario":"nereitaa_vlc","texto":"...","likes":0,"en_min":30}],
- "posts_nuevos":[{"usuario":"kiarapls","texto":"...","cita":null,"en_min":90,"foto":null}],
+ "posts_nuevos":[{"usuario":"kiarapls","texto":"...","cita":null,"en_min":90,"foto":null,"sale":false}],
  "md":[{"de":"voltaenergy","para":"veenoir","texto":"...","en_min":120}],
  "fans_nuevos":[{"usuario":"ahri_mainlover","nombre":"Ahri main 🦊","bio":"...","avatar":"anime fox girl icon, flat colors"}],
  "nocturna":[{"usuario":"dalianox","texto":"...","precio":null,"fotos":6,"oculto":"...","en_min":200}],
@@ -195,6 +196,12 @@ def minutos(iso):
         return max(0, int((datetime.now(timezone.utc) - datetime.fromisoformat(iso.replace("Z", "+00:00"))).total_seconds() // 60))
     except Exception:
         return 0
+
+
+def hoja_de(usuario):
+    """¿Tiene este personaje hoja de referencia en el Mac? (~/.hermes/red-social/hojas/<usuario>.png)"""
+    d = os.path.expanduser(os.environ.get("HOJAS_DIR", "~/.hermes/red-social/hojas"))
+    return any(os.path.exists(os.path.join(d, f"{usuario}.{e}")) for e in ("png", "jpg", "jpeg", "webp"))
 
 
 def cifras(seguidores):
@@ -400,7 +407,10 @@ def aplicar(res, cuentas):
                 fila.update(repost_de=p["cita"], cita=True)
             nuevo = red.ins("posts", fila)[0]; n["posts"] += 1
             if p.get("foto") and sum(1 for c in cola if c["tipo"] == "post") < 4:
-                cola.append({"tipo": "post", "post_id": nuevo["id"], "prompt": str(p["foto"])[:500]})
+                fila_img = {"tipo": "post", "post_id": nuevo["id"], "prompt": str(p["foto"])[:500]}
+                if p.get("sale") and k["tipo"] in ("fijo", "marca") and hoja_de(k["usuario"]):
+                    fila_img["referencia"] = k["usuario"]  # imagenes.py busca su hoja y mantiene la cara
+                cola.append(fila_img)
     for m in (res.get("md", []) or [])[:4]:
         de = cuenta_de(m.get("de"))
         para = por_user.get((m.get("para") or "").lstrip("@").lower())

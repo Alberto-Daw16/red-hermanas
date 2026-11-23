@@ -23,13 +23,29 @@ TAMANO = {"icono": "1024x1024", "avatar": "1024x1024", "banner": "1536x1024", "p
 ESTILO = " No text, no watermark, no logos of real brands."
 
 
+HOJAS = os.path.expanduser(os.environ.get("HOJAS_DIR", "~/.hermes/red-social/hojas"))  # hojas de los fijos: <usuario>.png
+
+
 def referencia(nombre):
+    """Hoja de referencia: primero la canónica de las hermanas, luego la hoja del personaje en HOJAS."""
     if not nombre:
         return None
     for ext in ("jpg", "png", "jpeg", "webp"):
         f = os.path.join(REFS, f"{nombre}_reference_sheet.{ext}")
         if os.path.exists(f):
             return f
+    for ext in ("png", "jpg", "jpeg", "webp"):
+        f = os.path.join(HOJAS, f"{nombre}.{ext}")
+        if os.path.exists(f):
+            return f
+    return None
+
+
+def usuario_de(it):
+    """Usuario de la cuenta a la que va la imagen (para buscar su hoja en los avatares)."""
+    if it.get("cuenta_id"):
+        r = red.sel("cuentas", id=f"eq.{it['cuenta_id']}", select="usuario")
+        return r[0]["usuario"] if r else None
     return None
 
 
@@ -104,8 +120,11 @@ def main():
     if not lote:
         print("Nada pendiente."); copiar_a_nocturna(); return
     seguidos = 0
+    estilo = (" " + cfg["estilo"]) if cfg.get("estilo") else ""  # p. ej. el estilo anime o realista de toda la red
     for it in lote:
         ref = referencia(it.get("referencia"))
+        if not ref and not it.get("referencia") and it["tipo"] == "avatar":
+            ref = referencia(usuario_de(it))  # el avatar de un fijo con hoja sale con su cara
         if it.get("referencia") and not ref:
             red.upd("imagenes", {"estado": "saltada", "error": f"sin hoja de referencia de {it['referencia']} en {REFS}"}, id=f"eq.{it['id']}")
             print(f"#{it['id']} saltada: falta la hoja de {it['referencia']}"); continue
@@ -116,7 +135,7 @@ def main():
         try:
             with tempfile.TemporaryDirectory() as d:
                 salida = os.path.join(d, "img.png")
-                generar(it["prompt"] + ESTILO, tam, ref, salida)
+                generar(it["prompt"] + (estilo if it["tipo"] != "icono" else "") + ESTILO, tam, ref, salida)
                 if it["tipo"] == "icono":  # iconos del móvil: bucket público, ruta fija (iconos/<app>.png)
                     ruta = red.subir_imagen(salida, it["ruta"], bucket="publico")
                 else:
