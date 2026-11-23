@@ -9,7 +9,7 @@ de golpe a lo nuevo de la red. UNA sola llamada al modelo por tanda, y se apunta
 Reglas de gasto:
 - Si hoy ya se ha pasado el tope diario (config 'tanda'.tope_diario_tokens), no llama: apunta
   una fila 'saltada' y sale.
-- Si no hay nada nuevo, no llama y no apunta nada.
+- Si las hermanas no han publicado nada, hace una tanda de ambiente (solo gente random, famosos, marcas y creadoras). Se apaga con config tanda.ambiente = false.
 - Si el modelo falla, apunta el error y sale. Nunca reintenta.
 """
 import argparse, glob, json, os, random, re, subprocess, sys, time, urllib.request, urllib.error
@@ -211,7 +211,8 @@ def montar(desde, maximo):
                    select="id,post_id,cuenta_id,texto,responde_a", order="creado.asc", limit=30)
     mds = red.sel("mensajes", plataforma=f"eq.{PLAT}", de=f"in.({','.join(ids_alb) or '0'})", para=f"in.({','.join(ids_fijos) or '0'})",
                   creado=f"gt.{desde}", select="id,de,para,texto", order="creado.asc", limit=20) if ids_fijos and ids_alb else []
-    if not (posts or coms or mds):
+    ambiente = not (posts or coms or mds)
+    if ambiente and (red.config("tanda", {}) or {}).get("ambiente", True) is False:
         return None, cuentas
 
     u = lambda cid: "@" + por_id.get(cid, {}).get("usuario", "?")
@@ -269,6 +270,17 @@ def montar(desde, maximo):
         partes.append("\n## MD de Alberto sin contestar")
         for m in mds:
             partes.append(f"- de @{por_id[m['de']]['usuario']} a {u(m['para'])}: «{corto(m['texto'])}»")
+    if ambiente:
+        # Las hermanas no han publicado nada: la red sigue viva igual (como el feed de Snapmatic).
+        recientes = red.sel("posts", plataforma=f"eq.{PLAT}", cuenta_id=f"in.({','.join(ids_fijos) or '0'})",
+                            **{"and": f"(creado.lte.{ahora})"}, select="cuenta_id,texto,creado", order="creado.desc", limit=10)
+        if recientes:
+            partes.append("\n## Lo último que han dicho los demás (para seguir piques o hilos, sin repetirlo)")
+            for p in recientes:
+                partes.append(f"- {u(p['cuenta_id'])} ({p['creado'][:10]}): «{corto(p['texto'], 140)}»")
+        partes.append("\n## TANDA DE AMBIENTE\nLas hermanas y Alberto no han publicado nada nuevo. Deja \"posts\", \"respuestas\" y \"md\" vacíos "
+                      "y llena solo posts_nuevos (6–10), nocturna (hasta 2), fans_nuevos y memoria. Gente random, famosos de parodia, marcas y creadoras "
+                      "haciendo su vida. Se puede hablar de las hermanas en general (esperar su directo, echarlas de menos), pero sin inventar nada que hayan hecho.")
     partes.append(f"\nHora en España: {datetime.now(ZoneInfo('Europe/Madrid')).strftime('%A %d/%m %H:%M')}.")
     return "\n".join(partes), cuentas
 
