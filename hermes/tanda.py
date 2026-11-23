@@ -176,13 +176,16 @@ def minutos(iso):
         return 0
 
 
+ESCALA = 1.0  # con --ya todo sale en ~10 min (para revisar), manteniendo el orden
+
+
 def en(minutos_, despues_de=None):
     """Hora ISO dentro de `minutos_` (0–480), y nunca antes de `despues_de` + 1 min."""
-    m = max(0, min(480, int(minutos_ or 0)))
+    m = max(0, min(480, int(minutos_ or 0))) * ESCALA
     t = datetime.now(timezone.utc).timestamp() + m * 60
     if despues_de:
         try:
-            t = max(t, datetime.fromisoformat(str(despues_de).replace("Z", "+00:00")).timestamp() + random.randint(60, 300))
+            t = max(t, datetime.fromisoformat(str(despues_de).replace("Z", "+00:00")).timestamp() + random.randint(60, 300) * ESCALA)
         except Exception:
             pass
     return datetime.fromtimestamp(t, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -386,7 +389,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--prueba", action="store_true")
     ap.add_argument("--sin-guardar", action="store_true")
+    ap.add_argument("--ya", action="store_true", help="todo aparece en unos 10 minutos (para revisar)")
     a = ap.parse_args()
+    global ESCALA
+    if a.ya:
+        ESCALA = 0.02
 
     cfg = red.config("tanda", {}) or {}
     if not cfg.get("activa", True) and not a.prueba:
