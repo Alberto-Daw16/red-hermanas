@@ -176,6 +176,14 @@ def minutos(iso):
         return 0
 
 
+def cifras(seguidores):
+    """Vistas, likes y reposts acordes al tamaño de la cuenta (un famoso de 4 M no saca 100 likes)."""
+    seg = max(30, int(seguidores or 50))
+    vistas = int(seg * random.uniform(0.03, 0.25)) + random.randint(20, 300)
+    likes = max(1, int(vistas * random.uniform(0.02, 0.09)))
+    return {"vistas_sim": vistas, "likes_sim": likes, "reposts_sim": int(likes * random.uniform(0.02, 0.12))}
+
+
 ESCALA = 1.0  # con --ya todo sale en ~10 min (para revisar), manteniendo el orden
 
 
@@ -347,7 +355,7 @@ def aplicar(res, cuentas):
         k = cuenta_de(p.get("usuario"))
         if k and p.get("texto"):
             fila = {"cuenta_id": k["id"], "plataforma": PLAT, "texto": p["texto"][:560], "origen": "tanda",
-                    "likes_sim": random.randint(5, 400), "vistas_sim": random.randint(300, 9000), "creado": en(p.get("en_min"))}
+                    **cifras(k.get("seguidores")), "creado": en(p.get("en_min"))}
             if isinstance(p.get("cita"), int) and red.sel("posts", id=f"eq.{p['cita']}", select="id"):
                 fila.update(repost_de=p["cita"], cita=True)
             nuevo = red.ins("posts", fila)[0]; n["posts"] += 1
