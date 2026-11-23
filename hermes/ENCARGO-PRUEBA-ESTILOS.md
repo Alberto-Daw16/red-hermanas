@@ -12,7 +12,7 @@ Objetivo: decidir con qué estilo se ve todo Aquelarre, **anime/3D** como las ho
 - Dos errores seguidos o algo que no puedas resolver: paras, lo apuntas y me lo dices.
 
 ## Herramienta
-El puente de GPT de siempre (`gpt-image-2`). Si la prueba local dejó Draw Things funcionando, haz además la versión anime con su modelo SDXL anime, para comparar.
+El puente de GPT de siempre (`gpt-image-2`). Si la prueba local dejó el motor local (ComfyUI o Draw Things) funcionando, haz además la versión anime con su modelo SDXL anime, para comparar.
 
 ## 1. Personajes de la prueba
 - **Hermanas:** Valeria (y Aika si tiene hoja aprobada).

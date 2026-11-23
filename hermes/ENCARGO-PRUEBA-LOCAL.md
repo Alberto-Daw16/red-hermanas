@@ -1,4 +1,4 @@
-# Prueba de imágenes en local · Draw Things · 23/11/2026
+# Prueba de imágenes en local · ComfyUI (o Draw Things) · 23/11/2026
 
 Encargo para **Shiro**, de una sola vez, sin tablero ni taller. Resultado en `~/tmp/red-social/prueba-local/RESULTADO-PRUEBA-LOCAL.md`.
 
@@ -11,16 +11,23 @@ Objetivo: saber si podemos generar las fotos de Aquelarre en el Mac mini, con un
 - Personajes siempre claramente adultos. Sexy vale, explícito no.
 - Dos errores seguidos o algo que no puedas resolver: paras, lo apuntas y me lo dices.
 
-## 1. Instalar Draw Things
-- Es la app gratuita **Draw Things** del App Store. Si el App Store pide iniciar sesión o confirmar la descarga, no lo hagas tú: deja apuntado que Alberto tiene que instalarla y sigue con lo que puedas.
-- En sus ajustes, activa el **API Server (HTTP)**, solo en local (127.0.0.1), puerto 7860. Comprueba que `curl http://127.0.0.1:7860` responde.
-- Desde el catálogo de la propia app, descarga dos modelos:
-  - un **SDXL de estilo anime** (de los que ofrece la app; elige el más usado para personajes anime);
-  - **FLUX.1 [schnell]**.
-- Apunta cuánto ocupa cada modelo en disco.
+## 1. Motor local
+**Draw Things** (App Store) se quedó atascado en la confirmación de la cuenta. Si cuando empieces ya está instalado, úsalo: activa su API Server (HTTP) solo en 127.0.0.1, puerto 7860.
+
+Si no está, **ComfyUI**, que Alberto ya ha aprobado como plan B:
+- Instálalo desde su repositorio oficial de GitHub en `~/ComfyUI`, con su propio entorno de Python. Nada global y nada de `sudo`.
+- Arráncalo **solo mientras dure la prueba**, escuchando en 127.0.0.1. Sin servicio permanente ni arranque automático: al acabar lo paras.
+- Si Hermes tiene skills o configuración para ComfyUI, úsalas.
+
+Modelos, sea cual sea el motor:
+- un **SDXL de estilo anime** de los más usados para personajes;
+- **FLUX.1 [schnell]**, en una versión que quepa bien en 24 GB.
+- Para mantener al personaje con su hoja: en SDXL, IP-Adapter o lo equivalente; en Flux, la vía de referencia que funcione (por ejemplo Kontext). Apunta qué usaste.
+
+Apunta cuánto ocupa todo en disco.
 
 ## 2. Puente de prueba (sin instalarlo)
-Escribe `~/tmp/red-social/prueba-local/puente-drawthings.py` con el mismo contrato que el puente de GPT: recibe por stdin `{"prompt", "tamano", "referencia", "salida"}`, llama a Draw Things en `127.0.0.1:7860` y deja un PNG en `salida`. Si llega `referencia`, úsala como imagen de referencia por la mejor vía que tenga Draw Things para mantener al personaje. Si no tiene ninguna, dilo.
+Escribe `~/tmp/red-social/prueba-local/puente-local.py` con el mismo contrato que el puente de GPT: recibe por stdin `{"prompt", "tamano", "referencia", "salida"}`, llama al motor local (la API de ComfyUI o la de Draw Things) y deja un PNG en `salida`. Si llega `referencia`, úsala como imagen de referencia por la vía que hayas montado para mantener al personaje. Si no tiene ninguna, dilo.
 
 **No lo pongas en `IMAGEN_CMD`.** Se llama a mano solo para esta prueba.
 
@@ -53,7 +60,7 @@ Si un modelo tarda más de 3 minutos por imagen, haz solo 2 fotos de Valeria con
 
 ## 6. Resultado
 En `~/tmp/red-social/prueba-local/RESULTADO-PRUEBA-LOCAL.md`:
-- si Draw Things quedó instalado y con el servidor activo, o qué faltó (por ejemplo, la instalación desde el App Store);
+- qué motor usaste (ComfyUI o Draw Things), dónde quedó instalado y cómo se arranca y se para;
 - los modelos, cuánto ocupan y la memoria que usan;
 - los tiempos por imagen;
 - tu opinión, en una línea por modelo, sobre si Valeria se reconoce y se mantiene igual entre fotos;
