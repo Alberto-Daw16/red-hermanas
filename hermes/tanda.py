@@ -147,6 +147,8 @@ def llamar_modelo(mensajes, modelo):
         base = os.environ.get("XAI_BASE_URL", "https://api.x.ai/v1").rstrip("/")
     cuerpo = {"model": modelo, "messages": mensajes, "response_format": {"type": "json_object"}, "temperature": 0.9,
               "stream": True, "stream_options": {"include_usage": True}}
+    if local and os.environ.get("LLM_LOCAL_EXTRA"):
+        cuerpo.update(json.loads(os.environ["LLM_LOCAL_EXTRA"]))  # p. ej. {"reasoning_effort":"none"} para apagar el pensamiento
     esfuerzo = None if local else (os.environ.get("XAI_RAZONAMIENTO") or (red.config("tanda", {}) or {}).get("razonamiento"))
     if esfuerzo:
         cuerpo["reasoning_effort"] = esfuerzo  # solo si el modelo lo admite (p. ej. "low")
