@@ -47,6 +47,8 @@ Reglas fijas:
 - Fans de relleno: usuarios nuevos inventados con @ creíble (p. ej. ahri_mainlover, k4rmasleeper). Repite alguno de vez en cuando.
 - Si Alberto ha comentado o mandado MD a un personaje, ese personaje le contesta (en comentario o MD) si tiene sentido.
 - Varía: que el hater no repita sus muletillas («ratio», «nadie te ha preguntado») en cada comentario; mira su memoria y cambia de ataque.
+- CONTINUIDAD: Raven es un mundo que sigue. Lee la «Crónica de Raven» de abajo y continúa sus hilos (piques, colabos, bromas internas, cosas que alguien prometió o anunció): que lo de ayer se note hoy. No reinicies nada ni lo contradigas.
+- "cronica": devuelve SIEMPRE la crónica actualizada, de 6 a 12 líneas cortas: los hilos abiertos y lo importante que ha pasado, incluido lo de esta respuesta. Quita lo que ya esté cerrado o viejo. Solo hechos que consten (publicados arriba o generados por ti ahora).
 - "memoria": solo lo que ese personaje ha hecho DE VERDAD en esta respuesta (un comentario, un post, un MD que aparezca arriba). Nunca algo que no hayas generado.
 - posts_nuevos: entre 6 y 10. Que la red tenga VIDA, como el feed de Snapmatic en GTA: además de lo que pase con las hermanas (indirecta de la rival, la marca que tantea una colabo, Nerea avisando del directo, el hater con cita…), gente random y fans contando su vida (curro, gym, comida, partidas, memes, quejas del día), las creadoras promocionando, algún hilo absurdo. Pueden mencionarse entre ellos (@usuario) y crear piques.
 - "foto": en 3 o 4 de esos posts, un prompt corto EN INGLÉS para generar la foto que acompaña al post (selfie de gente inventada, comida, gym, setup, paisaje, meme sin texto…). Siempre gente inventada, nunca famosos ni personajes con copyright, nada de desnudos (sexy vale).
@@ -65,7 +67,8 @@ Devuelve SOLO un objeto JSON con esta forma (omite listas vacías):
  "md":[{"de":"voltaenergy","para":"veenoir","texto":"...","en_min":120}],
  "fans_nuevos":[{"usuario":"ahri_mainlover","nombre":"Ahri main 🦊","bio":"...","avatar":"anime fox girl icon, flat colors"}],
  "nocturna":[{"usuario":"dalianox","texto":"...","precio":null,"fotos":6,"oculto":"...","en_min":200}],
- "memoria":[{"usuario":"realtalk_88x","nota":"frase corta de lo que recordará"}]}
+ "memoria":[{"usuario":"realtalk_88x","nota":"frase corta de lo que recordará"}],
+ "cronica":["hilo abierto en una frase corta", "..."]}
 "responde_a" dentro de comentarios: null, o el índice (0,1,2…) de otro comentario de la misma lista al que responde.
 """
 
@@ -262,6 +265,12 @@ def montar(desde, maximo):
         if c["tipo"] in ("fijo", "marca"):
             partes.append(f"- @{c['usuario']} ({c['nombre']}, {c['seguidores']} seguidores): {c['personalidad'] or ''}"
                           + (f" | Memoria: {c['memoria']}" if c.get("memoria") else ""))
+    cron = red.config("cronica", {}) or {}
+    if cron.get("lineas"):
+        partes.append(f"\n## Crónica de Raven (actualizada {str(cron.get('fecha', ''))[:16]}; continúala, no la contradigas)")
+        partes.extend("- " + str(l) for l in cron["lineas"])
+    else:
+        partes.append("\n## Crónica de Raven\n(vacía: empiézala tú con lo que pase en esta tanda)")
     fans = [c["usuario"] for c in cuentas if c["tipo"] == "fan"]
     if fans:
         partes.append("Fans que ya existen (puedes reutilizarlos): " + ", ".join("@" + f for f in random.sample(fans, min(25, len(fans)))))
@@ -320,7 +329,7 @@ def montar(desde, maximo):
             for p in recientes:
                 partes.append(f"- {u(p['cuenta_id'])} ({p['creado'][:10]}): «{corto(p['texto'], 140)}»")
         partes.append("\n## TANDA DE AMBIENTE\nLas hermanas y Alberto no han publicado nada nuevo. Deja \"posts\", \"respuestas\" y \"md\" vacíos "
-                      "y llena solo posts_nuevos (6–10), nocturna (hasta 2), fans_nuevos y memoria. Reparto: al menos la MITAD de los posts, de gente random "
+                      "y llena solo posts_nuevos (6–10), nocturna (hasta 2), fans_nuevos, memoria y cronica. Reparto: al menos la MITAD de los posts, de gente random "
                       "y fans (nuevos o de la lista) contando su vida; 1 o 2 de famosos de parodia (@maximopixel, @lolacruzoficial, @kevinbossreal, @afroditavex); "
                       "el resto, fijos, marcas o creadoras. Mete 2–4 fans_nuevos con avatar. Se puede hablar de las hermanas en general (esperar su directo, echarlas de menos), "
                       "pero sin inventar nada que hayan hecho: nada de «su peluca», «su filtro nuevo» ni cosas que no estén arriba.")
@@ -416,6 +425,9 @@ def aplicar(res, cuentas):
         n["nocturna"] += 1
     if cola:
         red.ins("imagenes", cola); n["fotos"] = len(cola)
+    cron = [str(l)[:200] for l in (res.get("cronica") or []) if str(l).strip()][:12]
+    if cron:
+        red.poner_config("cronica", {"lineas": cron, "fecha": red.ahora_iso()})
     for m in res.get("memoria", []) or []:
         k = por_user.get((m.get("usuario") or "").lstrip("@").lower())
         if k and k["tipo"] in ("fijo", "marca") and m.get("nota"):
