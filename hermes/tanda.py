@@ -109,10 +109,21 @@ def _token_hermes():
     return None
 
 
+def proveedor_local():
+    """Modelo local (Ollama / LM Studio, API compatible con OpenAI). Se activa con LLM_LOCAL_URL
+    o con config tanda.proveedor = "local" (+ local_url y modelo_local). Devuelve (url, modelo) o None."""
+    cfg = red.config("tanda", {}) or {}
+    url = os.environ.get("LLM_LOCAL_URL") or (cfg.get("local_url", "http://127.0.0.1:11434/v1") if cfg.get("proveedor") == "local" else None)
+    if not url:
+        return None
+    return url.rstrip("/"), os.environ.get("LLM_LOCAL_MODELO") or cfg.get("modelo_local") or "huihui_ai/qwen3-abliterated:14b-v2"
+
+
 def llamar_modelo(mensajes, modelo):
     """Devuelve (texto, usage_dict). Tres vías, por orden:
     1) MODELO_CMD: comando que recibe {"modelo","mensajes"} por stdin y devuelve {"texto","usage"} por stdout.
-    2) XAI_API_KEY o el token de xai-oauth de Hermes contra la API de xAI (compatible con OpenAI)."""
+    2) Modelo local (proveedor_local): Ollama o LM Studio en el propio Mac, sin clave.
+    3) XAI_API_KEY o el token de xai-oauth de Hermes contra la API de xAI (compatible con OpenAI)."""
     cmd = os.environ.get("MODELO_CMD")
     if cmd:
         p = subprocess.run(cmd, shell=True, input=json.dumps({"modelo": modelo, "mensajes": mensajes}),
@@ -121,13 +132,18 @@ def llamar_modelo(mensajes, modelo):
             raise RuntimeError(f"MODELO_CMD falló: {p.stderr[-500:]}")
         r = json.loads(p.stdout)
         return r["texto"], r.get("usage") or {}
-    token = os.environ.get("XAI_API_KEY") or _token_hermes()
-    if not token:
-        raise RuntimeError("No hay XAI_API_KEY ni token de xai-oauth localizable (ver _token_hermes en tanda.py)")
-    base = os.environ.get("XAI_BASE_URL", "https://api.x.ai/v1").rstrip("/")
+    local = proveedor_local()
+    if local:
+        base, modelo = local
+        token = "local"
+    else:
+        token = os.environ.get("XAI_API_KEY") or _token_hermes()
+        if not token:
+            raise RuntimeError("No hay XAI_API_KEY ni token de xai-oauth localizable (ver _token_hermes en tanda.py)")
+        base = os.environ.get("XAI_BASE_URL", "https://api.x.ai/v1").rstrip("/")
     cuerpo = {"model": modelo, "messages": mensajes, "response_format": {"type": "json_object"}, "temperature": 0.9,
               "stream": True, "stream_options": {"include_usage": True}}
-    esfuerzo = os.environ.get("XAI_RAZONAMIENTO") or (red.config("tanda", {}) or {}).get("razonamiento")
+    esfuerzo = None if local else (os.environ.get("XAI_RAZONAMIENTO") or (red.config("tanda", {}) or {}).get("razonamiento"))
     if esfuerzo:
         cuerpo["reasoning_effort"] = esfuerzo  # solo si el modelo lo admite (p. ej. "low")
     req = urllib.request.Request(base + "/chat/completions", data=json.dumps(cuerpo).encode(), method="POST",
@@ -155,14 +171,16 @@ def llamar_modelo(mensajes, modelo):
                     if trozo:
                         texto.append(trozo)
     except urllib.error.HTTPError as e:
-        raise RuntimeError(f"xAI {e.code}: {e.read().decode(errors='replace')[:400]}") from None
+        raise RuntimeError(f"{'local' if local else 'xAI'} {e.code}: {e.read().decode(errors='replace')[:400]}") from None
     if not texto:
-        raise RuntimeError("xAI no devolvió texto")
+        raise RuntimeError(f"{'El modelo local' if local else 'xAI'} no devolvió texto")
+    if not uso:  # algunos servidores locales no mandan el recuento: se estima (~4 caracteres por token)
+        uso = {"prompt_tokens": sum(len(m["content"]) for m in mensajes) // 4, "completion_tokens": len("".join(texto)) // 4, "estimado": True}
     return "".join(texto), uso
 
 
 def leer_json(texto):
-    texto = texto.strip()
+    texto = re.sub(r"<think>.*?</think>", "", texto, flags=re.S).strip()  # modelos locales que «piensan» en voz alta
     texto = re.sub(r"^```(?:json)?|```$", "", texto, flags=re.M).strip()
     i, j = texto.find("{"), texto.rfind("}")
     return json.loads(texto[i:j + 1])
@@ -420,6 +438,8 @@ def main():
     if not cfg.get("activa", True) and not a.prueba:
         print("Tanda parada en config."); return
     modelo = cfg.get("modelo", "grok-4.7")
+    if proveedor_local():
+        modelo = proveedor_local()[1]
     tope = int(cfg.get("tope_diario_tokens", 150000))
     gastado = gastado_hoy()
     if gastado >= tope and not a.prueba:
