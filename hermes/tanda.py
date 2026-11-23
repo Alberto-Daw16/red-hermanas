@@ -451,6 +451,7 @@ def main():
     ap.add_argument("--prueba", action="store_true")
     ap.add_argument("--sin-guardar", action="store_true")
     ap.add_argument("--ya", action="store_true", help="todo aparece en unos 10 minutos (para revisar)")
+    ap.add_argument("--partida", action="store_true", help="tanda en pasos cortos (para modelos locales); también con config tanda.modo = partida")
     a = ap.parse_args()
     global ESCALA
     if a.ya:
@@ -470,6 +471,13 @@ def main():
 
     desde = red.config("ultima_tanda") or "2000-01-01T00:00:00Z"
     hasta = red.ahora_iso()
+    if a.partida or cfg.get("modo") == "partida":
+        if a.prueba:
+            print("Modo partida: para probar sin escribir en la red usa --sin-guardar."); return
+        sys.modules["tanda"] = sys.modules[__name__]  # que tanda_partida use este mismo módulo (y su ESCALA)
+        import tanda_partida
+        tanda_partida.ejecutar(a, cfg, modelo, desde, hasta)
+        return
     material, cuentas = montar(desde, int(cfg.get("max_posts_por_tanda", 12)))
     if material is None:
         if not a.prueba and not a.sin_guardar:
