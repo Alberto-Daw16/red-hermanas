@@ -37,23 +37,81 @@ def ahora_madrid():
     return datetime.now(ZoneInfo("Europe/Madrid"))
 
 
-def contexto_dia(agenda):
-    """Día, hora y agenda ya resueltos en «hoy», «mañana» o «el jueves», para que el modelo no se líe."""
-    ahora = ahora_madrid()
+def proximos(agenda, ahora=None):
+    """Los directos de los próximos 7 días con su fecha real: [(fecha, dia_semana, evento)]."""
+    ahora = ahora or ahora_madrid()
     hoy = (ahora.weekday() + 1) % 7  # 0 = domingo, como la agenda
-    lineas = [f"Ahora es {DIAS[hoy]} {ahora.day}/{ahora.month}, las {ahora.strftime('%H:%M')} en España."]
+    out = []
     for e in agenda or []:
         try:
             dif = (int(e["dia"]) - hoy) % 7
             h, m = map(int, str(e["hora"]).split(":"))
-            if dif == 0 and (ahora.hour, ahora.minute) > (h, m):
-                cuando = f"hoy a las {e['hora']} (ya ha empezado o ha pasado)"
-            else:
-                cuando = {0: f"HOY a las {e['hora']}", 1: f"mañana ({DIAS[int(e['dia'])]}) a las {e['hora']}"}.get(dif, f"el {DIAS[int(e['dia'])]} a las {e['hora']}")
-            lineas.append(f"- {e['quien']} (@{e.get('usuario', '')}): {e['que']}, {cuando}.")
         except Exception:
             continue
+        if dif == 0 and (ahora.hour, ahora.minute) > (h, m):
+            dif = 7  # el de hoy ya pasó: el siguiente es la semana que viene
+        out.append((ahora.date() + timedelta(days=dif), int(e["dia"]), e))
+    return sorted(out, key=lambda x: (x[0], str(x[2].get("hora"))))
+
+
+def contexto_dia(agenda):
+    """Día, hora y agenda ya resueltos con fecha, para que el modelo no se líe."""
+    ahora = ahora_madrid()
+    hoy = (ahora.weekday() + 1) % 7
+    lineas = [f"Ahora es {DIAS[hoy]} {ahora.day}/{ahora.month}, las {ahora.strftime('%H:%M')} en España."]
+    if ahora.hour < 6:
+        ayer = DIAS[(hoy - 1) % 7]
+        lineas.append(f"Es de madrugada: para la gente sigue siendo la noche del {ayer}. Para hablar de directos NO uses «hoy» ni «mañana»: di el día de la semana.")
+    prox = proximos(agenda, ahora)
+    lineas.append("Agenda de los próximos días (lo ÚNICO que hay; no existe ningún otro directo ni concierto):")
+    for f, d, e in prox:
+        dif = (f - ahora.date()).days
+        cuando = {0: "HOY", 1: "mañana"}.get(dif, "el") if ahora.hour >= 6 else "el"
+        lineas.append(f"- {e['quien']} (@{e.get('usuario', '')}): {e['que']}, {cuando} {DIAS[d]} {f.day}/{f.month} a las {e['hora']}.")
+    dias_con = {d for _, d, _ in prox}
+    sin = [DIAS[d] for d in range(7) if d not in dias_con]
+    if hoy not in dias_con or all((f - ahora.date()).days != 0 for f, _, _ in prox):
+        lineas.append(f"HOY ({DIAS[hoy]}) NO hay ningún directo.")
+    if sin:
+        lineas.append("Días SIN nada: " + ", ".join(sin) + ". No digas que hay directo esos días.")
+    lineas.append("No pongas fechas con número (27/11…) salvo las de esta agenda.")
     return "\n".join(lineas)
+
+
+CLAVE_AGENDA = re.compile(r"\b(directo|stream|en vivo|lol|gta|canta|concierto|twitch)\b", re.I)
+DIA_RE = re.compile(r"\b(domingo|lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|hoy|mañana)\b", re.I)
+FECHA_RE = re.compile(r"\b(\d{1,2})/(\d{1,2})\b")
+_SIN_TILDE = {"miercoles": "miércoles", "sabado": "sábado"}
+
+
+def agenda_mal(texto, agenda):
+    """Motivo si el texto se inventa una fecha o un día de directo; None si cuadra con la agenda."""
+    ahora = ahora_madrid()
+    prox = proximos(agenda, ahora)
+    fechas = {(f.day, f.month) for f, _, _ in prox} | {(ahora.day, ahora.month)}
+    menciona = {e.get("usuario", "").lower() for _, _, e in prox if e.get("usuario") and "@" + e["usuario"].lower() in (texto or "").lower()}
+    for d, m in FECHA_RE.findall(texto or ""):
+        if (int(d), int(m)) not in fechas:
+            return f"fecha inventada ({d}/{m})"
+        de_quien = {e.get("usuario", "").lower() for f, _, e in prox if (f.day, f.month) == (int(d), int(m))}
+        if menciona and de_quien and not (menciona & de_quien):
+            return f"le pone a otra persona el directo del {d}/{m}"
+    if not CLAVE_AGENDA.search(texto or ""):
+        return None
+    hoy = (ahora.weekday() + 1) % 7
+    dias_con = {DIAS[d] for _, d, _ in prox}
+    difs = {(f - ahora.date()).days for f, _, _ in prox}
+    for w in DIA_RE.findall(texto or ""):
+        w = _SIN_TILDE.get(w.lower(), w.lower())
+        if w in ("hoy", "mañana") and ahora.hour < 6:
+            return "de madrugada usa el día de la semana, no «hoy» ni «mañana»"
+        if w == "hoy" and 0 not in difs and ahora.hour >= 6:
+            return "dice que hoy hay directo y no lo hay"
+        if w == "mañana" and 1 not in difs and ahora.hour >= 6:
+            return "dice que mañana hay directo y no lo hay"
+        if w in DIAS and w not in dias_con:
+            return f"pone directo el {w} y ese día no hay"
+    return None
 
 
 def norm(t):
@@ -64,7 +122,17 @@ def parecido(a, b):
     return difflib.SequenceMatcher(None, norm(a), norm(b)).ratio()
 
 
-def problema(texto, existentes, maximo=280):
+def limpio(texto, quien=None):
+    """Quita el «Nombre:» o «@usuario:» que a veces ponen delante."""
+    t = (texto or "").strip()
+    if quien:
+        for n in (quien.get("nombre"), quien.get("usuario"), "@" + str(quien.get("usuario"))):
+            if n and t.lower().startswith(str(n).lower() + ":"):
+                t = t[len(str(n)) + 1:].strip()
+    return t
+
+
+def problema(texto, existentes, maximo=280, agenda=None):
     """Devuelve por qué se rechaza un texto, o None si vale."""
     t = (texto or "").strip()
     if len(t) < 8:
@@ -78,6 +146,8 @@ def problema(texto, existentes, maximo=280):
     for e in existentes:
         if e and parecido(t, e) >= 0.55:
             return "copia o refrito de un post que ya existe"
+    if agenda is not None:
+        return agenda_mal(t, agenda)
     return None
 
 
@@ -173,7 +243,8 @@ def ejecutar(a, cfg, modelo, desde, hasta):
                 for c in cs:
                     if (c.get("usuario") or "").lstrip("@") not in nombres:
                         return "comenta alguien que no estaba en la lista"
-                    m = problema(c.get("texto"), existentes, 240)
+                    c["texto"] = limpio(c.get("texto"), por_user.get((c.get("usuario") or "").lstrip("@").lower()))
+                    m = problema(c.get("texto"), existentes, 240, agenda)
                     if m:
                         return m
                 return None
@@ -200,9 +271,9 @@ def ejecutar(a, cfg, modelo, desde, hasta):
             encargo = (f"{dia}\n\nPost de @{dueno['usuario'] if dueno else '?'}: «{T.corto(post[0]['texto'] if post else '', 200)}»\n"
                        f"Comentario de @alberto_16: «{c['texto']}»\n\nEres {ficha(quien)}\nContesta a ese comentario, con tu forma de ser. "
                        'JSON: {"texto":"..."}')
-            r = motor.pedir_valido(encargo, lambda r: problema((r or {}).get("texto"), existentes, 240))
+            r = motor.pedir_valido(encargo, lambda r: problema(limpio((r or {}).get("texto"), quien), existentes, 240, agenda))
             if r:
-                res["respuestas"].append({"comentario_id": c["id"], "usuario": quien["usuario"], "texto": r["texto"], "likes": random.randint(0, 20), "en_min": random.randint(5, 90)})
+                res["respuestas"].append({"comentario_id": c["id"], "usuario": quien["usuario"], "texto": limpio(r["texto"], quien), "likes": random.randint(0, 20), "en_min": random.randint(5, 90)})
                 eventos.append(f"@{quien['usuario']} contestó a un comentario de @alberto_16")
         ids_fijos = [c["id"] for c in fijos + marcas + fans]
         mds = red.sel("mensajes", plataforma=f"eq.{T.PLAT}", de=f"eq.{alberto[0]['id']}", para=f"in.({','.join(ids_fijos) or '0'})",
@@ -212,9 +283,9 @@ def ejecutar(a, cfg, modelo, desde, hasta):
             if not quien:
                 continue
             encargo = f"{dia}\n\nEres {ficha(quien)}\n@alberto_16 te ha mandado este MD: «{m['texto']}»\nContéstale por MD, con tu forma de ser. " + 'JSON: {"texto":"..."}'
-            r = motor.pedir_valido(encargo, lambda r: problema((r or {}).get("texto"), [], 400))
+            r = motor.pedir_valido(encargo, lambda r: problema(limpio((r or {}).get("texto"), quien), [], 400, agenda))
             if r:
-                res["md"].append({"de": quien["usuario"], "para": "alberto_16", "texto": r["texto"], "en_min": random.randint(10, 180)})
+                res["md"].append({"de": quien["usuario"], "para": "alberto_16", "texto": limpio(r["texto"], quien), "en_min": random.randint(10, 180)})
                 eventos.append(f"@{quien['usuario']} contestó un MD de @alberto_16")
 
     # ---- 3. Posts nuevos: el código elige quién escribe ----
@@ -240,7 +311,14 @@ def ejecutar(a, cfg, modelo, desde, hasta):
                    "\nEscribe UN post nuevo tuyo: tu vida, tu día, algo de la agenda o de la crónica, o un pique con alguien de arriba. "
                    "Si menciona un directo, usa el día exacto de la agenda.\n"
                    'JSON: {"texto":"...","foto":null o "prompt corto en inglés de la foto que acompaña al post","sale":true si sales tú en la foto}')
-        r = motor.pedir_valido(encargo, lambda r: problema((r or {}).get("texto"), existentes + [p["texto"] for p in res["posts_nuevos"]]))
+        def ok_post(r, suyos=suyos, autor=autor):
+            t = limpio((r or {}).get("texto"), autor)
+            if r is not None:
+                r["texto"] = t
+            if any(parecido(t, x) >= 0.42 for x in suyos):
+                return "repite un post suyo de antes"
+            return problema(t, existentes + [p["texto"] for p in res["posts_nuevos"]], 280, agenda)
+        r = motor.pedir_valido(encargo, ok_post)
         if r:
             res["posts_nuevos"].append({"usuario": autor["usuario"], "texto": r["texto"], "cita": None, "en_min": en_min,
                                         "foto": r.get("foto") if random.random() < 0.45 else None, "sale": bool(r.get("sale"))})
