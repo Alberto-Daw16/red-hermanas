@@ -279,8 +279,10 @@ def montar(desde, maximo):
             for p in recientes:
                 partes.append(f"- {u(p['cuenta_id'])} ({p['creado'][:10]}): «{corto(p['texto'], 140)}»")
         partes.append("\n## TANDA DE AMBIENTE\nLas hermanas y Alberto no han publicado nada nuevo. Deja \"posts\", \"respuestas\" y \"md\" vacíos "
-                      "y llena solo posts_nuevos (6–10), nocturna (hasta 2), fans_nuevos y memoria. Gente random, famosos de parodia, marcas y creadoras "
-                      "haciendo su vida. Se puede hablar de las hermanas en general (esperar su directo, echarlas de menos), pero sin inventar nada que hayan hecho.")
+                      "y llena solo posts_nuevos (6–10), nocturna (hasta 2), fans_nuevos y memoria. Reparto: al menos la MITAD de los posts, de gente random "
+                      "y fans (nuevos o de la lista) contando su vida; 1 o 2 de famosos de parodia (@maximopixel, @lolacruzoficial, @kevinbossreal, @afroditavex); "
+                      "el resto, fijos, marcas o creadoras. Mete 2–4 fans_nuevos con avatar. Se puede hablar de las hermanas en general (esperar su directo, echarlas de menos), "
+                      "pero sin inventar nada que hayan hecho: nada de «su peluca», «su filtro nuevo» ni cosas que no estén arriba.")
     partes.append(f"\nHora en España: {datetime.now(ZoneInfo('Europe/Madrid')).strftime('%A %d/%m %H:%M')}.")
     return "\n".join(partes), cuentas
 
