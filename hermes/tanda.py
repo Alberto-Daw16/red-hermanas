@@ -184,6 +184,18 @@ def cifras(seguidores):
     return {"vistas_sim": vistas, "likes_sim": likes, "reposts_sim": int(likes * random.uniform(0.02, 0.12))}
 
 
+AVATARES_GENERICOS = [
+    "casual selfie of an invented young Spanish guy with a cap, phone camera, everyday light",
+    "casual selfie of an invented young Spanish woman, messy bun, bedroom mirror",
+    "a fat orange cat staring at the camera, close-up, funny",
+    "generic anime-style avatar of an invented character with headphones, flat colors",
+    "blurry photo of a gaming setup with RGB lights, no people",
+    "meme-style photo of a dog wearing sunglasses, no text",
+    "invented guy in a football shirt at a bar terrace, sunny, phone photo",
+    "low-light photo of a cup of coffee and a notebook, aesthetic",
+]
+
+
 ESCALA = 1.0  # con --ya todo sale en ~10 min (para revisar), manteniendo el orden
 
 
@@ -317,8 +329,9 @@ def aplicar(res, cuentas):
                                         "usuario": usuario, "bio": (info.get("bio") or "")[:160],
                                         "seguidores": random.randint(8, 2400), "siguiendo": random.randint(50, 900)})[0]
             por_user[k] = nueva; n["fans"] += 1
-            if info.get("avatar"):
-                cola.append({"tipo": "avatar", "cuenta_id": nueva["id"], "prompt": str(info["avatar"])[:400] + " Square profile picture."})
+            # todo fan nuevo sale con foto: la que pida Grok o una genérica al azar
+            cola.append({"tipo": "avatar", "cuenta_id": nueva["id"],
+                         "prompt": str(info.get("avatar") or random.choice(AVATARES_GENERICOS))[:400] + " Square profile picture."})
         return por_user[k]
 
     num = lambda v: max(0, int(v or 0))
