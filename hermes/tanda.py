@@ -123,7 +123,44 @@ def proveedor_local():
     return url.rstrip("/"), os.environ.get("LLM_LOCAL_MODELO") or cfg.get("modelo_local") or "huihui_ai/qwen3-abliterated:14b-v2"
 
 
+def proveedor_gemini():
+    """Gemini por su acceso compatible con OpenAI. Se activa con config tanda.proveedor = "gemini"
+    (o LLM_PROVEEDOR=gemini). La clave va en GEMINI_API_KEY, dentro de ~/.hermes/red-social.env.
+    Devuelve (url, clave, modelo, esfuerzo) o None."""
+    cfg = red.config("tanda", {}) or {}
+    if (os.environ.get("LLM_PROVEEDOR") or cfg.get("proveedor")) != "gemini":
+        return None
+    clave = os.environ.get("GEMINI_API_KEY")
+    if not clave:
+        raise RuntimeError("Proveedor gemini sin GEMINI_API_KEY en el .env")
+    base = os.environ.get("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai").rstrip("/")
+    modelo = os.environ.get("GEMINI_MODELO") or cfg.get("modelo_gemini") or "gemini-4-neon"
+    esfuerzo = os.environ.get("GEMINI_RAZONAMIENTO") or cfg.get("razonamiento_gemini") or "low"
+    return base, clave, modelo, esfuerzo
+
+
 def llamar_modelo(mensajes, modelo):
+    """Como _llamar, pero si Gemini falla y config tanda.respaldo_grok no es false, repite con Grok."""
+    try:
+        return _llamar(mensajes, modelo)
+    except Exception as e:
+        cfg = red.config("tanda", {}) or {}
+        if os.environ.get("LLM_PROVEEDOR") == "xai" or not proveedor_gemini_activo() or cfg.get("respaldo_grok", True) is False:
+            raise
+        print(f"Gemini falló ({str(e)[:200]}); repito con Grok.", file=sys.stderr)
+        os.environ["LLM_PROVEEDOR"] = "xai"
+        try:
+            return _llamar(mensajes, cfg.get("modelo", "grok-4.7"))
+        finally:
+            os.environ.pop("LLM_PROVEEDOR", None)
+
+
+def proveedor_gemini_activo():
+    cfg = red.config("tanda", {}) or {}
+    return not os.environ.get("MODELO_CMD") and not proveedor_local() and (os.environ.get("LLM_PROVEEDOR") or cfg.get("proveedor")) == "gemini"
+
+
+def _llamar(mensajes, modelo):
     """Devuelve (texto, usage_dict). Tres vías, por orden:
     1) MODELO_CMD: comando que recibe {"modelo","mensajes"} por stdin y devuelve {"texto","usage"} por stdout.
     2) Modelo local (proveedor_local): Ollama o LM Studio en el propio Mac, sin clave.
@@ -137,9 +174,12 @@ def llamar_modelo(mensajes, modelo):
         r = json.loads(p.stdout)
         return r["texto"], r.get("usage") or {}
     local = proveedor_local()
+    gem = None if local else proveedor_gemini()
     if local:
         base, modelo = local
         token = "local"
+    elif gem:
+        base, token, modelo, esfuerzo_gem = gem
     else:
         token = os.environ.get("XAI_API_KEY") or _token_hermes()
         if not token:
@@ -149,16 +189,28 @@ def llamar_modelo(mensajes, modelo):
               "stream": True, "stream_options": {"include_usage": True}}
     if local and os.environ.get("LLM_LOCAL_EXTRA"):
         cuerpo.update(json.loads(os.environ["LLM_LOCAL_EXTRA"]))  # p. ej. {"reasoning_effort":"none"} para apagar el pensamiento
-    esfuerzo = None if local else (os.environ.get("XAI_RAZONAMIENTO") or (red.config("tanda", {}) or {}).get("razonamiento"))
+    esfuerzo = None if local else esfuerzo_gem if gem else (os.environ.get("XAI_RAZONAMIENTO") or (red.config("tanda", {}) or {}).get("razonamiento"))
     if esfuerzo:
         cuerpo["reasoning_effort"] = esfuerzo  # solo si el modelo lo admite (p. ej. "low")
     req = urllib.request.Request(base + "/chat/completions", data=json.dumps(cuerpo).encode(), method="POST",
                                  headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json",
                                           "Accept": "text/event-stream"})
     # En streaming el servidor va mandando trozos y la conexión no se queda muda mientras el modelo piensa.
+    quien = "local" if local else "Gemini" if gem else "xAI"
     texto, uso = [], {}
     try:
-        with urllib.request.urlopen(req, timeout=900) as r:
+        try:
+            r = urllib.request.urlopen(req, timeout=900)
+        except urllib.error.HTTPError as e:
+            if not (gem and e.code == 400):
+                raise
+            # Si Gemini no acepta response_format json_object, se repite sin él (el prompt ya pide solo JSON)
+            cuerpo.pop("response_format", None)
+            req = urllib.request.Request(base + "/chat/completions", data=json.dumps(cuerpo).encode(), method="POST",
+                                         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json",
+                                                  "Accept": "text/event-stream"})
+            r = urllib.request.urlopen(req, timeout=900)
+        with r:
             for linea in r:
                 linea = linea.decode("utf-8", "replace").strip()
                 if not linea.startswith("data:"):
@@ -177,9 +229,9 @@ def llamar_modelo(mensajes, modelo):
                     if trozo:
                         texto.append(trozo)
     except urllib.error.HTTPError as e:
-        raise RuntimeError(f"{'local' if local else 'xAI'} {e.code}: {e.read().decode(errors='replace')[:400]}") from None
+        raise RuntimeError(f"{quien} {e.code}: {e.read().decode(errors='replace')[:400]}") from None
     if not texto:
-        raise RuntimeError(f"{'El modelo local' if local else 'xAI'} no devolvió texto")
+        raise RuntimeError(f"{quien} no devolvió texto")
     if not uso:  # algunos servidores locales no mandan el recuento: se estima (~4 caracteres por token)
         uso = {"prompt_tokens": sum(len(m["content"]) for m in mensajes) // 4, "completion_tokens": len("".join(texto)) // 4, "estimado": True}
     return "".join(texto), uso
@@ -465,6 +517,8 @@ def main():
     modelo = cfg.get("modelo", "grok-4.7")
     if proveedor_local():
         modelo = proveedor_local()[1]
+    elif proveedor_gemini():
+        modelo = proveedor_gemini()[2]
     tope = int(cfg.get("tope_diario_tokens", 150000))
     gastado = gastado_hoy()
     if gastado >= tope and not a.prueba:
