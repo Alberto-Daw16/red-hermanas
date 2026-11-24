@@ -48,10 +48,11 @@ Reglas fijas:
 - Fans de relleno: usuarios nuevos inventados con @ creíble (p. ej. ahri_mainlover, k4rmasleeper). Repite alguno de vez en cuando.
 - Si Alberto ha comentado o mandado MD a un personaje, ese personaje le contesta (en comentario o MD) si tiene sentido.
 - Varía: que el hater no repita sus muletillas («ratio», «nadie te ha preguntado») en cada comentario; mira su memoria y cambia de ataque.
-- CONTINUIDAD: Raven es un mundo que sigue. Lee los «Hilos de Raven» de abajo: cada uno dice qué ha pasado y qué viene después. En cada tanda AVANZA al menos 2 hilos (un paso nuevo, no repetir el mismo) y, si toca, cierra alguno. Que lo de ayer se note hoy y lo de hoy se note mañana. No reinicies nada ni lo contradigas.
+- CONTINUIDAD: Raven es un mundo que sigue. Lee los «Hilos de Raven» de abajo: cada uno dice qué ha pasado y qué viene después. Los hilos son cosas ENTRE gente o que importan a varios (piques, colabos, sorteos, anuncios, el directo, una votación), no la cena de un fan: lo cotidiano de cada uno no es un hilo y no hay que continuarlo. En cada tanda AVANZA al menos 2 hilos (un paso nuevo, no repetir el mismo) y, si toca, cierra alguno. Que lo de ayer se note hoy y lo de hoy se note mañana. No reinicies nada ni lo contradigas.
 - "cronica": devuelve SIEMPRE los hilos actualizados, de 6 a 12 líneas, cada una con la forma «tema: lo último que ha pasado → lo que viene / falta». Quita lo cerrado o viejo. Añade 1 o 2 líneas que empiecen por «MAÑANA:» con algo que alguien ha anunciado o dejado a medias para la próxima tanda. Solo hechos que consten (publicados arriba o generados por ti ahora).
 - NO TE REPITAS: cada personaje tiene abajo sus últimos posts. No repitas su tema, su chiste ni su frase con otras palabras; si vuelve a un tema, que sea con algo NUEVO (otro paso, otro giro). El código descarta los posts que se parecen a los anteriores.
 - CONVERSACIONES: cuando alguien contesta a otro (abajo, «Conversaciones abiertas»), el aludido puede replicar en "respuestas" con el comentario_id; que se note que ha leído lo que le han dicho. Hilos de 2 o 3 turnos, no más.
+- La gente también se comenta ENTRE ELLA: en "posts" puedes meter comentarios a los «Posts recientes de la gente» de abajo (con su id; ahí "likes" pequeños y sin "vistas"). Reparte 4–8 comentarios entre varios de esos posts: risas, piques, «a mí me pasa igual», alguien que corrige a otro. Es lo que hace que la red parezca viva.
 - Los comentarios de un post ven lo que ya se ha dicho en él (abajo, debajo de cada post): no digas lo mismo que otro; contesta, apoya o lleva la contraria.
 - MD: abajo va la conversación ENTERA con Alberto (lo anterior y lo nuevo). Contesta a lo último recordando lo de antes, como en un chat de verdad.
 - "memoria": solo lo que ese personaje ha hecho DE VERDAD en esta respuesta (un comentario, un post, un MD que aparezca arriba). Nunca algo que no hayas generado.
@@ -433,6 +434,15 @@ def montar(desde, maximo):
                            "and": f"(creado.lte.{ahora})"}, select="de,texto,creado", order="creado.desc", limit=12)
             for h in reversed(hilo):
                 partes.append(f"    {h['creado'][5:16].replace('T', ' ')} {u(h['de'])}: «{corto(h['texto'], 200)}»")
+    hace12 = datetime.fromtimestamp(time.time() - 12 * 3600, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    gente = red.sel("posts", plataforma=f"eq.{PLAT}", cuenta_id=f"in.({','.join(ids_fijos) or '0'})", texto="not.is.null",
+                    creado=f"gt.{hace12}", **{"and": f"(creado.lte.{ahora})"}, select="id,cuenta_id,texto", order="creado.desc", limit=30)
+    if gente:
+        partes.append("\n## Posts recientes de la gente (se les puede comentar en \"posts\" con su id)")
+        for p in random.sample(gente, min(8, len(gente))):
+            partes.append(f"- post {p['id']} de {u(p['cuenta_id'])}: «{corto(p['texto'], 140)}»")
+            for c in red.sel("comentarios", post_id=f"eq.{p['id']}", **{"and": f"(creado.lte.{ahora})"}, select="id,cuenta_id,texto", limit=3):
+                partes.append(f"    · ya comentado — comentario {c['id']} de {u(c['cuenta_id'])}: «{corto(c['texto'], 80)}»")
     hace_dia = datetime.fromtimestamp(time.time() - 36 * 3600, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     resp = red.sel("comentarios", responde_a="not.is.null", creado=f"gt.{hace_dia}", **{"and": f"(creado.lte.{ahora})"},
                    select="id,post_id,cuenta_id,texto,responde_a", order="creado.desc", limit=40)
@@ -459,7 +469,7 @@ def montar(desde, maximo):
             partes.append("\n## Lo último que han dicho los demás (para seguir piques o hilos, sin repetirlo)")
             for p in recientes:
                 partes.append(f"- {u(p['cuenta_id'])} ({p['creado'][:10]}): «{corto(p['texto'], 140)}»")
-        partes.append("\n## TANDA DE AMBIENTE\nLas hermanas y Alberto no han publicado nada nuevo. Deja \"posts\" y \"md\" vacíos "
+        partes.append("\n## TANDA DE AMBIENTE\nLas hermanas y Alberto no han publicado nada nuevo. Deja \"md\" vacío; en \"posts\", solo comentarios a los posts recientes de la gente "
                       "y llena posts_nuevos (" + "–".join(map(str, cadencia()[:2])) + "), las \"respuestas\" de las conversaciones abiertas si las hay, nocturna (hasta 2), fans_nuevos, memoria y cronica. Reparto: al menos la MITAD de los posts, de gente random "
                       "y fans (nuevos o de la lista) contando su vida; 1 o 2 de famosos de parodia (@maximopixel, @lolacruzoficial, @kevinbossreal, @afroditavex); "
                       "el resto, fijos, marcas o creadoras. Mete 2–4 fans_nuevos con avatar. Se puede hablar de las hermanas en general (esperar su directo, echarlas de menos), "
@@ -531,8 +541,14 @@ def aplicar(res, cuentas):
     for p in (res.get("posts_nuevos", []) or [])[:cadencia()[1]]:
         k = cuenta_de(p.get("usuario"))
         if k and p.get("texto"):
-            propios = [t["texto"] for t in red.sel("posts", cuenta_id=f"eq.{k['id']}", texto="not.is.null", select="texto",
-                                                   order="creado.desc", limit=10)]
+            ult = red.sel("posts", cuenta_id=f"eq.{k['id']}", texto="not.is.null", select="texto,creado", order="creado.desc", limit=10)
+            propios = [t["texto"] for t in ult]
+            cfg_t = red.config("tanda", {}) or {}
+            horas_frio = float(cfg_t.get("enfriamiento_fan_h", 8) if k["tipo"] == "fan" else cfg_t.get("enfriamiento_fijo_h", 4)) * ESCALA
+            if ult and horas_frio and minutos(ult[0]["creado"]) < horas_frio * 60 and k["tipo"] in ("fan", "fijo") \
+                    and not str(k.get("quien") or "").startswith(("famoso", "famosa")):
+                n["descartados"] += 1  # ya publicó hace poco: que no parezca que vive en Raven
+                continue
             if (any(parecido(p["texto"], t) >= 0.45 for t in propios)
                     or any(parecido(p["texto"], t["texto"]) >= 0.55 for t in recientes)
                     or any(parecido(p["texto"], t) >= 0.55 for t in aceptados)):
