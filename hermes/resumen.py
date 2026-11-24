@@ -44,9 +44,19 @@ def main():
     com_alb = red.sel("comentarios", cuenta_id=f"in.({ids_alb})", post_id=f"in.({pids})", creado=f"gt.{desde}", select="id,post_id,texto")
     for c in com_alb[:4]:
         lineas.append(f"- Alberto te ha comentado en #{c['post_id']} (comentario {c['id']}): «{corto(c['texto'])}»")
-    md_alb = red.sel("mensajes", de=f"in.({ids_alb})", para=f"in.({ids_mias})", leido="eq.false", select="id,texto,plataforma,creado", order="creado")
-    for m in md_alb[:4]:
-        lineas.append(f"- MD de Alberto ({m['plataforma']}): «{corto(m['texto'])}»")
+    md_alb = red.sel("mensajes", de=f"in.({ids_alb})", para=f"in.({ids_mias})", leido="eq.false", select="id,de,para,texto,plataforma,creado", order="creado")
+    vistos = set()
+    for m in md_alb:
+        if (m["de"], m["para"]) in vistos:
+            continue
+        vistos.add((m["de"], m["para"]))
+        lineas.append(f"- MD de Alberto ({m['plataforma']}) sin contestar. Vuestra conversación (lo último, abajo):")
+        hilo = red.sel("mensajes", **{"or": f"(and(de.eq.{m['de']},para.eq.{m['para']}),and(de.eq.{m['para']},para.eq.{m['de']}))"},
+                       select="de,texto,creado", order="creado.desc", limit=12)
+        for h in reversed(hilo):
+            quien = "Alberto" if h["de"] == m["de"] else "tú"
+            lineas.append(f"    {h['creado'][5:16].replace('T', ' ')} {quien}: «{corto(h['texto'], 200)}»")
+        lineas.append(f"    Contéstale con: publicar.py md --quien {a.quien} --para alberto_16 --texto \"...\" (acuérdate de lo de antes)")
     for c in mias:
         men = red.sel("posts", cuenta_id=f"in.({ids_alb})", texto=f"ilike.*@{c['usuario']}*", creado=f"gt.{desde}", select="id,texto")
         for p in men[:2]:
@@ -74,8 +84,8 @@ def main():
     otros = red.sel("comentarios", post_id=f"in.({pids})", cuenta_id=f"not.in.({ids_alb},{ids_mias})", creado=f"gt.{desde}",
                     select="id,post_id,cuenta_id,texto,likes_sim", order="likes_sim.desc", limit=60)
     if otros:
-        lineas.append(f"- {len(otros)} comentarios nuevos de otra gente. Los más sonados:")
-        for c in otros[:3]:
+        lineas.append(f"- {len(otros)} comentarios nuevos de otra gente en tus posts. Los más sonados (puedes contestar a 2–4 con publicar.py responder):")
+        for c in otros[:6]:
             k = cuentas.get(c["cuenta_id"], {})
             lineas.append(f"    @{k.get('usuario')} en #{c['post_id']} (comentario {c['id']}): «{corto(c['texto'], 90)}»")
     md_otros = red.sel("mensajes", para=f"in.({ids_mias})", de=f"not.in.({ids_alb})", leido="eq.false", select="id,de,texto", order="creado.desc", limit=30)
@@ -85,6 +95,11 @@ def main():
     for p in nuevos:
         lineas.append(f"- @{cuentas.get(p['cuenta_id'], {}).get('usuario')} habla de ti en #{p['id']}: «{corto(p['texto'], 90)}»")
 
+    cron = (red.config("cronica", {}) or {}).get("lineas") or []
+    if cron:
+        lineas.append("- Lo que se mueve en Raven ahora (hilos abiertos; si algo va contigo, puedes reaccionar):")
+        for l in cron[:10]:
+            lineas.append(f"    {l}")
     print(f"RED · {a.quien} · desde {desde[:16].replace('T', ' ')} UTC")
     print("\n".join(lineas) if lineas else "- Nada nuevo.")
     print("Para contestar: publicar.py responder/md/like (ver SKILL). Si no te apetece, no hace falta.")

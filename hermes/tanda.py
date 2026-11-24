@@ -47,17 +47,21 @@ Reglas fijas:
 - Fans de relleno: usuarios nuevos inventados con @ creíble (p. ej. ahri_mainlover, k4rmasleeper). Repite alguno de vez en cuando.
 - Si Alberto ha comentado o mandado MD a un personaje, ese personaje le contesta (en comentario o MD) si tiene sentido.
 - Varía: que el hater no repita sus muletillas («ratio», «nadie te ha preguntado») en cada comentario; mira su memoria y cambia de ataque.
-- CONTINUIDAD: Raven es un mundo que sigue. Lee la «Crónica de Raven» de abajo y continúa sus hilos (piques, colabos, bromas internas, cosas que alguien prometió o anunció): que lo de ayer se note hoy. No reinicies nada ni lo contradigas.
-- "cronica": devuelve SIEMPRE la crónica actualizada, de 6 a 12 líneas cortas: los hilos abiertos y lo importante que ha pasado, incluido lo de esta respuesta. Quita lo que ya esté cerrado o viejo. Solo hechos que consten (publicados arriba o generados por ti ahora).
+- CONTINUIDAD: Raven es un mundo que sigue. Lee los «Hilos de Raven» de abajo: cada uno dice qué ha pasado y qué viene después. En cada tanda AVANZA al menos 2 hilos (un paso nuevo, no repetir el mismo) y, si toca, cierra alguno. Que lo de ayer se note hoy y lo de hoy se note mañana. No reinicies nada ni lo contradigas.
+- "cronica": devuelve SIEMPRE los hilos actualizados, de 6 a 12 líneas, cada una con la forma «tema: lo último que ha pasado → lo que viene / falta». Quita lo cerrado o viejo. Añade 1 o 2 líneas que empiecen por «MAÑANA:» con algo que alguien ha anunciado o dejado a medias para la próxima tanda. Solo hechos que consten (publicados arriba o generados por ti ahora).
+- NO TE REPITAS: cada personaje tiene abajo sus últimos posts. No repitas su tema, su chiste ni su frase con otras palabras; si vuelve a un tema, que sea con algo NUEVO (otro paso, otro giro). El código descarta los posts que se parecen a los anteriores.
+- CONVERSACIONES: cuando alguien contesta a otro (abajo, «Conversaciones abiertas»), el aludido puede replicar en "respuestas" con el comentario_id; que se note que ha leído lo que le han dicho. Hilos de 2 o 3 turnos, no más.
+- Los comentarios de un post ven lo que ya se ha dicho en él (abajo, debajo de cada post): no digas lo mismo que otro; contesta, apoya o lleva la contraria.
+- MD: abajo va la conversación ENTERA con Alberto (lo anterior y lo nuevo). Contesta a lo último recordando lo de antes, como en un chat de verdad.
 - "memoria": solo lo que ese personaje ha hecho DE VERDAD en esta respuesta (un comentario, un post, un MD que aparezca arriba). Nunca algo que no hayas generado.
-- posts_nuevos: entre 6 y 10. Que la red tenga VIDA, como el feed de Snapmatic en GTA: además de lo que pase con las hermanas (indirecta de la rival, la marca que tantea una colabo, Nerea avisando del directo, el hater con cita…), gente random y fans contando su vida (curro, gym, comida, partidas, memes, quejas del día), las creadoras promocionando, algún hilo absurdo. Pueden mencionarse entre ellos (@usuario) y crear piques.
+- posts_nuevos: entre {MIN_POSTS} y {MAX_POSTS}. Que la red tenga VIDA, como el feed de Snapmatic en GTA: además de lo que pase con las hermanas (indirecta de la rival, la marca que tantea una colabo, Nerea avisando del directo, el hater con cita…), gente random y fans contando su vida (curro, gym, comida, partidas, memes, quejas del día), las creadoras promocionando, algún hilo absurdo. Pueden mencionarse entre ellos (@usuario) y crear piques.
 - "foto": en 3 o 4 de esos posts, un prompt corto EN INGLÉS para generar la foto que acompaña al post (selfie de gente inventada, comida, gym, setup, paisaje, meme sin texto…). Siempre gente inventada, nunca famosos ni personajes con copyright, nada de desnudos (sexy vale).
   "sale": true si en la foto aparece el propio autor del post (selfie, foto suya); false si es comida, paisaje, setup, meme… Si sale, describe la escena y la ropa, no su cara: la cara la pone su hoja de referencia.
 - "nocturna": como mucho 2 posts nuevos de las creadoras (NO de VeeNoir, que escribe ella) en su página de pago: texto gancho con picardía, "precio" (null = solo suscriptores, o 4.99–14.99), "fotos" (3–15) y "oculto" (lo que se lee al desbloquear; picardía, sin describir actos).
 - fans_nuevos: con "avatar" = prompt corto en inglés de su foto de perfil (persona inventada, avatar de anime genérico, mascota, meme sin texto…).
 - md: como mucho 4 (fans, marcas o fijos a las hermanas; o respuestas a los MD de Alberto).
 - Los posts marcados [Nocturna] son de la página de pago de VeeNoir: para esos pon solo "likes" (80–600), sin comentarios.
-- TIEMPO: cada comentario, respuesta, post nuevo y MD lleva "en_min": dentro de cuántos minutos aparece (0–480). Repártelos:
+- TIEMPO: cada comentario, respuesta, post nuevo y MD lleva "en_min": dentro de cuántos minutos aparece (0–{MAX_MIN}). Reparte los posts_nuevos por TODO ese tramo (hasta la próxima tanda), no los amontones al principio:
   los primeros comentarios de un post reciente, pronto (2–40); el resto, a lo largo de las horas; las respuestas, después de lo que contestan.
   Una conversación (A comenta, B contesta, A replica) va escalonada. Que no salga todo en el mismo minuto.
 
@@ -284,9 +288,32 @@ AVATARES_GENERICOS = [
 ESCALA = 1.0  # con --ya todo sale en ~10 min (para revisar), manteniendo el orden
 
 
+def parecido(a, b):
+    """0–1: cuánto se parecen dos textos (sin mayúsculas, signos ni @)."""
+    import difflib
+    f = lambda t: re.sub(r"[^a-zñáéíóúü0-9 ]", "", re.sub(r"@\w+", "", (t or "").lower())).split()
+    x, y = f(a), f(b)
+    if not x or not y:
+        return 0.0
+    return difflib.SequenceMatcher(None, x, y).ratio()
+
+
+def cadencia():
+    """(mín. posts, máx. posts, máx. minutos) de una tanda, desde config tanda; por defecto 8–14 posts repartidos en 8 h."""
+    cfg = red.config("tanda", {}) or {}
+    mx = int(cfg.get("max_posts_nuevos", 14))
+    mn = min(mx, int(cfg.get("min_posts_nuevos", 8)))
+    return mn, mx, int(cfg.get("reparto_min", 480))
+
+
+def reglas():
+    mn, mx, mm = cadencia()
+    return REGLAS.replace("{MIN_POSTS}", str(mn)).replace("{MAX_POSTS}", str(mx)).replace("{MAX_MIN}", str(mm))
+
+
 def en(minutos_, despues_de=None):
-    """Hora ISO dentro de `minutos_` (0–480), y nunca antes de `despues_de` + 1 min."""
-    m = max(0, min(480, int(minutos_ or 0))) * ESCALA
+    """Hora ISO dentro de `minutos_` (0–reparto_min), y nunca antes de `despues_de` + 1 min."""
+    m = max(0, min(cadencia()[2], int(minutos_ or 0))) * ESCALA
     t = datetime.now(timezone.utc).timestamp() + m * 60
     if despues_de:
         try:
@@ -325,16 +352,24 @@ def montar(desde, maximo):
 
     u = lambda cid: "@" + por_id.get(cid, {}).get("usuario", "?")
     partes = ["## Personajes fijos y marcas"]
+    ids_fm = [c["id"] for c in cuentas if c["tipo"] in ("fijo", "marca")]
+    suyos = {}
+    if ids_fm:
+        for p in red.sel("posts", cuenta_id=f"in.({','.join(ids_fm)})", texto="not.is.null", **{"and": f"(creado.lte.{ahora})"},
+                         select="cuenta_id,texto", order="creado.desc", limit=300):
+            if len(suyos.setdefault(p["cuenta_id"], [])) < 3:
+                suyos[p["cuenta_id"]].append(p["texto"])
     for c in cuentas:
         if c["tipo"] in ("fijo", "marca"):
             partes.append(f"- @{c['usuario']} ({c['nombre']}, {c['seguidores']} seguidores): {c['personalidad'] or ''}"
-                          + (f" | Memoria: {c['memoria']}" if c.get("memoria") else ""))
+                          + (f" | Memoria: {c['memoria']}" if c.get("memoria") else "")
+                          + (" | Sus últimos posts (no los repitas): " + " / ".join(f"«{corto(t, 70)}»" for t in suyos[c['id']]) if suyos.get(c["id"]) else ""))
     cron = red.config("cronica", {}) or {}
     if cron.get("lineas"):
-        partes.append(f"\n## Crónica de Raven (actualizada {str(cron.get('fecha', ''))[:16]}; continúala, no la contradigas)")
+        partes.append(f"\n## Hilos de Raven (actualizados {str(cron.get('fecha', ''))[:16]}; avánzalos, no los contradigas)")
         partes.extend("- " + str(l) for l in cron["lineas"])
     else:
-        partes.append("\n## Crónica de Raven\n(vacía: empiézala tú con lo que pase en esta tanda)")
+        partes.append("\n## Hilos de Raven\n(vacío: empiézalos tú con lo que pase en esta tanda)")
     fans = [c["usuario"] for c in cuentas if c["tipo"] == "fan"]
     if fans:
         partes.append("Fans que ya existen (puedes reutilizarlos): " + ", ".join("@" + f for f in random.sample(fans, min(25, len(fans)))))
@@ -370,6 +405,10 @@ def montar(desde, maximo):
                 extra += f" [Nocturna{', de pago' if p.get('de_pago') else ''}{', ' + str(p['media_n']) + ' fotos' if p.get('media_n') else ''}]"
             quien = u(p['cuenta_id']) if p['cuenta_id'] in por_id else "@veenoir"
             partes.append(f"- post {p['id']} de {quien}, hace {minutos(p['creado'])} min: «{corto(p['texto'])}»{extra}")
+            ya = red.sel("comentarios", post_id=f"eq.{p['id']}", **{"and": f"(creado.lte.{ahora})"}, select="id,cuenta_id,texto",
+                         order="likes_sim.desc", limit=6)
+            for c in ya:
+                partes.append(f"    · ya comentado — comentario {c['id']} de {u(c['cuenta_id'])}: «{corto(c['texto'], 90)}»")
     if coms:
         partes.append("\n## Comentarios nuevos de Alberto o de las hermanas (se les puede contestar en 'respuestas')")
         cache = {}
@@ -381,9 +420,36 @@ def montar(desde, maximo):
             dueño = cache[pid]
             partes.append(f"- comentario {c['id']} de {u(c['cuenta_id'])} en el post {pid} (de {u(dueño.get('cuenta_id'))}: «{corto(dueño.get('texto'), 100)}»): «{corto(c['texto'])}»")
     if mds:
-        partes.append("\n## MD de Alberto sin contestar")
+        partes.append("\n## MD de Alberto sin contestar (con la conversación anterior entera)")
+        vistos = set()
         for m in mds:
-            partes.append(f"- de @{por_id[m['de']]['usuario']} a {u(m['para'])}: «{corto(m['texto'])}»")
+            par = (m["de"], m["para"])
+            if par in vistos:
+                continue
+            vistos.add(par)
+            partes.append(f"- conversación de @{por_id[m['de']]['usuario']} con {u(m['para'])}:")
+            hilo = red.sel("mensajes", plataforma=f"eq.{PLAT}", **{"or": f"(and(de.eq.{m['de']},para.eq.{m['para']}),and(de.eq.{m['para']},para.eq.{m['de']}))",
+                           "and": f"(creado.lte.{ahora})"}, select="de,texto,creado", order="creado.desc", limit=12)
+            for h in reversed(hilo):
+                partes.append(f"    {h['creado'][5:16].replace('T', ' ')} {u(h['de'])}: «{corto(h['texto'], 200)}»")
+    hace_dia = datetime.fromtimestamp(time.time() - 36 * 3600, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    resp = red.sel("comentarios", responde_a="not.is.null", creado=f"gt.{hace_dia}", **{"and": f"(creado.lte.{ahora})"},
+                   select="id,post_id,cuenta_id,texto,responde_a", order="creado.desc", limit=40)
+    abiertas = []
+    for r in resp:
+        padre = red.sel("comentarios", id=f"eq.{r['responde_a']}", select="id,cuenta_id,texto")
+        if not padre or padre[0]["cuenta_id"] not in por_id or por_id[padre[0]["cuenta_id"]]["tipo"] in ("hermana", "alberto"):
+            continue
+        if red.sel("comentarios", responde_a=f"eq.{r['id']}", cuenta_id=f"eq.{padre[0]['cuenta_id']}", select="id"):
+            continue  # ya le contestó
+        abiertas.append((r, padre[0]))
+        if len(abiertas) >= 6:
+            break
+    if abiertas:
+        partes.append("\n## Conversaciones abiertas (el aludido puede replicar en 'respuestas' con ese comentario_id)")
+        for r, pa in abiertas:
+            partes.append(f"- en el post {r['post_id']}: {u(pa['cuenta_id'])} dijo «{corto(pa['texto'], 100)}» y {u(r['cuenta_id'])} le contestó "
+                          f"(comentario {r['id']}): «{corto(r['texto'], 120)}»")
     if ambiente:
         # Las hermanas no han publicado nada: la red sigue viva igual (como el feed de Snapmatic).
         recientes = red.sel("posts", plataforma=f"eq.{PLAT}", cuenta_id=f"in.({','.join(ids_fijos) or '0'})",
@@ -392,12 +458,14 @@ def montar(desde, maximo):
             partes.append("\n## Lo último que han dicho los demás (para seguir piques o hilos, sin repetirlo)")
             for p in recientes:
                 partes.append(f"- {u(p['cuenta_id'])} ({p['creado'][:10]}): «{corto(p['texto'], 140)}»")
-        partes.append("\n## TANDA DE AMBIENTE\nLas hermanas y Alberto no han publicado nada nuevo. Deja \"posts\", \"respuestas\" y \"md\" vacíos "
-                      "y llena solo posts_nuevos (6–10), nocturna (hasta 2), fans_nuevos, memoria y cronica. Reparto: al menos la MITAD de los posts, de gente random "
+        partes.append("\n## TANDA DE AMBIENTE\nLas hermanas y Alberto no han publicado nada nuevo. Deja \"posts\" y \"md\" vacíos "
+                      "y llena posts_nuevos (" + "–".join(map(str, cadencia()[:2])) + "), las \"respuestas\" de las conversaciones abiertas si las hay, nocturna (hasta 2), fans_nuevos, memoria y cronica. Reparto: al menos la MITAD de los posts, de gente random "
                       "y fans (nuevos o de la lista) contando su vida; 1 o 2 de famosos de parodia (@maximopixel, @lolacruzoficial, @kevinbossreal, @afroditavex); "
                       "el resto, fijos, marcas o creadoras. Mete 2–4 fans_nuevos con avatar. Se puede hablar de las hermanas en general (esperar su directo, echarlas de menos), "
                       "pero sin inventar nada que hayan hecho: nada de «su peluca», «su filtro nuevo» ni cosas que no estén arriba.")
-    partes.append(f"\nHora en España: {datetime.now(ZoneInfo('Europe/Madrid')).strftime('%A %d/%m %H:%M')}.")
+    _h = datetime.now(ZoneInfo('Europe/Madrid'))
+    _dias = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
+    partes.append(f"\nHora en España: {_dias[_h.weekday()]} {_h.strftime('%d/%m %H:%M')}.")
     return "\n".join(partes), cuentas
 
 
@@ -455,9 +523,21 @@ def aplicar(res, cuentas):
                                     "likes_sim": num(c.get("likes")), "responde_a": orig[0]["id"], "origen": "tanda",
                                     "creado": en(c.get("en_min"), orig[0]["creado"])})
             n["respuestas"] += 1
-    for p in (res.get("posts_nuevos", []) or [])[:10]:
+    hace2 = datetime.fromtimestamp(time.time() - 48 * 3600, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    recientes = red.sel("posts", plataforma=f"eq.{PLAT}", texto="not.is.null", creado=f"gt.{hace2}", select="cuenta_id,texto", limit=400)
+    aceptados = []
+    n["descartados"] = 0
+    for p in (res.get("posts_nuevos", []) or [])[:cadencia()[1]]:
         k = cuenta_de(p.get("usuario"))
         if k and p.get("texto"):
+            propios = [t["texto"] for t in red.sel("posts", cuenta_id=f"eq.{k['id']}", texto="not.is.null", select="texto",
+                                                   order="creado.desc", limit=10)]
+            if (any(parecido(p["texto"], t) >= 0.45 for t in propios)
+                    or any(parecido(p["texto"], t["texto"]) >= 0.55 for t in recientes)
+                    or any(parecido(p["texto"], t) >= 0.55 for t in aceptados)):
+                n["descartados"] += 1  # refrito: fuera
+                continue
+            aceptados.append(p["texto"])
             fila = {"cuenta_id": k["id"], "plataforma": PLAT, "texto": p["texto"][:560], "origen": "tanda",
                     **cifras(k.get("seguidores")), "creado": en(p.get("en_min"))}
             if isinstance(p.get("cita"), int) and red.sel("posts", id=f"eq.{p['cita']}", select="id"):
@@ -492,7 +572,7 @@ def aplicar(res, cuentas):
         n["nocturna"] += 1
     if cola:
         red.ins("imagenes", cola); n["fotos"] = len(cola)
-    cron = [str(l)[:200] for l in (res.get("cronica") or []) if str(l).strip()][:12]
+    cron = [str(l)[:240] for l in (res.get("cronica") or []) if str(l).strip()][:14]
     if cron:
         red.poner_config("cronica", {"lineas": cron, "fecha": red.ahora_iso()})
     for m in res.get("memoria", []) or []:
@@ -515,7 +595,7 @@ def exportar(carpeta, material, cuentas, desde, hasta):
         if os.path.exists(ruta):
             os.replace(ruta, ruta + ".anterior")
     with open(os.path.join(carpeta, "prompt-tanda.txt"), "w", encoding="utf-8") as f:
-        f.write(INSTRUCCION_EXTERNA + "\n\n===== REGLAS =====\n" + REGLAS.strip() + "\n\n===== MATERIAL =====\n" + material.strip() + "\n")
+        f.write(INSTRUCCION_EXTERNA + "\n\n===== REGLAS =====\n" + reglas().strip() + "\n\n===== MATERIAL =====\n" + material.strip() + "\n")
     with open(os.path.join(carpeta, "estado-tanda.json"), "w", encoding="utf-8") as f:
         json.dump({"desde": desde, "hasta": hasta, "escala": ESCALA, "cuentas": cuentas, "exportado": red.ahora_iso()}, f, ensure_ascii=False)
     print(f"Exportado en {carpeta}: prompt-tanda.txt (~{(len(REGLAS) + len(material)) // 4} tokens). Falta respuesta-tanda.json.")
@@ -608,9 +688,9 @@ def main():
 
     if a.exportar:
         return exportar(a.exportar, material, cuentas, desde, hasta)
-    mensajes = [{"role": "system", "content": REGLAS}, {"role": "user", "content": material}]
+    mensajes = [{"role": "system", "content": reglas()}, {"role": "user", "content": material}]
     if a.prueba:
-        print(REGLAS + "\n-----\n" + material)
+        print(reglas() + "\n-----\n" + material)
         print(f"\n[prueba] ~{(len(REGLAS) + len(material)) // 4} tokens de entrada estimados. Hoy van {gastado}/{tope}.")
         return
 
