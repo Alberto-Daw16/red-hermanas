@@ -55,7 +55,7 @@ Reglas fijas:
 - Los comentarios de un post ven lo que ya se ha dicho en él (abajo, debajo de cada post): no digas lo mismo que otro; contesta, apoya o lleva la contraria.
 - MD: abajo va la conversación ENTERA con Alberto (lo anterior y lo nuevo). Contesta a lo último recordando lo de antes, como en un chat de verdad.
 - "memoria": solo lo que ese personaje ha hecho DE VERDAD en esta respuesta (un comentario, un post, un MD que aparezca arriba). Nunca algo que no hayas generado.
-- posts_nuevos: entre {MIN_POSTS} y {MAX_POSTS}. Que la red tenga VIDA, como el feed de Snapmatic en GTA: además de lo que pase con las hermanas (indirecta de la rival, la marca que tantea una colabo, Nerea avisando del directo, el hater con cita…), gente random y fans contando su vida (curro, gym, comida, partidas, memes, quejas del día), las creadoras promocionando, algún hilo absurdo. Pueden mencionarse entre ellos (@usuario) y crear piques.
+- posts_nuevos: entre {MIN_POSTS} y {MAX_POSTS}. VARIEDAD: como mucho 2 posts por tanda sobre el mismo tema (el próximo directo, un mismo pique…); el resto, de otras cosas. Que la red tenga VIDA, como el feed de Snapmatic en GTA: además de lo que pase con las hermanas (indirecta de la rival, la marca que tantea una colabo, Nerea avisando del directo, el hater con cita…), gente random y fans contando su vida (curro, gym, comida, partidas, memes, quejas del día), las creadoras promocionando, algún hilo absurdo. Pueden mencionarse entre ellos (@usuario) y crear piques.
 - "foto": en 3 o 4 de esos posts, un prompt corto EN INGLÉS para generar la foto que acompaña al post (selfie de gente inventada, comida, gym, setup, paisaje, meme sin texto…). Siempre gente inventada, nunca famosos ni personajes con copyright, nada de desnudos (sexy vale).
   "sale": true si en la foto aparece el propio autor del post (selfie, foto suya); false si es comida, paisaje, setup, meme… Si sale, describe la escena y la ropa, no su cara: la cara la pone su hoja de referencia.
 - "nocturna": como mucho 2 posts nuevos de las creadoras (NO de VeeNoir, que escribe ella) en su página de pago: texto gancho con picardía, "precio" (null = solo suscriptores, o 4.99–14.99), "fotos" (3–15) y "oculto" (lo que se lee al desbloquear; picardía, sin describir actos).
@@ -572,7 +572,13 @@ def aplicar(res, cuentas):
                           "likes_sim": random.randint(150, 900), "origen": "tanda", "creado": en(p.get("en_min"))})
         n["nocturna"] += 1
     if cola:
-        red.ins("imagenes", cola); n["fotos"] = len(cola)
+        # PostgREST exige las mismas claves en todas las filas de un mismo insert
+        claves = ("tipo", "cuenta_id", "post_id", "prompt", "referencia")
+        filas = [{k: c.get(k) for k in claves} for c in cola]
+        try:
+            red.ins("imagenes", filas); n["fotos"] = len(filas)
+        except Exception as e:  # que una foto no tumbe la tanda: se apunta y se sigue
+            n["error_fotos"] = str(e)[:200]
     cron = [str(l)[:240] for l in (res.get("cronica") or []) if str(l).strip()][:14]
     if cron:
         red.poner_config("cronica", {"lineas": cron, "fecha": red.ahora_iso()})
