@@ -140,14 +140,16 @@ def proveedor_gemini():
 
 
 def llamar_modelo(mensajes, modelo):
-    """Como _llamar, pero si Gemini falla y config tanda.respaldo_grok no es false, repite con Grok."""
+    """Como _llamar, pero si el modelo principal (Gemini o un MODELO_CMD) falla y config tanda.respaldo_grok
+    no es false, repite con Grok."""
     try:
         return _llamar(mensajes, modelo)
     except Exception as e:
         cfg = red.config("tanda", {}) or {}
-        if os.environ.get("LLM_PROVEEDOR") == "xai" or not proveedor_gemini_activo() or cfg.get("respaldo_grok", True) is False:
+        if os.environ.get("LLM_PROVEEDOR") == "xai" or not (proveedor_gemini_activo() or os.environ.get("MODELO_CMD") or cfg.get("modelo_cmd")) \
+                or cfg.get("respaldo_grok", True) is False:
             raise
-        print(f"Gemini falló ({str(e)[:200]}); repito con Grok.", file=sys.stderr)
+        print(f"El modelo principal falló ({str(e)[:200]}); repito con Grok.", file=sys.stderr)
         os.environ["LLM_PROVEEDOR"] = "xai"
         try:
             return _llamar(mensajes, cfg.get("modelo", "grok-4.7"))
@@ -162,10 +164,11 @@ def proveedor_gemini_activo():
 
 def _llamar(mensajes, modelo):
     """Devuelve (texto, usage_dict). Tres vías, por orden:
-    1) MODELO_CMD: comando que recibe {"modelo","mensajes"} por stdin y devuelve {"texto","usage"} por stdout.
+    1) MODELO_CMD (o config tanda.modelo_cmd): comando que recibe {"modelo","mensajes"} por stdin y devuelve
+       {"texto","usage"} por stdout. Sirve para usar un modelo a través de la conexión de Hermes (p. ej. Gemini).
     2) Modelo local (proveedor_local): Ollama o LM Studio en el propio Mac, sin clave.
     3) XAI_API_KEY o el token de xai-oauth de Hermes contra la API de xAI (compatible con OpenAI)."""
-    cmd = os.environ.get("MODELO_CMD")
+    cmd = None if os.environ.get("LLM_PROVEEDOR") == "xai" else (os.environ.get("MODELO_CMD") or (red.config("tanda", {}) or {}).get("modelo_cmd"))
     if cmd:
         p = subprocess.run(cmd, shell=True, input=json.dumps({"modelo": modelo, "mensajes": mensajes}),
                            capture_output=True, text=True, timeout=600)
@@ -519,6 +522,8 @@ def main():
         modelo = proveedor_local()[1]
     elif proveedor_gemini():
         modelo = proveedor_gemini()[2]
+    elif os.environ.get("MODELO_CMD") or cfg.get("modelo_cmd"):
+        modelo = cfg.get("modelo_gemini") or modelo  # el comando recibe este nombre en {"modelo"}
     tope = int(cfg.get("tope_diario_tokens", 150000))
     gastado = gastado_hoy()
     if gastado >= tope and not a.prueba:
