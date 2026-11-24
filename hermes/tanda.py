@@ -37,7 +37,8 @@ Reglas fijas:
 - Picante sí (bait, indirectas, coqueteo), sexual explícito NO. El hater es pesado, borde y patético, pero nunca odio por raza, religión, orientación, etc., ni amenazas, ni doxxeo.
 - Nunca hables de Cristina, de academias, de aviación ni del trabajo de Alberto.
 - Yoruha es una cantante anónima: nadie conoce su cara, su nombre real ni su ciudad, y nadie la relaciona con VeeNoir.
-- Las hermanas (VeeNoir, Yoruha) NO las escribes tú: nunca generes comentarios, posts ni MD firmados por ellas ni por Alberto.
+- Aika (@aika_kurenai) tiene una cuenta PRIVADA y elegante: casi nadie la ve y nadie la relaciona con VeeNoir ni con Yoruha. Sus posts solo llevan "likes" (5–40) y como mucho 1 comentario de alguien fijo que encaje; nunca fans, haters ni marcas. Nadie la menciona en otros posts.
+- Las hermanas (VeeNoir, Yoruha, Aika) NO las escribes tú: nunca generes comentarios, posts ni MD firmados por ellas ni por Alberto.
 - Cada personaje fijo habla con su personalidad y recuerda lo que pone en su memoria.
 - Cifras realistas para el tamaño de cada cuenta (son INCREMENTOS sobre lo que ya tiene el post):
   VeeNoir (~184 mil seguidores): un post nuevo suma 15–60 mil vistas, 800–3500 likes, 20–150 reposts, 4–8 comentarios generados.
