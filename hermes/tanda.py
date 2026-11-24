@@ -503,13 +503,63 @@ def aplicar(res, cuentas):
     return n
 
 
+# ---------- tanda externa (Antigravity u otro) ----------
+INSTRUCCION_EXTERNA = """INSTRUCCIONES: actúa exactamente como el motor descrito abajo. Devuelve SOLO el objeto JSON que piden las reglas,
+sin texto antes ni después y sin bloque de código. Guárdalo tal cual en respuesta-tanda.json, en esta misma carpeta."""
+
+
+def exportar(carpeta, material, cuentas, desde, hasta):
+    os.makedirs(carpeta, exist_ok=True)
+    for viejo in ("respuesta-tanda.json",):
+        ruta = os.path.join(carpeta, viejo)
+        if os.path.exists(ruta):
+            os.replace(ruta, ruta + ".anterior")
+    with open(os.path.join(carpeta, "prompt-tanda.txt"), "w", encoding="utf-8") as f:
+        f.write(INSTRUCCION_EXTERNA + "\n\n===== REGLAS =====\n" + REGLAS.strip() + "\n\n===== MATERIAL =====\n" + material.strip() + "\n")
+    with open(os.path.join(carpeta, "estado-tanda.json"), "w", encoding="utf-8") as f:
+        json.dump({"desde": desde, "hasta": hasta, "escala": ESCALA, "cuentas": cuentas, "exportado": red.ahora_iso()}, f, ensure_ascii=False)
+    print(f"Exportado en {carpeta}: prompt-tanda.txt (~{(len(REGLAS) + len(material)) // 4} tokens). Falta respuesta-tanda.json.")
+
+
+def aplicar_externa(carpeta, forzar=False):
+    global ESCALA
+    ruta_estado = os.path.join(carpeta, "estado-tanda.json")
+    ruta_resp = os.path.join(carpeta, "respuesta-tanda.json")
+    if not os.path.exists(ruta_estado):
+        print("No hay estado-tanda.json: exporta primero (o ya se aplicó)."); sys.exit(1)
+    est = json.load(open(ruta_estado, encoding="utf-8"))
+    if (red.config("ultima_tanda") or "2000-01-01T00:00:00Z") != est["desde"] and not forzar:
+        print("Ha habido otra tanda después de exportar; no aplico para no duplicar (usa --forzar si aun así quieres)."); sys.exit(1)
+    texto = open(ruta_resp, encoding="utf-8").read()
+    try:
+        res = leer_json(texto)
+    except Exception as e:
+        red.apuntar_consumo(quien="tanda", para="reacciones", modelo=(red.config("tanda", {}) or {}).get("modelo_externo", "gemini-antigravity"),
+                            error=f"respuesta externa no es JSON: {str(e)[:300]}")
+        print("La respuesta no es un JSON válido:", e); sys.exit(1)
+    ESCALA = est.get("escala", ESCALA)
+    n = aplicar(res, est["cuentas"])
+    red.poner_config("ultima_tanda", est["hasta"])
+    prompt = open(os.path.join(carpeta, "prompt-tanda.txt"), encoding="utf-8").read() if os.path.exists(os.path.join(carpeta, "prompt-tanda.txt")) else ""
+    red.apuntar_consumo(quien="tanda", para="reacciones", modelo=(red.config("tanda", {}) or {}).get("modelo_externo", "gemini-antigravity"),
+                        tokens_in=len(prompt) // 4, tokens_out=len(texto) // 4, nota=json.dumps({**n, "externa": True, "estimado": True}))
+    os.replace(ruta_estado, ruta_estado + ".aplicado")
+    os.replace(ruta_resp, ruta_resp + ".aplicado")
+    print(f"OK {n} (tanda externa)")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--prueba", action="store_true")
     ap.add_argument("--sin-guardar", action="store_true")
     ap.add_argument("--ya", action="store_true", help="todo aparece en unos 10 minutos (para revisar)")
     ap.add_argument("--partida", action="store_true", help="tanda en pasos cortos (para modelos locales); también con config tanda.modo = partida")
+    ap.add_argument("--exportar", metavar="CARPETA", help="deja el prompt de la tanda en CARPETA para que lo responda otro (p. ej. Gemini en Antigravity)")
+    ap.add_argument("--aplicar", metavar="CARPETA", help="aplica la respuesta-tanda.json que haya en CARPETA")
+    ap.add_argument("--forzar", action="store_true", help="con --aplicar: aplica aunque haya habido otra tanda después de exportar")
     a = ap.parse_args()
+    if a.aplicar:
+        return aplicar_externa(a.aplicar, a.forzar)
     global ESCALA
     if a.ya:
         ESCALA = 0.02
@@ -517,6 +567,17 @@ def main():
     cfg = red.config("tanda", {}) or {}
     if not cfg.get("activa", True) and not a.prueba:
         print("Tanda parada en config."); return
+    if cfg.get("externo") and not (a.exportar or a.prueba or a.sin_guardar):
+        # La tanda la hace otro (Antigravity). El cron solo entra de respaldo si lleva demasiado sin pasar.
+        ult = red.config("ultima_tanda")
+        margen = float(cfg.get("externo_margen_h", 6))
+        try:
+            horas = (datetime.now(timezone.utc) - datetime.fromisoformat(ult.replace("Z", "+00:00"))).total_seconds() / 3600
+        except Exception:
+            horas = 999
+        if horas < margen:
+            print(f"Tanda externa activa: la última fue hace {horas:.1f} h (respaldo a las {margen:g} h)."); return
+        print(f"Tanda externa sin noticias desde hace {horas:.1f} h: la hago yo de respaldo.")
     modelo = cfg.get("modelo", "grok-4.7")
     if proveedor_local():
         modelo = proveedor_local()[1]
@@ -545,6 +606,8 @@ def main():
             red.poner_config("ultima_tanda", hasta)
         print("Nada nuevo desde", desde); return
 
+    if a.exportar:
+        return exportar(a.exportar, material, cuentas, desde, hasta)
     mensajes = [{"role": "system", "content": REGLAS}, {"role": "user", "content": material}]
     if a.prueba:
         print(REGLAS + "\n-----\n" + material)
