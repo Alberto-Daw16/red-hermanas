@@ -287,6 +287,20 @@ td.num,th.num{text-align:right}
 .bloqueo .caja .campo{border-color:rgba(255,255,255,.15);background:rgba(0,0,0,.25)}
 .bloqueo .btn{width:100%;height:44px;margin-top:4px}
 .bloqueo .err{color:#ff6b6b;font-size:14px;min-height:20px}
+.bloqueo .hora.chica{font-size:64px}
+.pinT{text-align:center;font-size:17px;font-weight:600;margin-bottom:6px}
+.pdots{display:flex;gap:16px;justify-content:center;margin:10px 0 4px}
+.pdots i{width:13px;height:13px;border-radius:50%;border:1.5px solid #fff;transition:background .1s}
+.pdots i.on{background:#fff}
+.temblor{animation:temb .35s}
+@keyframes temb{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
+.tecl{display:grid;grid-template-columns:repeat(3,70px);gap:12px 24px;justify-content:center;margin-top:6px}
+.tecl button{width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.12);border:0;color:#fff;font-size:28px;font-weight:500;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.tecl button:active{background:rgba(255,61,139,.45)}
+.tecl .nada{visibility:hidden}
+.tecl .bor{background:none;font-size:22px}
+.pinL{display:flex;justify-content:center;margin-top:10px}
+.pinL button{background:none;border:0;color:#ff8fbd;font-size:14px;font-family:inherit}
 </style>
 </head>
 <body>
@@ -494,6 +508,7 @@ async function cargarMio() {
 async function arrancar() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return pantallaBloqueo();
+  if (lsG('aq-pin-h') && !sessionStorage.getItem('aq-ok')) await bloqueoLocal();
   S.email = session.user.email || '';
   const { data: ok, error } = await sb.rpc('es_alberto');
   if (error || !ok) return pantallaBloqueo(`Esta cuenta (${session.user.email}) no tiene acceso.`, true);
@@ -509,39 +524,78 @@ async function arrancar() {
   pintarHome(); ruta();
 }
 
-function pantallaBloqueo(error = '', soloSalir = false) {
-  $home.innerHTML = ''; $app.classList.add('oculta');
+/* ---------- bloqueo con código de 4 cifras ---------- */
+const PIN_PRE = 'aquelarre-pin-';
+async function hashPin(pin, uid) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('aq|' + uid + '|' + pin)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
+const lsG = k => { try { return localStorage.getItem(k); } catch { return null; } };
+const lsS = (k, v) => { try { localStorage.setItem(k, v); } catch { } };
+
+function pantallaBloqueo(error = '', soloSalir = false, local = null) {
+  if (!local) { $home.innerHTML = ''; $app.classList.add('oculta'); }
   const d = new Date();
   const b = document.createElement('div'); b.className = 'bloqueo';
+  const correo = lsG('aq-correo') || '';
   b.innerHTML = `<div class="fecha">${DIAS[d.getDay()].replace(/^./, c => c.toUpperCase())}, ${d.getDate()} de ${['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'][d.getMonth()]}</div>
-    <div class="hora" id="relojB"></div>
+    <div class="hora chica" id="relojB"></div>
     <div class="caja">${soloSalir ? `<div class="err">${esc(error)}</div><button class="btn borde" id="fuera">Salir</button>` : `
-      <div class="campo"><label>Correo</label><input id="em" type="email" autocomplete="username" inputmode="email"></div>
-      <div class="campo"><label>Contraseña</label><input id="pw" type="password" autocomplete="current-password"></div>
-      <div class="err" id="er">${esc(error)}</div>
-      <button class="btn" id="entrar">Desbloquear</button>
+      <div class="pinT" id="pt">Introduce tu código</div>
+      ${!local && !correo ? `<div class="campo"><label>Correo</label><input id="em" type="email" autocomplete="username" inputmode="email"></div>` : ''}
+      <div class="pdots" id="pd"><i></i><i></i><i></i><i></i></div>
+      <div class="err" id="er" style="text-align:center">${esc(error)}</div>
+      <div class="tecl">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button data-n="${n}">${n}</button>`).join('')}<button class="nada"></button><button data-n="0">0</button><button class="bor" data-b="1">⌫</button></div>
+      <div class="pinL">${local ? '<button id="otro">Salir</button>' : '<button id="otro">Crear código nuevo</button>'}</div>
 `}
     </div>`;
   $movil.appendChild(b); reloj();
   if (soloSalir) { b.querySelector('#fuera').onclick = async () => { await sb.auth.signOut(); location.reload(); }; return; }
-  const em = () => b.querySelector('#em').value.trim(), pw = () => b.querySelector('#pw').value, er = m => b.querySelector('#er').textContent = m;
-  const dentro = () => { b.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-100%)' }], { duration: 380, easing: 'cubic-bezier(.4,0,.2,1)' }).onfinish = () => b.remove(); location.hash = '#/'; arrancar(); };
-  b.querySelector('#entrar').onclick = async () => {
-    er('');
-    const { error } = await sb.auth.signInWithPassword({ email: em(), password: pw() });
-    if (error) return er(error.message === 'Invalid login credentials' ? 'Correo o contraseña incorrectos' : error.message);
-    dentro();
+  let modo = local ? 'local' : 'entrar', pin = '', primero = '', fallos = 0, ocupado = false;
+  const $pt = b.querySelector('#pt'), $pd = b.querySelector('#pd'), er = m => b.querySelector('#er').textContent = m;
+  const em = () => (b.querySelector('#em')?.value || correo).trim();
+  const puntos = () => [...$pd.children].forEach((i, k) => i.classList.toggle('on', k < pin.length));
+  const mal = m => { er(m); pin = ''; puntos(); $pd.classList.remove('temblor'); void $pd.offsetWidth; $pd.classList.add('temblor'); if (navigator.vibrate) navigator.vibrate(120); };
+  const titulo = { entrar: 'Introduce tu código', local: 'Introduce tu código', crear1: 'Elige un código de 4 cifras', crear2: 'Repítelo' };
+  const pon = m => { modo = m; $pt.textContent = titulo[m]; pin = ''; puntos(); };
+  const cerrar = () => { b.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-100%)' }], { duration: 380, easing: 'cubic-bezier(.4,0,.2,1)' }).onfinish = () => { b.remove(); document.removeEventListener('keydown', tecla); }; };
+  const entrar = async p => {
+    if (!em()) { pin = ''; puntos(); return er('Pon tu correo'); }
+    const { data, error } = await sb.auth.signInWithPassword({ email: em(), password: PIN_PRE + p });
+    if (error) return mal(error.message === 'Invalid login credentials' ? 'Código incorrecto' : error.message);
+    lsS('aq-correo', em()); lsS('aq-pin-h', await hashPin(p, data.user.id)); sessionStorage.setItem('aq-ok', '1');
+    cerrar(); location.hash = '#/'; arrancar();
   };
-  const bc = b.querySelector('#crear'); if (bc) bc.onclick = async () => {
-    er('');
-    if (pw().length < 8) return er('La contraseña, de 8 caracteres o más');
-    const { error } = await sb.auth.signUp({ email: em(), password: pw() });
-    if (error) return er(error.message);
-    const r = await sb.auth.signInWithPassword({ email: em(), password: pw() });
-    if (r.error) return er('Cuenta creada, pero falta confirmarla: ' + r.error.message);
-    dentro();
+  const listo = async () => {
+    const p = pin; ocupado = true;
+    try {
+      if (modo === 'entrar') await entrar(p);
+      else if (modo === 'crear1') { primero = p; pon('crear2'); }
+      else if (modo === 'crear2') {
+        if (p !== primero) { pon('crear1'); return mal('No coinciden, otra vez'); }
+        if (!em()) { pon('crear1'); return er('Pon tu correo'); }
+        const { data, error } = await sb.rpc('poner_codigo', { correo: em(), codigo: p });
+        if (error) { pon('entrar'); return mal(error.message); }
+        if (data !== 'ok') { pon('entrar'); return mal('Cambiar el código está cerrado. Pídeselo a Claude.'); }
+        pon('entrar'); await entrar(p);
+      } else if (modo === 'local') {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session && await hashPin(p, session.user.id) === lsG('aq-pin-h')) { sessionStorage.setItem('aq-ok', '1'); cerrar(); local(); }
+        else if (++fallos >= 5) { await sb.auth.signOut(); location.reload(); }
+        else mal('Código incorrecto');
+      }
+    } finally { ocupado = false; }
   };
+  const pulsa = n => { if (ocupado) return; er(''); if (n === 'b') pin = pin.slice(0, -1); else if (pin.length < 4) pin += n; puntos(); if (pin.length === 4) setTimeout(listo, 120); };
+  b.querySelectorAll('.tecl button[data-n]').forEach(x => x.onclick = () => pulsa(x.dataset.n));
+  b.querySelector('.tecl .bor').onclick = () => pulsa('b');
+  const tecla = e => { if (e.target.tagName === 'INPUT') return; if (/^[0-9]$/.test(e.key)) pulsa(e.key); else if (e.key === 'Backspace') pulsa('b'); };
+  document.addEventListener('keydown', tecla);
+  b.querySelector('#otro').onclick = async () => { if (local) { await sb.auth.signOut(); location.reload(); } else { er(''); pon(modo === 'entrar' ? 'crear1' : 'entrar'); b.querySelector('#otro').textContent = modo === 'entrar' ? 'Crear código nuevo' : 'Ya tengo código'; } };
 }
+const bloqueoLocal = () => new Promise(res => pantallaBloqueo('', false, res));
+let ocultoDesde = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { ocultoDesde = Date.now(); return; }
+  if (ocultoDesde && Date.now() - ocultoDesde > 5 * 60e3 && lsG('aq-pin-h') && !document.querySelector('.bloqueo')) bloqueoLocal();
+});
 
 /* ---------- pantalla de inicio ---------- */
 async function pintarHome() {
