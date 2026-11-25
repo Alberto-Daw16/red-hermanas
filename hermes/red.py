@@ -80,13 +80,59 @@ def poner_config(clave, valor):
                   {"Prefer": "resolution=merge-duplicates,return=representation"})
 
 
+def lado_max(destino):
+    """Tamaño al que se sirve cada imagen: un avatar se ve a 40 px, no hace falta subir 1024."""
+    d = destino.lower()
+    if "avatar" in d or "icono" in d:
+        return 320
+    if "banner" in d:
+        return 1500
+    return 1280
+
+
+def comprimir(datos, destino, bucket="media"):
+    """Devuelve (bytes, tipo) más ligeros: JPEG calidad 82 y como mucho lado_max px.
+    Los iconos del bucket público se quedan en PNG (transparencia). Si no hay Pillow, se sube tal cual."""
+    try:
+        from PIL import Image
+        import io
+    except ImportError:
+        return datos, None
+    try:
+        im = Image.open(io.BytesIO(datos))
+        im.load()
+    except Exception:
+        return datos, None
+    lado = lado_max(destino)
+    if max(im.size) > lado:
+        im.thumbnail((lado, lado), Image.LANCZOS)
+    out = io.BytesIO()
+    if bucket == "publico":
+        im.save(out, "PNG", optimize=True)
+        tipo = "image/png"
+    else:
+        if im.mode in ("RGBA", "LA", "P"):
+            fondo = Image.new("RGB", im.size, (0, 0, 0))
+            im = im.convert("RGBA")
+            fondo.paste(im, mask=im.split()[-1])
+            im = fondo
+        elif im.mode != "RGB":
+            im = im.convert("RGB")
+        im.save(out, "JPEG", quality=82, optimize=True, progressive=True)
+        tipo = "image/jpeg"
+    nuevo = out.getvalue()
+    return (nuevo, tipo) if len(nuevo) < len(datos) else (datos, None)
+
+
 def subir_imagen(ruta_local, destino, bucket="media"):
-    """Sube a storage (bucket privado 'media', o 'publico' para los iconos) y devuelve la ruta."""
+    """Sube a storage (bucket privado 'media', o 'publico' para los iconos) y devuelve la ruta.
+    Antes la comprime (JPEG ligero): los PNG de 1,6 MB hacían que Raven fuera a tirones en el móvil."""
     ext = os.path.splitext(ruta_local)[1].lower().lstrip(".") or "png"
     tipo = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "webp": "image/webp", "gif": "image/gif"}.get(ext, "image/png")
     with open(ruta_local, "rb") as f:
         datos = f.read()
-    _pedir("POST", f"/storage/v1/object/{bucket}/{destino}", datos, {"x-upsert": "true"}, crudo=True, tipo=tipo)
+    datos, tipo_nuevo = comprimir(datos, destino, bucket)
+    _pedir("POST", f"/storage/v1/object/{bucket}/{destino}", datos, {"x-upsert": "true"}, crudo=True, tipo=tipo_nuevo or tipo)
     return destino
 
 
