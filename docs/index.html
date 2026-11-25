@@ -111,6 +111,7 @@ body.pantalla .indicador{height:28px;padding-bottom:calc(var(--sb) + 6px);bottom
 .media{margin-top:10px;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
 .media img{display:block;width:100%;max-height:520px;object-fit:cover;cursor:zoom-in}
 .mas{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:none;border:0;color:var(--tx2);font-size:20px;line-height:1}
+.datos .enl{color:#ff8fbd;cursor:pointer}
 .visor{position:absolute;inset:0;z-index:80;background:rgba(0,0,0,.94);display:flex;align-items:center;justify-content:center}
 .visor img{max-width:100%;max-height:100%;object-fit:contain}
 .visor .vbar{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;padding:14px 18px calc(var(--sb) + 14px);background:linear-gradient(transparent,rgba(0,0,0,.7))}
@@ -873,6 +874,8 @@ function verFoto(src) {
   };
 }
 document.addEventListener('click', ev => {
+  const en = ev.target.closest('[data-enlace]');
+  if (en) { ev.preventDefault(); ev.stopPropagation(); if (/nocturna/i.test(en.dataset.enlace)) location.hash = '#/nocturna'; else toast('Enlace externo: fuera del móvil'); return; }
   const im = ev.target.closest('.media img, .bb img, img.nocimg');
   if (!im || ev.target.closest('.modal')) return;
   ev.preventDefault(); ev.stopPropagation(); verFoto(im.currentSrc || im.src);
@@ -997,7 +1000,7 @@ async function vistaPerfil(usuario) {
       <div class="nombre">${esc(c.nombre)}${verif(c)}</div>
       <div class="u">@${esc(c.usuario)}</div>
       ${c.bio ? `<div class="bio">${texto(c.bio)}</div>` : ''}
-      <div class="datos">${c.ubicacion ? `<span>${esc(c.ubicacion)}</span>` : ''}</div>
+      <div class="datos">${c.ubicacion ? `<span>📍 ${esc(c.ubicacion)}</span>` : ''}${c.enlace ? `<span class="enl" data-enlace="${esc(c.enlace)}">🔗 ${esc(c.enlace.replace(/^https?:\/\//, ''))}</span>` : ''}</div>
       <div class="datos" style="margin-top:8px"><span><b>${num((c.siguiendo || 0) + (sigs.count || 0))}</b> Siguiendo</span><span><b>${num((c.seguidores || 0) + (segs.count || 0))}</b> Seguidores</span></div>
     </div>
     ${vivo ? bannerDirecto(vivo) : ''}
