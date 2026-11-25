@@ -83,15 +83,17 @@ def poner_config(clave, valor):
 def lado_max(destino):
     """Tamaño al que se sirve cada imagen: un avatar se ve a 40 px, no hace falta subir 1024."""
     d = destino.lower()
-    if "avatar" in d or "icono" in d:
+    if "icono" in d:
         return 320
+    if "avatar" in d:
+        return 720  # se abre en grande al tocar la foto de perfil
     if "banner" in d:
         return 1500
     return 1280
 
 
 def comprimir(datos, destino, bucket="media"):
-    """Devuelve (bytes, tipo) más ligeros: JPEG calidad 82 y como mucho lado_max px.
+    """Devuelve (bytes, tipo) más ligeros: WebP calidad 90 y como mucho lado_max px.
     Los iconos del bucket público se quedan en PNG (transparencia). Si no hay Pillow, se sube tal cual."""
     try:
         from PIL import Image
@@ -118,8 +120,9 @@ def comprimir(datos, destino, bucket="media"):
             im = fondo
         elif im.mode != "RGB":
             im = im.convert("RGB")
-        im.save(out, "JPEG", quality=82, optimize=True, progressive=True)
-        tipo = "image/jpeg"
+        # WebP: el anime (colores planos y líneas) con JPEG se llena de manchas al ampliar; WebP 90 queda limpio y pesa poco
+        im.save(out, "WEBP", quality=90, method=6)
+        tipo = "image/webp"
     nuevo = out.getvalue()
     return (nuevo, tipo) if len(nuevo) < len(datos) else (datos, None)
 
