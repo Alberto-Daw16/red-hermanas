@@ -6,6 +6,7 @@ Sin modelo. Pensado para leerlo dentro de la tarea de noche o de día que ya exi
   resumen.py --quien valeria --no-marcar
 """
 import argparse, os, sys
+from datetime import datetime, timedelta, timezone
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import red
 
@@ -61,6 +62,20 @@ def main():
         men = red.sel("posts", cuenta_id=f"in.({ids_alb})", texto=f"ilike.*@{c['usuario']}*", creado=f"gt.{desde}", select="id,texto")
         for p in men[:2]:
             lineas.append(f"- Alberto te menciona en el post #{p['id']}: «{corto(p['texto'])}»")
+    # Posts de Alberto de los últimos 3 días: no hace falta contestar al momento, pero que no se queden sin respuesta
+    hace3 = (datetime.now(timezone.utc) - timedelta(days=3)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    suyos = red.sel("posts", cuenta_id=f"in.({ids_alb})", repost_de="is.null", plataforma="eq.x", creado=f"gt.{hace3}",
+                    select="id,texto,imagen_url,creado", order="creado.desc", limit=5)
+    sin = []
+    for p in suyos:
+        mio = red.sel("comentarios", post_id=f"eq.{p['id']}", cuenta_id=f"in.({ids_mias})", select="id", limit=1)
+        if not mio:
+            sin.append(p)
+    if sin:
+        lineas.append("- Posts de Alberto que aún no le has contestado (no hace falta hoy; contesta a 1 si te sale algo, como harías tú):")
+        for p in sin[:3]:
+            lineas.append(f"    #{p['id']} ({p['creado'][5:16].replace('T', ' ')}){' [con foto]' if p.get('imagen_url') else ''}: «{corto(p['texto'])}»"
+                          f" → publicar.py responder --quien {a.quien} --post {p['id']} --texto \"...\"")
     rp = red.sel("posts", cuenta_id=f"in.({ids_alb})", repost_de=f"in.({pids})", creado=f"gt.{desde}", select="repost_de,cita,texto")
     for r in rp[:2]:
         lineas.append(f"- Alberto ha {'citado' if r['cita'] else 'reposteado'} tu #{r['repost_de']}" + (f": «{corto(r['texto'])}»" if r['cita'] else ""))

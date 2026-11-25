@@ -461,6 +461,21 @@ def montar(desde, maximo):
         for r, pa in abiertas:
             partes.append(f"- en el post {r['post_id']}: {u(pa['cuenta_id'])} dijo «{corto(pa['texto'], 100)}» y {u(r['cuenta_id'])} le contestó "
                           f"(comentario {r['id']}): «{corto(r['texto'], 120)}»")
+    # Posts de Alberto de los últimos 3 días: pueden seguir recibiendo respuestas en tandas posteriores, como en una red de verdad
+    hace3 = datetime.fromtimestamp(time.time() - 72 * 3600, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    ya_ids = {p["id"] for p in posts}
+    suyos = [p for p in red.sel("posts", cuenta_id=f"in.({','.join(ids_alb) or '0'})", plataforma=f"eq.{PLAT}", repost_de="is.null",
+                                creado=f"gt.{hace3}", **{"and": f"(creado.lte.{ahora})"}, select="id,texto,imagen_url,creado",
+                                order="creado.desc", limit=6) if p["id"] not in ya_ids]
+    if suyos:
+        partes.append("\n## Posts de Alberto de estos días (pueden llegarle comentarios tarde, en \"posts\" con su id: 0–2 por post y tanda, "
+                      "solo si a alguien le pega contestar; no todos en todas las tandas)")
+        for p in suyos:
+            ya = red.sel("comentarios", post_id=f"eq.{p['id']}", **{"and": f"(creado.lte.{ahora})"}, select="cuenta_id,texto", order="creado.desc", limit=4)
+            partes.append(f"- post {p['id']} de Alberto, {p['creado'][5:16].replace('T', ' ')}{' [lleva imagen]' if p.get('imagen_url') else ''}: «{corto(p['texto'], 160)}»"
+                          + (f" ({len(ya)} respuestas ya)" if ya else " (sin respuestas aún)"))
+            for c in ya[:2]:
+                partes.append(f"    · {u(c['cuenta_id'])}: «{corto(c['texto'], 80)}»")
     if ambiente:
         # Las hermanas no han publicado nada: la red sigue viva igual (como el feed de Snapmatic).
         recientes = red.sel("posts", plataforma=f"eq.{PLAT}", cuenta_id=f"in.({','.join(ids_fijos) or '0'})",
