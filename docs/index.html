@@ -109,7 +109,13 @@ body.pantalla .indicador{height:28px;padding-bottom:calc(var(--sb) + 6px);bottom
 .rt{color:var(--tx2);font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;padding:8px 16px 0 42px}
 .rt .ico{width:16px;height:16px}
 .media{margin-top:10px;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
-.media img{display:block;width:100%;max-height:520px;object-fit:cover}
+.media img{display:block;width:100%;max-height:520px;object-fit:cover;cursor:zoom-in}
+.mas{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:none;border:0;color:var(--tx2);font-size:20px;line-height:1}
+.visor{position:absolute;inset:0;z-index:80;background:rgba(0,0,0,.94);display:flex;align-items:center;justify-content:center}
+.visor img{max-width:100%;max-height:100%;object-fit:contain}
+.visor .vbar{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;padding:14px 18px calc(var(--sb) + 14px);background:linear-gradient(transparent,rgba(0,0,0,.7))}
+.visor .vbar button{background:rgba(255,255,255,.14);border:0;color:#fff;border-radius:20px;padding:9px 18px;font:inherit;font-weight:600}
+.visor #vg{background:#ff3d8b}
 .cita{margin-top:10px;border:1px solid var(--line);border-radius:16px;padding:10px 12px}
 .cita .av{width:20px;height:20px;font-size:10px}
 .acc{display:flex;justify-content:space-between;max-width:425px;margin:6px 0 4px -8px;color:var(--tx2);font-size:13px}
@@ -755,8 +761,9 @@ function htmlPost(p, todos, { detalle = false } = {}) {
       <button data-nada="1">${svg('vistas')}<span>${nV ? num(nV) : ''}</span></button>
     </div>`;
   if (detalle) {
-    return `<div class="det" style="padding:12px 16px 0;border-bottom:1px solid var(--line)">
+    return `<div class="det" style="position:relative;padding:12px 16px 0;border-bottom:1px solid var(--line)">
       <a class="cab" href="${R}/u/${esc(c.usuario)}" style="gap:10px">${avatar(c)}<div style="min-width:0"><div class="cab"><span class="n">${esc(c.nombre)}</span>${verif(c)}</div><div class="cab"><span class="u">@${esc(c.usuario)}</span></div></div></a>
+      ${esMio(base) ? `<button class="mas" data-mas="${base.id}" aria-label="Opciones">⋯</button>` : ''}
       ${cuerpo}
       <div class="meta">${fechaLarga(base.creado)} · <b style="color:var(--tx)">${num(nV)}</b> visualizaciones</div>
       <div class="cifras"><span><b>${num(nR)}</b> reposts</span><span><b>${num(nL)}</b> me gusta</span></div>
@@ -771,7 +778,7 @@ function htmlPost(p, todos, { detalle = false } = {}) {
 }
 function enganchar(root, recargar) {
   root.onclick = async ev => {
-    const t = ev.target.closest('[data-lk],[data-rp],[data-votar],[data-lkc],[data-respc],[data-ir],[data-nada],a');
+    const t = ev.target.closest('[data-lk],[data-rp],[data-votar],[data-lkc],[data-respc],[data-mas],[data-borc],[data-ir],[data-nada],a');
     if (!t || t.tagName === 'A') return;
     ev.preventDefault(); ev.stopPropagation();
     if (t.dataset.nada) return;
@@ -803,10 +810,73 @@ function enganchar(root, recargar) {
       else { S.likesC.add(id); await sb.from('likes').insert({ cuenta_id: yo.id, comentario_id: id }); }
       return recargar();
     }
+    if (t.dataset.mas) return menuMio(+t.dataset.mas, recargar);
+    if (t.dataset.borc) {
+      if (t.dataset.seguro !== '1') { t.dataset.seguro = '1'; t.textContent = '¿Borrar?'; setTimeout(() => { if (t.isConnected) { t.dataset.seguro = ''; t.textContent = '🗑'; } }, 3000); return; }
+      const { error } = await sb.from('comentarios').delete().eq('id', +t.dataset.borc).eq('cuenta_id', yo.id);
+      if (error) return toast(error.message);
+      toast('Respuesta borrada'); return recargar();
+    }
     if (t.dataset.respc) { const ta = document.getElementById('resptx'); ta.dataset.a = t.dataset.respc; ta.placeholder = 'Responder a @' + t.dataset.u; ta.focus(); return; }
     if (t.dataset.ir) location.hash = R + '/p/' + t.dataset.ir;
   };
 }
+const esMio = p => !!p && Object.values(S.yo).some(y => y && y.id === p.cuenta_id);
+function menuMio(id, recargar) {
+  const m = document.createElement('div'); m.className = 'modal'; m.style.background = 'rgba(0,0,0,.5)'; m.style.justifyContent = 'flex-end';
+  m.innerHTML = `<div style="background:#16181c;border-radius:20px 20px 0 0;padding:18px 16px calc(var(--sb) + 18px)">
+    <button class="btn borde" style="width:100%;height:46px" id="m1">Editar</button>
+    <button class="btn borde" style="width:100%;height:46px;margin-top:10px;color:#ff6b6b;border-color:#ff6b6b55" id="m2">Borrar post</button>
+    <button style="width:100%;height:46px;margin-top:6px;color:var(--tx2)" id="m3">Cancelar</button></div>`;
+  $app.appendChild(m);
+  m.onclick = e => { if (e.target === m) m.remove(); };
+  m.querySelector('#m3').onclick = () => m.remove();
+  const b2 = m.querySelector('#m2');
+  b2.onclick = async () => {
+    if (!b2.dataset.seguro) { b2.dataset.seguro = '1'; b2.textContent = 'Sí, bórralo (con sus respuestas)'; return; }
+    const { error } = await sb.from('posts').delete().eq('id', id);
+    m.remove(); if (error) return toast(error.message);
+    toast('Post borrado'); history.back();
+  };
+  m.querySelector('#m1').onclick = async () => {
+    m.remove();
+    const { data: p } = await sb.from('posts').select('texto').eq('id', id).single();
+    const e = document.createElement('div'); e.className = 'modal';
+    e.innerHTML = `<div class="fila"><button id="cx">Cancelar</button><b>Editar post</b><button class="btn" id="ok">Guardar</button></div>
+      <textarea id="tx" style="width:100%;min-height:160px;margin-top:14px;background:transparent;border:0;color:var(--tx);font:inherit;font-size:17px;resize:none;outline:none">${esc(p?.texto || '')}</textarea>`;
+    $app.appendChild(e);
+    const ta = e.querySelector('#tx'); ta.focus();
+    e.querySelector('#cx').onclick = () => e.remove();
+    e.querySelector('#ok').onclick = async () => {
+      const t = ta.value.trim(); if (!t) return toast('Escribe algo');
+      const { error } = await sb.from('posts').update({ texto: t }).eq('id', id);
+      if (error) return toast(error.message);
+      e.remove(); toast('Post editado'); recargar();
+    };
+  };
+}
+/* ---------- ver una foto en grande y guardarla ---------- */
+function verFoto(src) {
+  const v = document.createElement('div'); v.className = 'visor';
+  v.innerHTML = `<img src="${esc(src)}" alt=""><div class="vbar"><button id="vc">Cerrar</button><button id="vg">Guardar</button></div>`;
+  ($app.classList.contains('oculta') ? $movil : $app).appendChild(v);
+  v.querySelector('#vc').onclick = () => v.remove();
+  v.onclick = e => { if (e.target === v || e.target.tagName === 'IMG') v.remove(); };
+  v.querySelector('#vg').onclick = async () => {
+    try {
+      const blob = await (await fetch(src)).blob();
+      const ext = (blob.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
+      const f = new File([blob], 'aquelarre-' + Date.now() + '.' + ext, { type: blob.type });
+      if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); return; }
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = f.name; a.click(); toast('Guardada');
+    } catch (err) { if (err.name !== 'AbortError') toast('No se ha podido guardar: mantén pulsada la foto'); }
+  };
+}
+document.addEventListener('click', ev => {
+  const im = ev.target.closest('.media img, .bb img, img.nocimg');
+  if (!im || ev.target.closest('.modal')) return;
+  ev.preventDefault(); ev.stopPropagation(); verFoto(im.currentSrc || im.src);
+}, true);
 function menuRepost(id, recargar) {
   const m = document.createElement('div'); m.className = 'modal'; m.style.background = 'rgba(0,0,0,.5)'; m.style.justifyContent = 'flex-end';
   m.innerHTML = `<div style="background:#16181c;border-radius:20px 20px 0 0;padding:18px 16px calc(var(--sb) + 18px)">
@@ -886,7 +956,7 @@ async function vistaPost(id) {
       <div class="enresp">En respuesta a <a href="${R}/u/${esc(a?.usuario)}">@${esc(a?.usuario)}</a></div>
       <div class="tx">${texto(c.texto)}</div>
       <div class="acc"><button data-respc="${c.id}" data-u="${esc(k.usuario)}">${svg('resp')}</button><button data-nada="1">${svg('rp')}</button>
-      <button class="lk ${on ? 'on' : ''}" data-lkc="${c.id}">${svg(on ? 'lkOn' : 'lk')}<span>${n ? num(n) : ''}</span></button><button data-nada="1">${svg('vistas')}</button></div>
+      <button class="lk ${on ? 'on' : ''}" data-lkc="${c.id}">${svg(on ? 'lkOn' : 'lk')}<span>${n ? num(n) : ''}</span></button>${S.yo.x && c.cuenta_id === S.yo.x.id ? `<button data-borc="${c.id}" aria-label="Borrar">🗑</button>` : `<button data-nada="1">${svg('vistas')}</button>`}</div>
     </div></article>`;
   };
   const main = cont();
