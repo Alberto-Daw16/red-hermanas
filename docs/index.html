@@ -941,8 +941,8 @@ async function vistaInicio() {
   const todos = new Map([...gral.todos, ...suyas.todos]);
   if (S.yo.x) S.mios = new Set(gral.lista.filter(p => p.cuenta_id === S.yo.x.id && p.repost_de && !p.cita).map(p => p.repost_de));
   const vistos = new Set(gral.lista.map(p => p.id));
-  // «Para ti»: lo de las hermanas sube como si fuera de hace menos (10 h de ventaja); «Siguiendo»: por hora y punto
-  const peso = p => new Date(p.creado).getTime() + (!siguiendo && her.includes(p.cuenta_id) ? 10 * 3600e3 : 0);
+  // las dos pestañas van por hora, de lo más nuevo a lo más viejo (lo que publicas tú sale arriba del todo)
+  const peso = p => new Date(p.creado).getTime();
   const lista = (siguiendo ? gral.lista : [...gral.lista, ...suyas.lista.filter(p => !vistos.has(p.id))]).sort((a, b) => peso(b) - peso(a));
   const main = cont();
   const vivo = enDirecto();
