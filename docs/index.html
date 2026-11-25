@@ -110,7 +110,7 @@ body.pantalla .indicador{height:28px;padding-bottom:calc(var(--sb) + 6px);bottom
 .rt .ico{width:16px;height:16px}
 .media{margin-top:10px;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
 .media img{display:block;width:100%;max-height:520px;object-fit:cover;cursor:zoom-in}
-.mas{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:none;border:0;color:var(--tx2);font-size:20px;line-height:1}
+.masop{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:none;border:0;color:var(--tx2);font-size:20px;line-height:1}
 .datos .enl{color:#ff8fbd;cursor:pointer}
 .visor{position:absolute;inset:0;z-index:80;background:rgba(0,0,0,.94);display:flex;align-items:center;justify-content:center}
 .visor img{max-width:100%;max-height:100%;object-fit:contain}
@@ -386,9 +386,9 @@ function fechaLarga(f) {
   return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) + ' · ' + d.getDate() + ' ' + MES[d.getMonth()] + '. ' + d.getFullYear();
 }
 const R = '#/vox';
-function texto(t) {
+function texto(t, enlaces = true) {
   return esc(t)
-    .replace(/(^|[^\w])@(\w{1,30})/g, (m, a, u) => `${a}<a class="m" href="${R}/u/${u}">@${u}</a>`)
+    .replace(/(^|[^\w])@(\w{1,30})/g, (m, a, u) => enlaces ? `${a}<a class="m" href="${R}/u/${u}">@${u}</a>` : `${a}<span class="m">@${u}</span>`)
     .replace(/(^|\s)#([\wáéíóúñü]+)/gi, (m, a, h) => `${a}<span class="h">#${h}</span>`);
 }
 const COLORES = ['#c2185b', '#7b1fa2', '#512da8', '#1976d2', '#0097a7', '#388e3c', '#f57c00', '#5d4037', '#455a64', '#d81b60'];
@@ -622,9 +622,9 @@ async function pintarHome() {
   try {
     const her = [...S.cuentas.values()].filter(c => c.tipo === 'hermana' && c.plataforma === 'x').map(c => c.id);
     if (her.length) {
-      const { data } = await sb.from('posts').select('cuenta_id,texto,creado').in('cuenta_id', her).is('repost_de', null).not('texto', 'is', null).order('creado', { ascending: false }).limit(1);
+      const { data } = await sb.from('posts').select('id,cuenta_id,texto,creado').in('cuenta_id', her).is('repost_de', null).not('texto', 'is', null).order('creado', { ascending: false }).limit(1);
       const p = data?.[0], w = document.getElementById('wgVox');
-      if (p && w) { const c = cuenta(p.cuenta_id); w.innerHTML = `<span class="et">${esc(APPS.find(a => a.id === 'vox').nombre)}</span><div class="post">${avatar(c)}<div class="cuerpo"><div class="cab"><span class="n" style="font-size:13px">${esc(c.nombre)}</span><span class="t" style="font-size:12px">· ${hace(p.creado)}</span></div><div class="tx">${esc(p.texto)}</div></div></div>`; }
+      if (p && w) { const c = cuenta(p.cuenta_id); w.setAttribute('href', R + '/p/' + p.id); w.innerHTML = `<span class="et">${esc(APPS.find(a => a.id === 'vox').nombre)}</span><div class="post">${avatar(c)}<div class="cuerpo"><div class="cab"><span class="n" style="font-size:13px">${esc(c.nombre)}</span><span class="t" style="font-size:12px">· ${hace(p.creado)}</span></div><div class="tx">${esc(p.texto)}</div></div></div>`; }
     }
   } catch (e) { console.warn(e); }
 }
@@ -751,8 +751,8 @@ function htmlPost(p, todos, { detalle = false } = {}) {
   const nR = base.n_reposts - base.reposts_sim + crece(base.reposts_sim, base.creado, 4);
   const nV = crece(base.vistas_sim, base.creado, 5);
   const cuerpo = `
-    ${base.texto ? `<div class="tx">${texto(base.texto)}</div>` : ''}
-    ${img ? `<div class="media"><img src="${esc(img)}" alt="" loading="lazy"></div>` : ''}
+    ${base.texto ? `<div class="tx">${texto(base.texto, detalle)}</div>` : ''}
+    ${img ? `<div class="media"><img src="${esc(img)}" alt="" loading="lazy" decoding="async"></div>` : ''}
     ${encuesta(base)}
     ${citada ? `<div class="cita" data-ir="${citada.id}"><div class="cab">${avatar(cuenta(citada.cuenta_id))}<span class="n">${esc(cuenta(citada.cuenta_id)?.nombre)}</span><span class="u">@${esc(cuenta(citada.cuenta_id)?.usuario)}</span><span class="t">· ${hace(citada.creado)}</span></div><div class="tx">${texto(citada.texto || '')}</div></div>` : ''}`;
   const acciones = `<div class="acc">
@@ -764,7 +764,7 @@ function htmlPost(p, todos, { detalle = false } = {}) {
   if (detalle) {
     return `<div class="det" style="position:relative;padding:12px 16px 0;border-bottom:1px solid var(--line)">
       <a class="cab" href="${R}/u/${esc(c.usuario)}" style="gap:10px">${avatar(c)}<div style="min-width:0"><div class="cab"><span class="n">${esc(c.nombre)}</span>${verif(c)}</div><div class="cab"><span class="u">@${esc(c.usuario)}</span></div></div></a>
-      ${esMio(base) ? `<button class="mas" data-mas="${base.id}" aria-label="Opciones">⋯</button>` : ''}
+      ${esMio(base) ? `<button class="masop" data-mas="${base.id}" aria-label="Opciones">⋯</button>` : ''}
       ${cuerpo}
       <div class="meta">${fechaLarga(base.creado)} · <b style="color:var(--tx)">${num(nV)}</b> visualizaciones</div>
       <div class="cifras"><span><b>${num(nR)}</b> reposts</span><span><b>${num(nL)}</b> me gusta</span></div>
@@ -899,11 +899,22 @@ async function vistaInicio() {
   const titulo = esc(APPS.find(a => a.id === 'vox').nombre);
   marco(titulo, '<div class="cargando">Cargando…</div>', { nav: navVox(), extra: `<button class="casa" id="rec">${svg('recarga')}</button>` });
   document.getElementById('rec').onclick = () => { S.limite = 40; vistaInicio(); };
-  const { lista, todos } = await traerPosts(sb.from('v_posts2').select('*').eq('plataforma', 'x').order('creado', { ascending: false }).limit(S.limite));
+  const her = [...S.cuentas.values()].filter(c => c.tipo === 'hermana' && c.plataforma === 'x').map(c => c.id);
+  const hace36 = new Date(Date.now() - 36 * 3600e3).toISOString();
+  const [gral, suyas] = await Promise.all([
+    traerPosts(sb.from('v_posts2').select('*').eq('plataforma', 'x').order('creado', { ascending: false }).limit(S.limite)),
+    her.length ? traerPosts(sb.from('v_posts2').select('*').in('cuenta_id', her).gt('creado', hace36).order('creado', { ascending: false }).limit(12)) : { lista: [], todos: new Map() },
+  ]);
+  const todos = new Map([...gral.todos, ...suyas.todos]);
+  if (S.yo.x) S.mios = new Set(gral.lista.filter(p => p.cuenta_id === S.yo.x.id && p.repost_de && !p.cita).map(p => p.repost_de));
+  const vistos = new Set(gral.lista.map(p => p.id));
+  // como el «Para ti»: lo de las hermanas sube como si fuera de hace menos (3 h de ventaja), lo demás va por hora
+  const peso = p => new Date(p.creado).getTime() + (her.includes(p.cuenta_id) ? 3 * 3600e3 : 0);
+  const lista = [...gral.lista, ...suyas.lista.filter(p => !vistos.has(p.id))].sort((a, b) => peso(b) - peso(a));
   const main = cont();
   const vivo = enDirecto();
   main.innerHTML = (vivo ? bannerDirecto(vivo) : '') + (lista.length ? lista.map(p => htmlPost(p, todos)).join('') : '<div class="vacio"><h2>Nada todavía</h2>Cuando publiquen, sale aquí.</div>')
-    + (lista.length >= S.limite ? '<button class="mas" id="mas">Ver más</button>' : '');
+    + (gral.lista.length >= S.limite ? '<button class="mas" id="mas">Ver más</button>' : '');
   enganchar(main, vistaInicio);
   const mas = document.getElementById('mas'); if (mas) mas.onclick = e => { e.stopPropagation(); S.limite += 40; vistaInicio(); };
   if (S.yo.x) { const b = document.createElement('button'); b.className = 'fab'; b.innerHTML = svg('pluma'); b.onclick = () => redactar({ alAcabar: vistaInicio }); $app.appendChild(b); }
@@ -954,7 +965,7 @@ async function vistaPost(id) {
     const k = cuenta(c.cuenta_id) || { nombre: '?', usuario: '?' };
     const a = c.responde_a ? cuenta(porId.get(c.responde_a)?.cuenta_id) : autor;
     const on = S.likesC.has(c.id), n = crece(c.likes_sim, c.creado, 2) + (lc.get(c.id) || 0);
-    return `<article class="post"><a href="${R}/u/${esc(k.usuario)}">${avatar(k)}</a><div class="cuerpo">
+    return `<article class="post" data-respc="${c.id}" data-u="${esc(k.usuario)}"><a href="${R}/u/${esc(k.usuario)}">${avatar(k)}</a><div class="cuerpo">
       <div class="cab"><span class="n">${esc(k.nombre)}</span>${verif(k)}<span class="u">@${esc(k.usuario)}</span><span class="t">· ${hace(c.creado)}</span></div>
       <div class="enresp">En respuesta a <a href="${R}/u/${esc(a?.usuario)}">@${esc(a?.usuario)}</a></div>
       <div class="tx">${texto(c.texto)}</div>
