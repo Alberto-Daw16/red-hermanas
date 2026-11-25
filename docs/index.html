@@ -72,7 +72,9 @@ body.marco .isla,body.marco .estado{display:flex}
 .app.oculta{display:none}
 .app .cont{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;position:relative}
 .indicador{position:absolute;left:0;right:0;bottom:0;height:calc(var(--sb) + 4px);z-index:40;display:flex;justify-content:center;align-items:flex-end;padding-bottom:max(8px,calc(var(--sb) - 18px))}
-.indicador i{width:134px;height:5px;border-radius:3px;background:rgba(255,255,255,.85)}
+.indicador i{width:134px;height:5px;border-radius:3px;background:rgba(255,255,255,.85);pointer-events:auto;position:relative}
+.indicador{pointer-events:none}
+.indicador i::after{content:'';position:absolute;left:-8px;right:-8px;top:-8px;bottom:-6px}
 body.pantalla .indicador{height:28px;padding-bottom:calc(var(--sb) + 6px);bottom:0}
 .volver{position:absolute;left:12px;bottom:calc(var(--sb) + 10px);z-index:41;display:none}
 
@@ -112,6 +114,21 @@ body.pantalla .indicador{height:28px;padding-bottom:calc(var(--sb) + 6px);bottom
 .media img{display:block;width:100%;max-height:520px;object-fit:cover;cursor:zoom-in}
 .masop{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:none;border:0;color:var(--tx2);font-size:20px;line-height:1}
 .datos .enl{color:#ff8fbd;cursor:pointer}
+.pestanas{position:sticky;top:0;z-index:5;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.tabs a{flex:1;height:48px;display:grid;place-items:center;color:var(--tx2);font-weight:600;text-decoration:none}
+.tabs a.on{color:var(--tx);font-weight:700;box-shadow:inset 0 -4px 0 var(--azul)}
+.persona{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);color:inherit;text-decoration:none}
+.persona .u{color:var(--tx2);font-size:15px}
+.persona .bio1{margin-top:4px;font-size:15px}
+.tesigue{background:var(--bg3);color:var(--tx2);font-size:12px;padding:1px 6px;border-radius:4px;margin-left:4px}
+.perfil .datos a{color:var(--tx2);text-decoration:none}
+.perfil .datos a b{color:var(--tx)}
+.perfil .banner img,.perfil .avg img{cursor:zoom-in}
+.bb img{display:block;max-width:100%;border-radius:14px;margin-bottom:4px}
+.escribir .clip{width:38px;height:38px;display:grid;place-items:center;color:var(--azul);flex:none}
+.escribir .mcaja{flex:1;display:flex;flex-direction:column;gap:6px}
+.escribir .mcaja textarea{width:100%}
+#mprev img{max-height:90px;border-radius:10px}
 .visor{position:absolute;inset:0;z-index:80;background:rgba(0,0,0,.94);display:flex;align-items:center;justify-content:center}
 .visor img{max-width:100%;max-height:100%;object-fit:contain}
 .visor .vbar{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;padding:14px 18px calc(var(--sb) + 14px);background:linear-gradient(transparent,rgba(0,0,0,.7))}
@@ -329,7 +346,7 @@ const SB_URL = 'https://wtxiqvzercgharibvubw.supabase.co';
 const SB_KEY = 'sb_publishable_pX2v_ef5m1pjFfAEKiZEgw_xsEgixkC';
 const sb = createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true, storageKey: 'red-hermanas' } });
 
-const S = { plat: 'x', cuentas: new Map(), porUser: new Map(), yo: {}, likes: new Set(), likesC: new Set(), mios: new Set(), sigo: new Set(), red: '', urls: new Map(), noLeidos: 0, limite: 40, email: '', appAbierta: null, origen: null };
+const S = { plat: 'x', cuentas: new Map(), porUser: new Map(), yo: {}, likes: new Set(), likesC: new Set(), mios: new Set(), sigo: new Set(), red: '', urls: new Map(), noLeidos: 0, limite: 40, pestana: 'parati', email: '', appAbierta: null, origen: null };
 const $movil = document.getElementById('movil'), $home = document.getElementById('home'), $app = document.getElementById('app');
 
 /* ---------- modo: marco de móvil en el ordenador, pantalla completa en el móvil ---------- */
@@ -345,6 +362,7 @@ modo(); addEventListener('resize', modo);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const I = {
   casa: '<path d="M12 1.7 1.5 9.6l1.2 1.6L4 10.2V21h6v-6h4v6h6V10.2l1.3 1 1.2-1.6z"/>',
+  foto: '<path d="M3 5.5C3 4.12 4.12 3 5.5 3h13C19.88 3 21 4.12 21 5.5v13c0 1.38-1.12 2.5-2.5 2.5h-13C4.12 21 3 19.88 3 18.5zM5.5 5c-.28 0-.5.22-.5.5v9.09l3.29-3.29c.39-.39 1.03-.39 1.42 0L13 14.59l1.79-1.8c.39-.39 1.03-.39 1.42 0L19 15.59V5.5c0-.28-.22-.5-.5-.5zM19 18.41l-3.5-3.5-1.79 1.8c-.39.39-1.03.39-1.42 0L9 13.41l-4 4v1.09c0 .28.22.5.5.5h13c.28 0 .5-.22.5-.5zM15 7.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/>',
   sobre: '<path d="M1.998 5.5c0-1.38 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.12 2.5 2.5v13c0 1.38-1.119 2.5-2.5 2.5h-15c-1.381 0-2.5-1.12-2.5-2.5zm2.5-.5c-.276 0-.5.22-.5.5v.58l8.002 5.38 8-5.38V5.5c0-.28-.224-.5-.5-.5zm15.5 3.5-8 5.38-8.002-5.38V18.5c0 .28.224.5.5.5h15c.276 0 .5-.22.5-.5z"/>',
   persona: '<path d="M5.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C15.318 13.65 13.838 13 12 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C7.627 11.85 9.648 11 12 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H3.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46zM12 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM8 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4z"/>',
   resp: '<path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13z"/>',
@@ -685,6 +703,7 @@ async function ruta() {
         let m;
         if (!r) return vistaInicio();
         if ((m = r.match(/^p\/(\d+)$/))) return vistaPost(+m[1]);
+        if ((m = r.match(/^u\/([^/]+)\/(seguidores|siguiendo)$/))) return vistaSeguir(m[1], m[2]);
         if ((m = r.match(/^u\/(.*)$/))) return vistaPerfil(m[1]);
         if (r === 'md') return vistaMD();
         if ((m = r.match(/^md\/(.+)$/))) return vistaChat(m[1]);
@@ -856,6 +875,16 @@ function menuMio(id, recargar) {
     };
   };
 }
+/* ---------- fotos tuyas: a 1600 px y JPEG antes de subirlas (una foto del iPhone pesa 4 MB) ---------- */
+async function aligerar(file, lado = 1600) {
+  try {
+    const bmp = await createImageBitmap(file);
+    const k = Math.min(1, lado / Math.max(bmp.width, bmp.height));
+    const cv = document.createElement('canvas'); cv.width = Math.round(bmp.width * k); cv.height = Math.round(bmp.height * k);
+    cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
+    return await new Promise(r => cv.toBlob(b => r(b || file), 'image/jpeg', 0.85));
+  } catch { return file; }
+}
 /* ---------- ver una foto en grande y guardarla ---------- */
 function verFoto(src) {
   const v = document.createElement('div'); v.className = 'visor';
@@ -876,7 +905,7 @@ function verFoto(src) {
 document.addEventListener('click', ev => {
   const en = ev.target.closest('[data-enlace]');
   if (en) { ev.preventDefault(); ev.stopPropagation(); if (/nocturna/i.test(en.dataset.enlace)) location.hash = '#/nocturna'; else toast('Enlace externo: fuera del móvil'); return; }
-  const im = ev.target.closest('.media img, .bb img, img.nocimg');
+  const im = ev.target.closest('.media img, .bb img, img.nocimg, .perfil .banner img, .perfil .avg img, .noc .ban img, .noc .avg img');
   if (!im || ev.target.closest('.modal')) return;
   ev.preventDefault(); ev.stopPropagation(); verFoto(im.currentSrc || im.src);
 }, true);
@@ -901,21 +930,27 @@ async function vistaInicio() {
   document.getElementById('rec').onclick = () => { S.limite = 40; vistaInicio(); };
   const her = [...S.cuentas.values()].filter(c => c.tipo === 'hermana' && c.plataforma === 'x').map(c => c.id);
   const hace36 = new Date(Date.now() - 36 * 3600e3).toISOString();
+  const siguiendo = S.pestana === 'siguiendo';
+  const idsSigo = [...S.sigo, ...(S.yo.x ? [S.yo.x.id] : [])];
+  let q = sb.from('v_posts2').select('*').eq('plataforma', 'x').order('creado', { ascending: false }).limit(S.limite);
+  if (siguiendo) q = q.in('cuenta_id', idsSigo.length ? idsSigo : [0]);
   const [gral, suyas] = await Promise.all([
-    traerPosts(sb.from('v_posts2').select('*').eq('plataforma', 'x').order('creado', { ascending: false }).limit(S.limite)),
+    traerPosts(q),
     her.length ? traerPosts(sb.from('v_posts2').select('*').in('cuenta_id', her).gt('creado', hace36).order('creado', { ascending: false }).limit(12)) : { lista: [], todos: new Map() },
   ]);
   const todos = new Map([...gral.todos, ...suyas.todos]);
   if (S.yo.x) S.mios = new Set(gral.lista.filter(p => p.cuenta_id === S.yo.x.id && p.repost_de && !p.cita).map(p => p.repost_de));
   const vistos = new Set(gral.lista.map(p => p.id));
-  // como el «Para ti»: lo de las hermanas sube como si fuera de hace menos (3 h de ventaja), lo demás va por hora
-  const peso = p => new Date(p.creado).getTime() + (her.includes(p.cuenta_id) ? 3 * 3600e3 : 0);
-  const lista = [...gral.lista, ...suyas.lista.filter(p => !vistos.has(p.id))].sort((a, b) => peso(b) - peso(a));
+  // «Para ti»: lo de las hermanas sube como si fuera de hace menos (10 h de ventaja); «Siguiendo»: por hora y punto
+  const peso = p => new Date(p.creado).getTime() + (!siguiendo && her.includes(p.cuenta_id) ? 10 * 3600e3 : 0);
+  const lista = (siguiendo ? gral.lista : [...gral.lista, ...suyas.lista.filter(p => !vistos.has(p.id))]).sort((a, b) => peso(b) - peso(a));
   const main = cont();
   const vivo = enDirecto();
-  main.innerHTML = (vivo ? bannerDirecto(vivo) : '') + (lista.length ? lista.map(p => htmlPost(p, todos)).join('') : '<div class="vacio"><h2>Nada todavía</h2>Cuando publiquen, sale aquí.</div>')
+  main.innerHTML = `<div class="tabs pestanas"><button data-p="parati" class="${siguiendo ? '' : 'on'}">Para ti</button><button data-p="siguiendo" class="${siguiendo ? 'on' : ''}">Siguiendo</button></div>`
+    + (vivo ? bannerDirecto(vivo) : '') + (lista.length ? lista.map(p => htmlPost(p, todos)).join('') : '<div class="vacio"><h2>Nada todavía</h2>Cuando publiquen, sale aquí.</div>')
     + (gral.lista.length >= S.limite ? '<button class="mas" id="mas">Ver más</button>' : '');
   enganchar(main, vistaInicio);
+  main.querySelectorAll('[data-p]').forEach(b => b.onclick = e => { e.stopPropagation(); S.pestana = b.dataset.p; S.limite = 40; vistaInicio(); });
   const mas = document.getElementById('mas'); if (mas) mas.onclick = e => { e.stopPropagation(); S.limite += 40; vistaInicio(); };
   if (S.yo.x) { const b = document.createElement('button'); b.className = 'fab'; b.innerHTML = svg('pluma'); b.onclick = () => redactar({ alAcabar: vistaInicio }); $app.appendChild(b); }
 }
@@ -939,8 +974,8 @@ function redactar({ citaDe = null, alAcabar }) {
     pub.disabled = true;
     const fila = { cuenta_id: yo.id, plataforma: 'x', texto: tx.value.trim() || null, origen: 'web' };
     if (archivo) {
-      const ruta = `alberto/${Date.now()}.${(archivo.name.split('.').pop() || 'jpg').toLowerCase()}`;
-      const up = await sb.storage.from('media').upload(ruta, archivo, { contentType: archivo.type });
+      const blob = await aligerar(archivo), ruta = `alberto/${Date.now()}.jpg`;
+      const up = await sb.storage.from('media').upload(ruta, blob, { contentType: blob.type });
       if (up.error) { pub.disabled = false; return toast(up.error.message); }
       fila.imagen_url = ruta;
     }
@@ -967,8 +1002,8 @@ async function vistaPost(id) {
     const on = S.likesC.has(c.id), n = crece(c.likes_sim, c.creado, 2) + (lc.get(c.id) || 0);
     return `<article class="post" data-respc="${c.id}" data-u="${esc(k.usuario)}"><a href="${R}/u/${esc(k.usuario)}">${avatar(k)}</a><div class="cuerpo">
       <div class="cab"><span class="n">${esc(k.nombre)}</span>${verif(k)}<span class="u">@${esc(k.usuario)}</span><span class="t">· ${hace(c.creado)}</span></div>
-      <div class="enresp">En respuesta a <a href="${R}/u/${esc(a?.usuario)}">@${esc(a?.usuario)}</a></div>
-      <div class="tx">${texto(c.texto)}</div>
+      <div class="enresp">En respuesta a <span class="m">@${esc(a?.usuario)}</span></div>
+      <div class="tx">${texto(c.texto, false)}</div>
       <div class="acc"><button data-respc="${c.id}" data-u="${esc(k.usuario)}">${svg('resp')}</button><button data-nada="1">${svg('rp')}</button>
       <button class="lk ${on ? 'on' : ''}" data-lkc="${c.id}">${svg(on ? 'lkOn' : 'lk')}<span>${n ? num(n) : ''}</span></button>${S.yo.x && c.cuenta_id === S.yo.x.id ? `<button data-borc="${c.id}" aria-label="Borrar">🗑</button>` : `<button data-nada="1">${svg('vistas')}</button>`}</div>
     </div></article>`;
@@ -1012,7 +1047,7 @@ async function vistaPerfil(usuario) {
       <div class="u">@${esc(c.usuario)}</div>
       ${c.bio ? `<div class="bio">${texto(c.bio)}</div>` : ''}
       <div class="datos">${c.ubicacion ? `<span>📍 ${esc(c.ubicacion)}</span>` : ''}${c.enlace ? `<span class="enl" data-enlace="${esc(c.enlace)}">🔗 ${esc(c.enlace.replace(/^https?:\/\//, ''))}</span>` : ''}</div>
-      <div class="datos" style="margin-top:8px"><span><b>${num((c.siguiendo || 0) + (sigs.count || 0))}</b> Siguiendo</span><span><b>${num((c.seguidores || 0) + (segs.count || 0))}</b> Seguidores</span></div>
+      <div class="datos" style="margin-top:8px"><a href="${R}/u/${esc(c.usuario)}/siguiendo"><b>${num((c.siguiendo || 0) + (sigs.count || 0))}</b> Siguiendo</a><a href="${R}/u/${esc(c.usuario)}/seguidores"><b>${num((c.seguidores || 0) + (segs.count || 0))}</b> Seguidores</a></div>
     </div>
     ${vivo ? bannerDirecto(vivo) : ''}
     <div class="tabs"><button class="on" data-tab="posts">Posts</button><button data-tab="fotos">Fotos</button></div>
@@ -1032,6 +1067,21 @@ async function vistaPerfil(usuario) {
     vistaPerfil(usuario);
   };
   const ed = document.getElementById('editar'); if (ed) ed.onclick = () => editarPerfil(c);
+}
+async function vistaSeguir(usuario, que) {
+  const c = S.porUser.get('x:' + usuario.toLowerCase());
+  if (!c) return marco('Perfil', '<div class="vacio">Esta cuenta no existe.</div>', { atras: true, nav: navVox() });
+  marco(esc(c.nombre), '<div class="cargando">Cargando…</div>', { atras: true, nav: navVox(), sub: '@' + esc(c.usuario) });
+  const col = que === 'seguidores' ? 'seguido' : 'seguidor', otra = que === 'seguidores' ? 'seguidor' : 'seguido';
+  const { data } = await sb.from('seguimientos').select('*').eq(col, c.id).order('creado', { ascending: false }).limit(200);
+  const gente = (data || []).map(x => cuenta(x[otra])).filter(k => k && k.plataforma === 'x');
+  const total = que === 'seguidores' ? (c.seguidores || 0) + gente.length : (c.siguiendo || 0) + gente.length;
+  const meSigue = new Set();
+  if (S.yo.x) { const r = await sb.from('seguimientos').select('seguidor').eq('seguido', S.yo.x.id); (r.data || []).forEach(x => meSigue.add(x.seguidor)); }
+  cont().innerHTML = `<div class="tabs"><a class="${que === 'seguidores' ? 'on' : ''}" href="${R}/u/${esc(c.usuario)}/seguidores">Seguidores</a><a class="${que === 'siguiendo' ? 'on' : ''}" href="${R}/u/${esc(c.usuario)}/siguiendo">Siguiendo</a></div>`
+    + (gente.map(k => `<a class="persona" href="${R}/u/${esc(k.usuario)}">${avatar(k)}<div class="cuerpo"><div><b>${esc(k.nombre)}</b>${verif(k)}</div><div class="u">@${esc(k.usuario)}${meSigue.has(k.id) ? ' <span class="tesigue">Te sigue</span>' : ''}</div>${k.bio ? `<div class="bio1">${esc(k.bio)}</div>` : ''}</div></a>`).join('')
+      || '<div class="vacio">Nadie a la vista todavía.</div>')
+    + (total > gente.length ? `<div class="vacio" style="padding:18px">y ${num(total - gente.length)} cuentas más</div>` : '');
 }
 function editarPerfil(c) {
   const m = document.createElement('div'); m.className = 'modal edit';
@@ -1073,15 +1123,26 @@ async function vistaChat(otroId) {
   const nuevos = (data || []).filter(m => m.para === yo.id && !m.leido).map(m => m.id);
   if (nuevos.length) { await sb.from('mensajes').update({ leido: true }).in('id', nuevos); S.noLeidos = Math.max(0, S.noLeidos - nuevos.length); }
   const main = cont(); main.classList.remove('sinnav');
-  main.innerHTML = `<div class="burbujas">${(data || []).map(m => `<div class="bb ${m.de === yo.id ? 'yo' : 'el'}">${esc(m.texto)}${m.propina ? `<b> · propina ${m.propina} €</b>` : ''}<span class="hora">${hace(m.creado)}</span></div>`).join('') || `<div class="vacio">Escríbele a @${esc(c.usuario)}.</div>`}</div>`;
+  await firmar((data || []).map(m => m.imagen_url).filter(Boolean));
+  main.innerHTML = `<div class="burbujas">${(data || []).map(m => `<div class="bb ${m.de === yo.id ? 'yo' : 'el'}${m.imagen_url ? ' confoto' : ''}">${m.imagen_url && S.urls.get(m.imagen_url) ? `<img src="${esc(S.urls.get(m.imagen_url))}" alt="" loading="lazy">` : ''}${esc(m.texto || '')}${m.propina ? `<b> · propina ${m.propina} €</b>` : ''}<span class="hora">${hace(m.creado)}</span></div>`).join('') || `<div class="vacio">Escríbele a @${esc(c.usuario)}.</div>`}</div>`;
   const esc2 = document.createElement('div'); esc2.className = 'escribir';
-  esc2.innerHTML = `<textarea id="mtx" rows="1" placeholder="Escribe un mensaje"></textarea><button class="btn azul" id="menv">Enviar</button>`;
+  esc2.innerHTML = `<label class="clip" aria-label="Foto">${svg('foto')}<input type="file" accept="image/*" id="mfoto" hidden></label><div class="mcaja"><div id="mprev"></div><textarea id="mtx" rows="1" placeholder="Escribe un mensaje"></textarea></div><button class="btn azul" id="menv">Enviar</button>`;
   $app.insertBefore(esc2, document.getElementById('btCasa'));
   main.scrollTop = main.scrollHeight;
-  document.getElementById('menv').onclick = async () => {
-    const t = document.getElementById('mtx').value.trim(); if (!t) return;
-    const { error } = await sb.from('mensajes').insert({ plataforma: 'x', de: yo.id, para: c.id, texto: t, origen: 'web' });
-    if (error) return toast(error.message);
+  let foto = null;
+  document.getElementById('mfoto').onchange = e => { foto = e.target.files[0] || null; document.getElementById('mprev').innerHTML = foto ? `<img src="${URL.createObjectURL(foto)}" alt="">` : ''; };
+  document.getElementById('menv').onclick = async ev => {
+    const b = ev.currentTarget, t = document.getElementById('mtx').value.trim(); if (!t && !foto) return;
+    b.disabled = true;
+    const fila = { plataforma: 'x', de: yo.id, para: c.id, texto: t || '', origen: 'web' };
+    if (foto) {
+      const blob = await aligerar(foto), ruta = `alberto/md-${Date.now()}.jpg`;
+      const up = await sb.storage.from('media').upload(ruta, blob, { contentType: blob.type });
+      if (up.error) { b.disabled = false; return toast(up.error.message); }
+      fila.imagen_url = ruta;
+    }
+    const { error } = await sb.from('mensajes').insert(fila);
+    if (error) { b.disabled = false; return toast(error.message); }
     vistaChat(otroId);
   };
 }
