@@ -12,7 +12,7 @@ Reglas de gasto:
 - Si las hermanas no han publicado nada, hace una tanda de ambiente (solo gente random, famosos, marcas y creadoras). Se apaga con config tanda.ambiente = false.
 - Si el modelo falla, apunta el error y sale. Nunca reintenta.
 """
-import argparse, json, os, random, re, subprocess, sys, time, urllib.request, urllib.error
+import argparse, json, os, random, re, subprocess, sys, time, unicodedata, urllib.request, urllib.error
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -50,6 +50,7 @@ Reglas fijas:
 - Varía: que el hater no repita sus muletillas («ratio», «nadie te ha preguntado») en cada comentario; mira su memoria y cambia de ataque.
 - CONTINUIDAD: Raven es un mundo que sigue. Lee los «Hilos de Raven» de abajo: cada uno dice qué ha pasado y qué viene después. Los hilos son cosas ENTRE gente o que importan a varios (piques, colabos, sorteos, anuncios, el directo, una votación), no la cena de un fan: lo cotidiano de cada uno no es un hilo y no hay que continuarlo. En cada tanda AVANZA al menos 2 hilos (un paso nuevo, no repetir el mismo) y, si toca, cierra alguno. Que lo de ayer se note hoy y lo de hoy se note mañana. No reinicies nada ni lo contradigas.
 - "cronica": devuelve SIEMPRE los hilos actualizados, de 6 a 12 líneas, cada una con la forma «tema: lo último que ha pasado → lo que viene / falta». Quita lo cerrado o viejo. Añade 1 o 2 líneas que empiecen por «MAÑANA:» con algo que alguien ha anunciado o dejado a medias para la próxima tanda. Solo hechos que consten (publicados arriba o generados por ti ahora).
+- NADA DE FECHAS NI HORAS DE RELLENO: nadie escribe «miércoles 25 de noviembre a las nueve». Una hora exacta solo si es la noticia (el aviso de un directo); en el resto de la tanda, «esta noche», «luego», «el finde». Ningún emoji se repite en más de dos mensajes de la tanda.
 - NO TE REPITAS: cada personaje tiene abajo sus últimos posts. No repitas su tema, su chiste ni su frase con otras palabras; si vuelve a un tema, que sea con algo NUEVO (otro paso, otro giro). El código descarta los posts que se parecen a los anteriores.
 - CONVERSACIONES: cuando alguien contesta a otro (abajo, «Conversaciones abiertas»), el aludido puede replicar en "respuestas" con el comentario_id; que se note que ha leído lo que le han dicho. Hilos de 2 o 3 turnos, no más.
 - La gente también se comenta ENTRE ELLA: en "posts" puedes meter comentarios a los «Posts recientes de la gente» de abajo (con su id; ahí "likes" pequeños y sin "vistas"). Reparte 4–8 comentarios entre varios de esos posts: risas, piques, «a mí me pasa igual», alguien que corrige a otro. Es lo que hace que la red parezca viva.
@@ -339,6 +340,44 @@ def corto(t, n=280):
     return t if len(t) <= n else t[:n] + "…"
 
 
+VACIAS = set("a al de del el la las lo los y o u que en con por para un una uno unos unas se me te le les mi tu su ya no si es eso esto esta este pero como mas muy".split())
+HORA = re.compile(r"\b(a las|las|sobre las|hasta las)\s+\d{1,2}([:.]\d{2})?\b|\b\d{1,2}[:.]\d{2}\b", re.I)
+
+
+def _plano(t):
+    t = unicodedata.normalize("NFD", (t or "").lower())
+    t = "".join(ch for ch in t if unicodedata.category(ch) != "Mn")
+    return re.findall(r"[a-zñ]+|\d+", t)
+
+
+def muletillas(horas=24, minimo=6):
+    """Frases de 3 palabras y emojis que más se han repetido en Raven el último día (hoy: «a las 21:00» ×47)."""
+    desde_ = datetime.fromtimestamp(time.time() - horas * 3600, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    ahora_ = red.ahora_iso()
+    textos = [x["texto"] for x in red.sel("comentarios", creado=f"gt.{desde_}", **{"and": f"(creado.lte.{ahora_})"}, select="texto", limit=1500)]
+    textos += [x["texto"] for x in red.sel("posts", creado=f"gt.{desde_}", texto="not.is.null", **{"and": f"(creado.lte.{ahora_})"}, select="texto", limit=600)]
+    tri, emo = {}, {}
+    for t in textos:
+        w = _plano(t)
+        for g in {" ".join(w[i:i + 3]) for i in range(len(w) - 2)}:
+            if sum(1 for x in g.split() if x not in VACIAS) >= 1:
+                tri[g] = tri.get(g, 0) + 1
+        for e in set(re.findall(r"[\U0001F300-\U0001FAFF\u2600-\u27BF]", t or "")):
+            emo[e] = emo.get(e, 0) + 1
+    orden = sorted(tri.items(), key=lambda x: -x[1])
+    con_hora = any(n >= minimo and re.search(r"\d", g) for g, n in orden)
+    top = [f"«{g}» ×{n}" for g, n in orden if n >= minimo and not re.search(r"\d", g)][:10]
+    tope = [f"{e} ×{n}" for e, n in sorted(emo.items(), key=lambda x: -x[1]) if n >= minimo][:6]
+    lineas = []
+    if top:
+        lineas.append("- Frases: " + ", ".join(top))
+    if tope:
+        lineas.append("- Emojis: " + " ".join(tope) + " (como mucho uno de estos en toda la tanda)")
+    if con_hora:
+        lineas.append("- Las horas exactas de directos y citas ya se han dicho mil veces: en esta tanda como mucho DOS mensajes con una hora; el resto «esta noche», «luego», «el viernes» o nada.")
+    return "\n".join(lineas)
+
+
 def montar(desde, maximo):
     cuentas = red.sel("cuentas", plataforma=f"eq.{PLAT}", select="id,tipo,quien,nombre,usuario,bio,seguidores,personalidad,memoria")
     por_id = {c["id"]: c for c in cuentas}
@@ -470,6 +509,9 @@ def montar(desde, maximo):
         for r, pa in abiertas:
             partes.append(f"- en el post {r['post_id']}: {u(pa['cuenta_id'])} dijo «{corto(pa['texto'], 100)}» y {u(r['cuenta_id'])} le contestó "
                           f"(comentario {r['id']}): «{corto(r['texto'], 120)}»")
+    mul = muletillas()
+    if mul:
+        partes.append("\n## Muletillas gastadas en las últimas 24 h (NO las uses en esta tanda; busca otra forma de decirlo)\n" + mul)
     # Posts de Alberto de los últimos 3 días: pueden seguir recibiendo respuestas en tandas posteriores, como en una red de verdad
     hace3 = datetime.fromtimestamp(time.time() - 72 * 3600, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     ya_ids = {p["id"] for p in posts}
@@ -530,6 +572,17 @@ def aplicar(res, cuentas):
 
     ids_alb = {c["id"] for c in cuentas if c["tipo"] == "alberto"}
     por_post = {}
+    horas_usadas = [0]
+    n["descartados_hora"] = 0
+
+    def sobra_hora(texto):
+        """Más de 3 mensajes con hora exacta en una tanda canta (día de prueba: «a las 21:00» ×47)."""
+        if HORA.search(texto or ""):
+            horas_usadas[0] += 1
+            if horas_usadas[0] > 3:
+                n["descartados_hora"] += 1
+                return True
+        return False
     num = lambda v: max(0, int(v or 0))
     for p in res.get("posts", []) or []:
         pid = p.get("id")
@@ -545,7 +598,7 @@ def aplicar(res, cuentas):
         for c in ([] if a["plataforma"] == "of" else (p.get("comentarios", []) or [])):
             if a["cuenta_id"] in ids_alb and por_post.get(pid, 0) >= 2: break
             k = cuenta_de(c.get("usuario"))
-            if not k or not c.get("texto"):
+            if not k or not c.get("texto") or sobra_hora(c.get("texto")):
                 creados.append(None); continue
             ref = c.get("responde_a")
             padre = creados[ref] if isinstance(ref, int) and 0 <= ref < len(creados) else None
@@ -557,7 +610,7 @@ def aplicar(res, cuentas):
     for c in res.get("respuestas", []) or []:
         k = cuenta_de(c.get("usuario"))
         orig = red.sel("comentarios", id=f"eq.{c.get('comentario_id')}", select="id,post_id,creado") if isinstance(c.get("comentario_id"), int) else []
-        if k and orig and c.get("texto"):
+        if k and orig and c.get("texto") and not sobra_hora(c.get("texto")):
             pid = orig[0]["post_id"]
             autor = red.sel("posts", id=f"eq.{pid}", select="cuenta_id", limit=1)
             es_alb = bool(autor and autor[0]["cuenta_id"] in ids_alb)
