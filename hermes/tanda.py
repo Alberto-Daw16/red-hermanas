@@ -64,7 +64,7 @@ Reglas fijas:
   "sale": true si en la foto aparece el propio autor del post (selfie, foto suya); false si es comida, paisaje, setup, meme… Si sale, describe la escena y la ropa, no su cara: la cara la pone su hoja de referencia.
 - "nocturna": como mucho 2 posts nuevos de las creadoras (NO de VeeNoir, que escribe ella) en su página de pago: texto gancho con picardía, "precio" (null = solo suscriptores, o 4.99–14.99), "fotos" (3–15) y "oculto" (lo que se lee al desbloquear; picardía, sin describir actos).
 - fans_nuevos: con "avatar" = prompt corto en inglés de su foto de perfil (persona inventada, avatar de anime genérico, mascota, meme sin texto…).
-- md: entre 2 y 6 (fans, marcas o fijos a las hermanas, entre ellos, o respuestas a los MD de Alberto). Si un fijo de la cartera ha tenido trato con Alberto (le ha contestado o él le ha comentado), puede escribirle un MD corto de vez en cuando, con algo que tenga que ver con lo que han hablado; nunca un fan desconocido.
+- md: entre 2 y 6 (fans, marcas o fijos a las hermanas, entre ellos, o respuestas a los MD de Alberto). Si Alberto ha escrito un MD a alguien (fijo, fan o marca), ESE alguien le contesta, sí o sí, con su voz. Y de vez en cuando (no en todas las tandas) alguien a quien le pega le escribe a Alberto por un post suyo de estos días o por algo que se han dicho en comentarios: corto, natural, como pasa en X; puede ser un fan random que vio su post.
 - Los posts marcados [Nocturna] son de la página de pago de VeeNoir: para esos pon solo "likes" (80–600), sin comentarios.
 - TIEMPO: cada comentario, respuesta, post nuevo y MD lleva "en_min": dentro de cuántos minutos aparece (0–{MAX_MIN}). Reparte los posts_nuevos por TODO ese tramo (hasta la próxima tanda), no los amontones al principio:
   los primeros comentarios de un post reciente, pronto (2–40); el resto, a lo largo de las horas; las respuestas, después de lo que contestan.
@@ -412,8 +412,21 @@ def montar(desde, maximo):
     posts = [p for p in posts if not (p["repost_de"] and not p["cita"])]  # los reposts sin texto no generan reacciones
     coms = red.sel("comentarios", cuenta_id=f"in.({clave})", creado=f"gt.{desde}", **{"and": f"(creado.lte.{ahora})"},
                    select="id,post_id,cuenta_id,texto,responde_a", order="creado.asc", limit=30)
-    mds = red.sel("mensajes", plataforma=f"eq.{PLAT}", de=f"in.({','.join(ids_alb) or '0'})", para=f"in.({','.join(ids_fijos) or '0'})",
-                  creado=f"gt.{desde}", select="id,de,para,texto", order="creado.asc", limit=20) if ids_fijos and ids_alb else []
+    # MD de Alberto a CUALQUIER cuenta (fijo, fan, marca) de las últimas 48 h que sigan sin respuesta: no se pierden si
+    # una tanda no los contesta; las hermanas contestan en sus ratos, no aquí.
+    mds = []
+    if ids_fijos and ids_alb:
+        hace48 = datetime.fromtimestamp(time.time() - 48 * 3600, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        suyos_md = red.sel("mensajes", plataforma=f"eq.{PLAT}", de=f"in.({','.join(ids_alb)})", para=f"in.({','.join(ids_fijos)})",
+                           creado=f"gt.{hace48}", select="id,de,para,texto,creado", order="creado.asc", limit=40)
+        ultimo = {}
+        for m in suyos_md:
+            ultimo[m["para"]] = m
+        for para, m in ultimo.items():
+            resp = red.sel("mensajes", plataforma=f"eq.{PLAT}", de=f"eq.{para}", para=f"in.({','.join(ids_alb)})",
+                           creado=f"gt.{m['creado']}", select="id", limit=1)
+            if not resp:
+                mds.append(m)
     ambiente = not (posts or coms or mds)
     if ambiente and (red.config("tanda", {}) or {}).get("ambiente", True) is False:
         return None, cuentas
