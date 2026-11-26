@@ -270,6 +270,15 @@ def minutos(iso):
         return 0
 
 
+def hora_mad(iso):
+    """Fecha UTC de la base → hora de Madrid para el prompt."""
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.fromisoformat(iso.replace("Z", "+00:00")).astimezone(ZoneInfo("Europe/Madrid")).strftime("%d/%m %H:%M")
+    except Exception:
+        return iso[5:16].replace("T", " ")
+
+
 def hoja_de(usuario):
     """¿Tiene este personaje hoja de referencia en el Mac? (~/.hermes/red-social/hojas/<usuario>.png)"""
     d = os.path.expanduser(os.environ.get("HOJAS_DIR", "~/.hermes/red-social/hojas"))
@@ -490,7 +499,7 @@ def montar(desde, maximo):
             hilo = red.sel("mensajes", plataforma=f"eq.{PLAT}", **{"or": f"(and(de.eq.{m['de']},para.eq.{m['para']}),and(de.eq.{m['para']},para.eq.{m['de']}))",
                            "and": f"(creado.lte.{ahora})"}, select="de,texto,creado", order="creado.desc", limit=12)
             for h in reversed(hilo):
-                partes.append(f"    {h['creado'][5:16].replace('T', ' ')} {u(h['de'])}: «{corto(h['texto'], 200)}»")
+                partes.append(f"    {hora_mad(h['creado'])} {u(h['de'])}: «{corto(h['texto'], 200)}»")
     hace12 = datetime.fromtimestamp(time.time() - 12 * 3600, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     gente = red.sel("posts", plataforma=f"eq.{PLAT}", cuenta_id=f"in.({','.join(ids_fijos) or '0'})", texto="not.is.null",
                     creado=f"gt.{hace12}", **{"and": f"(creado.lte.{ahora})"}, select="id,cuenta_id,texto", order="creado.desc", limit=30)
@@ -532,7 +541,7 @@ def montar(desde, maximo):
                       "solo si a alguien le pega contestar; no todos en todas las tandas)")
         for p in suyos:
             ya = red.sel("comentarios", post_id=f"eq.{p['id']}", **{"and": f"(creado.lte.{ahora})"}, select="cuenta_id,texto", order="creado.desc", limit=4)
-            partes.append(f"- post {p['id']} de Alberto, {p['creado'][5:16].replace('T', ' ')}{' [lleva imagen]' if p.get('imagen_url') else ''}: «{corto(p['texto'], 160)}»"
+            partes.append(f"- post {p['id']} de Alberto, {hora_mad(p['creado'])}{' [lleva imagen]' if p.get('imagen_url') else ''}: «{corto(p['texto'], 160)}»"
                           + (f" ({len(ya)} respuestas ya)" if ya else " (sin respuestas aún)"))
             for c in ya[:2]:
                 partes.append(f"    · {u(c['cuenta_id'])}: «{corto(c['texto'], 80)}»")

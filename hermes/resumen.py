@@ -11,6 +11,16 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import red
 
 
+def hora(iso):
+    """Las fechas vienen en UTC; ellas viven en Madrid (si no, Valeria dice «a las once» de un mensaje de las doce y media)."""
+    try:
+        from zoneinfo import ZoneInfo
+        d = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+        return d.astimezone(ZoneInfo("Europe/Madrid")).strftime("%d/%m %H:%M")
+    except Exception:
+        return iso[5:16].replace("T", " ")
+
+
 def corto(t, n=110):
     t = (t or "").replace("\n", " ").strip()
     return t if len(t) <= n else t[: n - 1] + "…"
@@ -56,7 +66,7 @@ def main():
                        select="de,texto,creado", order="creado.desc", limit=12)
         for h in reversed(hilo):
             quien = "Alberto" if h["de"] == m["de"] else "tú"
-            lineas.append(f"    {h['creado'][5:16].replace('T', ' ')} {quien}: «{corto(h['texto'], 200)}»")
+            lineas.append(f"    {hora(h['creado'])} {quien}: «{corto(h['texto'], 200)}»")
         lineas.append(f"    Contéstale con: publicar.py md --quien {a.quien} --para alberto_16 --texto \"...\" (acuérdate de lo de antes)")
     for c in mias:
         men = red.sel("posts", cuenta_id=f"in.({ids_alb})", texto=f"ilike.*@{c['usuario']}*", creado=f"gt.{desde}", select="id,texto")
@@ -74,7 +84,7 @@ def main():
     if sin:
         lineas.append("- Posts de Alberto que aún no le has contestado (no hace falta hoy; contesta a 1 si te sale algo, como harías tú):")
         for p in sin[:3]:
-            lineas.append(f"    #{p['id']} ({p['creado'][5:16].replace('T', ' ')}){' [con foto]' if p.get('imagen_url') else ''}: «{corto(p['texto'])}»"
+            lineas.append(f"    #{p['id']} ({hora(p['creado'])}){' [con foto]' if p.get('imagen_url') else ''}: «{corto(p['texto'])}»"
                           f" → publicar.py responder --quien {a.quien} --post {p['id']} --texto \"...\"")
     rp = red.sel("posts", cuenta_id=f"in.({ids_alb})", repost_de=f"in.({pids})", creado=f"gt.{desde}", select="repost_de,cita,texto")
     for r in rp[:2]:
