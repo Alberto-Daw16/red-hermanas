@@ -53,7 +53,7 @@ Reglas fijas:
 - NADA DE FECHAS NI HORAS DE RELLENO: nadie escribe «miércoles 25 de noviembre a las nueve». Una hora exacta solo si es la noticia (el aviso de un directo); en el resto de la tanda, «esta noche», «luego», «el finde». Ningún emoji se repite en más de dos mensajes de la tanda.
 - NO TE REPITAS: cada personaje tiene abajo sus últimos posts. No repitas su tema, su chiste ni su frase con otras palabras; si vuelve a un tema, que sea con algo NUEVO (otro paso, otro giro). El código descarta los posts que se parecen a los anteriores.
 - CONVERSACIONES: cuando alguien contesta a otro (abajo, «Conversaciones abiertas»), el aludido puede replicar en "respuestas" con el comentario_id; que se note que ha leído lo que le han dicho. Hilos de 2 o 3 turnos, no más.
-- La gente también se comenta ENTRE ELLA: en "posts" puedes meter comentarios a los «Posts recientes de la gente» de abajo (con su id; ahí "likes" pequeños y sin "vistas"). Reparte 4–8 comentarios entre varios de esos posts: risas, piques, «a mí me pasa igual», alguien que corrige a otro. Es lo que hace que la red parezca viva.
+- La gente también se comenta ENTRE ELLA: en "posts" puedes meter comentarios a los «Posts recientes de la gente» de abajo (con su id; ahí "likes" pequeños y sin "vistas"). Reparte 8–14 comentarios entre varios de esos posts: risas, piques, «a mí me pasa igual», alguien que corrige a otro. Es lo que hace que la red parezca viva.
 - Los comentarios de un post ven lo que ya se ha dicho en él (abajo, debajo de cada post): no digas lo mismo que otro; contesta, apoya o lleva la contraria.
 - MD: abajo va la conversación ENTERA con Alberto (lo anterior y lo nuevo). Contesta a lo último recordando lo de antes, como en un chat de verdad.
 - "memoria": solo lo que ese personaje ha hecho DE VERDAD en esta respuesta (un comentario, un post, un MD que aparezca arriba). Nunca algo que no hayas generado.
@@ -64,7 +64,7 @@ Reglas fijas:
   "sale": true si en la foto aparece el propio autor del post (selfie, foto suya); false si es comida, paisaje, setup, meme… Si sale, describe la escena y la ropa, no su cara: la cara la pone su hoja de referencia.
 - "nocturna": como mucho 2 posts nuevos de las creadoras (NO de VeeNoir, que escribe ella) en su página de pago: texto gancho con picardía, "precio" (null = solo suscriptores, o 4.99–14.99), "fotos" (3–15) y "oculto" (lo que se lee al desbloquear; picardía, sin describir actos).
 - fans_nuevos: con "avatar" = prompt corto en inglés de su foto de perfil (persona inventada, avatar de anime genérico, mascota, meme sin texto…).
-- md: como mucho 4 (fans, marcas o fijos a las hermanas; o respuestas a los MD de Alberto).
+- md: entre 2 y 6 (fans, marcas o fijos a las hermanas, entre ellos, o respuestas a los MD de Alberto). Si un fijo de la cartera ha tenido trato con Alberto (le ha contestado o él le ha comentado), puede escribirle un MD corto de vez en cuando, con algo que tenga que ver con lo que han hablado; nunca un fan desconocido.
 - Los posts marcados [Nocturna] son de la página de pago de VeeNoir: para esos pon solo "likes" (80–600), sin comentarios.
 - TIEMPO: cada comentario, respuesta, post nuevo y MD lleva "en_min": dentro de cuántos minutos aparece (0–{MAX_MIN}). Reparte los posts_nuevos por TODO ese tramo (hasta la próxima tanda), no los amontones al principio:
   los primeros comentarios de un post reciente, pronto (2–40); el resto, a lo largo de las horas; las respuestas, después de lo que contestan.
@@ -677,7 +677,7 @@ def aplicar(res, cuentas):
                 if p.get("sale") and k["tipo"] in ("fijo", "famoso", "marca") and hoja_de(k["usuario"]):
                     fila_img["referencia"] = k["usuario"]  # imagenes.py busca su hoja y mantiene la cara
                 cola.append(fila_img)
-    for m in (res.get("md", []) or [])[:4]:
+    for m in (res.get("md", []) or [])[:6]:
         de = cuenta_de(m.get("de"))
         para = por_user.get((m.get("para") or "").lstrip("@").lower())
         if de and para and m.get("texto"):
