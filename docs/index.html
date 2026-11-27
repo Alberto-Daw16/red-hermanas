@@ -118,6 +118,11 @@ body.pantalla .indicador{height:28px;padding-bottom:calc(var(--sb) + 6px);bottom
 .hilor>.post:not(:last-child)>a{position:relative}
 .hilor>.post:not(:last-child)>a:after{content:"";position:absolute;left:50%;top:44px;bottom:-12px;width:2px;margin-left:-1px;background:#333639}
 .tabs.cuatro button{font-size:15px}
+.vermas{display:block;width:100%;text-align:left;padding:9px 16px 11px 66px;color:var(--azul);font-size:14px;border-bottom:1px solid var(--line)}
+.subs .post{padding-left:66px;background:#060607}
+.subs .post .av{width:32px;height:32px;font-size:13px}
+.top h1 a{color:inherit;text-decoration:none;display:block}
+.archi{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 16px;color:var(--tx2);border-bottom:1px solid var(--line)}
 .masop{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:none;border:0;color:var(--tx2);font-size:20px;line-height:1}
 .datos .enl{color:#ff8fbd;cursor:pointer}
 .pestanas{position:sticky;top:0;z-index:5;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
@@ -1003,6 +1008,7 @@ function redactar({ citaDe = null, alAcabar }) {
     m.remove(); toast('Publicado'); alAcabar && alAcabar();
   };
 }
+const HILOS = new Set(); // comentarios con sus respuestas desplegadas
 async function vistaPost(id) {
   marco('Post', '<div class="cargando">Cargando…</div>', { atras: true, nav: navVox() });
   const { lista, todos } = await traerPosts(sb.from('v_posts2').select('*').eq('id', id));
@@ -1026,16 +1032,32 @@ async function vistaPost(id) {
       <button class="lk ${on ? 'on' : ''}" data-lkc="${c.id}">${svg(on ? 'lkOn' : 'lk')}<span>${n ? num(n) : ''}</span></button>${S.yo.x && c.cuenta_id === S.yo.x.id ? `<button data-borc="${c.id}" aria-label="Borrar">🗑</button>` : `<button data-nada="1">${svg('vistas')}</button>`}</div>
     </div></article>`;
   };
+  // las respuestas a un comentario no salen sueltas: van plegadas debajo del comentario al que cuelgan
+  const C = com || [];
+  const raizDe = k => { let x = porId.get(k), n = 0; while (x && x.responde_a && porId.has(x.responde_a) && n++ < 30) x = porId.get(x.responde_a); return x?.id; };
+  const subs = new Map();
+  for (const c of C) if (c.responde_a && porId.has(c.responde_a)) { const r = raizDe(c.id); if (!subs.has(r)) subs.set(r, []); subs.get(r).push(c); }
+  const letrero = (n, ab) => ab ? 'Ocultar respuestas' : `Mostrar ${n} respuesta${n > 1 ? 's' : ''}`;
   const main = cont();
   main.innerHTML = htmlPost(base, todos, { detalle: true }) +
     (S.yo.x ? `<div class="resp">${avatar(S.yo.x)}<textarea id="resptx" placeholder="Postea tu respuesta" rows="1"></textarea><button class="btn azul" id="enviar">Responder</button></div>` : '') +
-    (com || []).map(htmlC).join('');
+    C.filter(c => !(c.responde_a && porId.has(c.responde_a))).map(c => {
+      const h = subs.get(c.id) || [], ab = HILOS.has(c.id);
+      return htmlC(c) + (h.length ? `<button class="vermas" data-hilo="${c.id}" data-n="${h.length}">${letrero(h.length, ab)}</button><div class="subs" ${ab ? '' : 'hidden'}>${h.map(htmlC).join('')}</div>` : '');
+    }).join('');
   enganchar(main, () => vistaPost(id));
+  main.querySelectorAll('[data-hilo]').forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const k = +b.dataset.hilo, ab = !HILOS.has(k);
+    ab ? HILOS.add(k) : HILOS.delete(k);
+    b.nextElementSibling.hidden = !ab; b.textContent = letrero(+b.dataset.n, ab);
+  });
   const env = document.getElementById('enviar');
   if (env) env.onclick = async e => {
     e.stopPropagation();
     const ta = document.getElementById('resptx'); const t = ta.value.trim(); if (!t) return;
     env.disabled = true;
+    if (ta.dataset.a) HILOS.add(raizDe(+ta.dataset.a));
     const { error } = await sb.from('comentarios').insert({ post_id: base.id, cuenta_id: S.yo.x.id, texto: t, responde_a: ta.dataset.a ? +ta.dataset.a : null, origen: 'web' });
     if (error) { env.disabled = false; return toast(error.message); }
     vistaPost(id);
@@ -1164,24 +1186,56 @@ function editarPerfil(c) {
     m.remove(); await cargarCuentas(); location.hash = R + '/u/' + u;
   };
 }
+async function archivados() {
+  const { data } = await sb.from('config').select('valor').eq('clave', 'md_archivados').maybeSingle();
+  return new Set(data?.valor?.x || []);
+}
+async function archivar(id, si) {
+  const a = await archivados(); si ? a.add(id) : a.delete(id);
+  const { error } = await sb.from('config').update({ valor: { x: [...a] } }).eq('clave', 'md_archivados');
+  if (error) toast(error.message);
+  return !error;
+}
 async function vistaMD() {
-  marco('Mensajes', '<div class="cargando">Cargando…</div>', { nav: navVox() });
+  const verArch = S.verArch; S.verArch = false;
+  marco(verArch ? 'Archivados' : 'Mensajes', '<div class="cargando">Cargando…</div>', { nav: navVox(), atras: verArch });
+  if (verArch) document.getElementById('btAtras').onclick = vistaMD;
   const yo = S.yo.x;
-  const { data, error } = await sb.from('mensajes').select('*').eq('plataforma', 'x').or(`de.eq.${yo.id},para.eq.${yo.id}`).order('creado', { ascending: false }).limit(500);
+  const [{ data, error }, arch] = await Promise.all([
+    sb.from('mensajes').select('*').eq('plataforma', 'x').or(`de.eq.${yo.id},para.eq.${yo.id}`).order('creado', { ascending: false }).limit(500),
+    archivados(),
+  ]);
   if (error) throw error;
+  // una sola conversación por cuenta, con lo último arriba
   const convs = new Map();
   for (const m of data) { const otro = m.de === yo.id ? m.para : m.de; if (!convs.has(otro)) convs.set(otro, { ult: m, nuevos: 0 }); if (m.para === yo.id && !m.leido) convs.get(otro).nuevos++; }
-  cont().innerHTML = [...convs].map(([id, v]) => {
+  // un chat archivado vuelve a la lista cuando le llega algo sin leer
+  const esArch = ([id, v]) => arch.has(id) && !v.nuevos;
+  const todas = [...convs], nArch = todas.filter(esArch).length;
+  const fila = ([id, v]) => {
     const c = cuenta(id) || { nombre: '?', usuario: '?' };
     return `<a class="conv ${v.nuevos ? 'nueva' : ''}" href="${R}/md/${id}">${avatar(c)}<div class="cuerpo">
       <div class="cab"><span class="n">${esc(c.nombre)}</span>${verif(c)}<span class="u">@${esc(c.usuario)}</span><span class="t">· ${hace(v.ult.creado)}</span></div>
-      <div class="ult">${v.ult.de === yo.id ? 'Tú: ' : ''}${esc(v.ult.texto)}</div></div>${v.nuevos ? '<span class="punto" style="position:static">' + v.nuevos + '</span>' : ''}</a>`;
-  }).join('') || '<div class="vacio"><h2>Sin mensajes</h2>Entra en un perfil y dale al sobre para escribirle.</div>';
+      <div class="ult">${v.ult.de === yo.id ? 'Tú: ' : ''}${esc(v.ult.texto || (v.ult.imagen_url ? 'Foto' : ''))}</div></div>${v.nuevos ? '<span class="punto" style="position:static">' + v.nuevos + '</span>' : ''}</a>`;
+  };
+  cont().innerHTML = verArch
+    ? (todas.filter(esArch).map(fila).join('') || '<div class="vacio">No tienes chats archivados.</div>')
+    : (todas.filter(x => !esArch(x)).map(fila).join('') || '<div class="vacio"><h2>Sin mensajes</h2>Entra en un perfil y dale al sobre para escribirle.</div>')
+      + (nArch ? `<button class="archi" id="varch"><span>Archivados</span><span>${nArch}</span></button>` : '');
+  const va = document.getElementById('varch'); if (va) va.onclick = () => { S.verArch = true; vistaMD(); };
 }
 async function vistaChat(otroId) {
   const c = cuenta(otroId), yo = S.yo.x;
   if (!c || !yo) return marco('Mensajes', '<div class="vacio">Conversación no encontrada.</div>', { atras: true });
-  marco(esc(c.nombre), '<div class="cargando">Cargando…</div>', { atras: true, sub: '@' + esc(c.usuario) });
+  marco(`<a href="${R}/u/${esc(c.usuario)}">${esc(c.nombre)}<div class="sub">@${esc(c.usuario)}</div></a>`, '<div class="cargando">Cargando…</div>', { atras: true, extra: '<button class="casa" id="mdmas" aria-label="Opciones" style="font-size:22px">⋯</button>' });
+  document.getElementById('mdmas').onclick = async () => {
+    const ya = (await archivados()).has(c.id);
+    const m = hoja(`<a class="btn borde" style="width:100%;height:46px" href="${R}/u/${esc(c.usuario)}">Ver perfil</a>
+      <button class="btn borde" style="width:100%;height:46px;margin-top:10px" id="arc">${ya ? 'Sacar de archivados' : 'Archivar chat'}</button>
+      <button style="width:100%;height:46px;margin-top:6px;color:var(--tx2)" id="can">Cancelar</button>`);
+    m.querySelector('#can').onclick = () => m.remove();
+    m.querySelector('#arc').onclick = async () => { const ok = await archivar(c.id, !ya); m.remove(); if (!ok) return; toast(ya ? 'Chat recuperado' : 'Chat archivado'); if (!ya) location.hash = R + '/md'; };
+  };
   const { data } = await sb.from('mensajes').select('*').eq('plataforma', 'x')
     .or(`and(de.eq.${yo.id},para.eq.${c.id}),and(de.eq.${c.id},para.eq.${yo.id})`).order('creado');
   const nuevos = (data || []).filter(m => m.para === yo.id && !m.leido).map(m => m.id);
@@ -1535,7 +1589,7 @@ async function vistaNocMD(usuario = 'veenoir') {
   const nuevos = msgs.filter(m => m.para === N.yo.id && !m.leido).map(m => m.id);
   if (nuevos.length) { await sb.from('mensajes').update({ leido: true }).in('id', nuevos); S.noLeidosOf = 0; }
   $app.querySelector('.nav')?.remove();
-  marco(esc(N.val.nombre), '', { atras: true, sub: '@' + esc(N.val.usuario) + ' · Nocturna', clase: 'chatfondo' });
+  marco(`<a href="#/nocturna/c/${esc(N.val.usuario)}">${esc(N.val.nombre)}<div class="sub">@${esc(N.val.usuario)} · Nocturna</div></a>`, '', { atras: true, clase: 'chatfondo' });
   const burb = m => {
     const yo = m.de === N.yo.id;
     if (m.precio && !yo && !N.desM.has(m.id)) return `<div class="bb el pago">${esc(m.texto || '')}${m.imagen_url ? `<div class="bloq" data-desm="${m.id}">${S.urls.get(m.imagen_url) ? `<img src="${esc(S.urls.get(m.imagen_url))}" alt="">` : '<div class="manchas"></div>'}<div class="candado">${CANDADO}<span>Foto</span></div></div>` : ''}<span class="ver" data-desm="${m.id}">${CANDADO.replace('<svg', '<svg style="width:14px;height:14px;fill:#fff;vertical-align:-2px"')} Desbloquear · ${eur(m.precio)}</span><span class="hora">${hace(m.creado)}</span></div>`;
