@@ -110,8 +110,14 @@ body.pantalla .indicador{height:28px;padding-bottom:calc(var(--sb) + 6px);bottom
 .tx .m,.tx .h{color:var(--azul)}
 .rt{color:var(--tx2);font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;padding:8px 16px 0 42px}
 .rt .ico{width:16px;height:16px}
-.media{margin-top:10px;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
-.media img{display:block;width:100%;max-height:520px;object-fit:cover;cursor:zoom-in}
+.media{margin-top:10px;border-radius:16px;overflow:hidden;border:1px solid var(--line);width:fit-content;max-width:100%}
+.media img{display:block;width:auto;height:auto;max-width:100%;max-height:510px;cursor:zoom-in}
+.det .media{width:auto}
+.det .media img{width:100%;max-height:none}
+.hilor>.post:not(:last-child){border-bottom:0;padding-bottom:0}
+.hilor>.post:not(:last-child)>a{position:relative}
+.hilor>.post:not(:last-child)>a:after{content:"";position:absolute;left:50%;top:44px;bottom:-12px;width:2px;margin-left:-1px;background:#333639}
+.tabs.cuatro button{font-size:15px}
 .masop{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:none;border:0;color:var(--tx2);font-size:20px;line-height:1}
 .datos .enl{color:#ff8fbd;cursor:pointer}
 .pestanas{position:sticky;top:0;z-index:5;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
@@ -285,6 +291,16 @@ td.num,th.num{text-align:right}
 .noimg p{margin:0;font-style:italic;color:#ffc2da}
 .nocimg{display:block;width:100%;margin-top:4px}
 .gasto{padding:4px 16px 12px;color:var(--tx2);font-size:12px}
+.gasto a{color:#ff8ab8}
+.mon{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 16px 16px;padding:14px 16px;border-radius:16px;background:linear-gradient(135deg,#3a1636,#1d1022);border:1px solid rgba(255,61,139,.3);color:inherit;text-decoration:none}
+.mon .k{font-size:12px;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.mon .v{font-size:26px;font-weight:800;margin-top:2px}
+.mon .btn{flex:none}
+.mov{display:flex;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.mov .cuerpo .s{color:var(--tx2);font-size:13px}
+.mov .imp{font-weight:700;white-space:nowrap}
+.mov .imp.mas{color:#7cd992}
+.bb.pago .bloq{height:170px;margin:8px 0 0;border-radius:12px;min-width:210px}
 .hoja{background:#16101a;border-radius:20px 20px 0 0;padding:18px 16px calc(var(--sb) + 18px)}
 .hoja h3{margin:0 0 4px}
 .hoja .p{color:var(--tx2);font-size:13px;margin-bottom:12px}
@@ -374,6 +390,7 @@ const I = {
   pluma: '<path d="M23 3c-6.62-.1-10.38 2.42-13.05 6.03C7.29 12.61 6 17.33 6 22h2c0-1.01.07-2.01.19-3H12c4.1 0 7.48-3.08 7.94-7.05C22.79 10.47 23.17 6.64 23 3zm-7 8h-1.5v2H16c.63-.09 1.2-.27 1.72-.52C17.25 15.58 14.89 17 12 17H8.48c.2-.95.46-1.88.79-2.79C10.38 11.17 13.28 6.13 21 5c-.07 1.96-.49 4.27-5 6z"/>',
   recarga: '<path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>',
   verif: '<path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"/>',
+  cartera: '<path d="M3 6.5A2.5 2.5 0 0 1 5.5 4H18v3h1.5A1.5 1.5 0 0 1 21 8.5v10a1.5 1.5 0 0 1-1.5 1.5h-14A2.5 2.5 0 0 1 3 17.5zM5.5 6a.5.5 0 0 0 0 1H16V6zM5 9v8.5c0 .28.22.5.5.5H19V9zm11 3a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/>',
   chev: '<path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
 };
 const svg = (k, cls = 'ico') => `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true">${I[k]}</svg>`;
@@ -713,7 +730,7 @@ async function ruta() {
       case 'hilo': return r ? vistaHiloChat(r) : vistaHilo();
       case 'agenda': return vistaAgenda();
       case 'ajustes': return vistaAjustes();
-            case 'nocturna': { let m; if ((m = r.match(/^c\/(.+)$/))) return vistaNocturna(m[1]); if ((m = r.match(/^md\/(.+)$/))) return vistaNocMD(m[1]); if (r === 'md') return vistaNocChats(); return vistaNocDescubrir(); }
+            case 'nocturna': { let m; if ((m = r.match(/^c\/(.+)$/))) return vistaNocturna(m[1]); if ((m = r.match(/^md\/(.+)$/))) return vistaNocMD(m[1]); if (r === 'md') return vistaNocChats(); if (r === 'monedero') return vistaMonedero(); return vistaNocDescubrir(); }
       case 'galeria': return vistaGaleria();
       case 'sonar': return splash('sonar', 'Sonar', 'Los covers y canciones de Yoruha, cuando Shiro empiece a sacarlos.');
     }
@@ -906,7 +923,7 @@ document.addEventListener('click', ev => {
   const en = ev.target.closest('[data-enlace]');
   if (en) { ev.preventDefault(); ev.stopPropagation(); if (/nocturna/i.test(en.dataset.enlace)) location.hash = '#/nocturna'; else toast('Enlace externo: fuera del móvil'); return; }
   const im = ev.target.closest('.media img, .bb img, img.nocimg, .perfil .banner img, .perfil .avg img, .noc .ban img, .noc .avg img');
-  if (!im || ev.target.closest('.modal')) return;
+  if (!im || im.closest('.bloq') || ev.target.closest('.modal')) return;
   ev.preventDefault(); ev.stopPropagation(); verFoto(im.currentSrc || im.src);
 }, true);
 function menuRepost(id, recargar) {
@@ -1023,6 +1040,7 @@ async function vistaPost(id) {
     vistaPost(id);
   };
 }
+const TABP = {}; // pestaña abierta en cada perfil
 async function vistaPerfil(usuario) {
   const c = S.porUser.get('x:' + usuario.toLowerCase());
   if (!c) return marco('Perfil', '<div class="vacio"><h2>Esta cuenta no existe</h2></div>', { atras: true, nav: navVox() });
@@ -1037,6 +1055,8 @@ async function vistaPerfil(usuario) {
   const ban = c.banner_url && S.urls.get(c.banner_url);
   const vivo = enDirecto(c.usuario);
   const fotos = postsR.lista.filter(p => !p.repost_de && p.imagen_url && S.urls.get(p.imagen_url));
+  const tabs = [['posts', 'Posts'], ['resp', 'Respuestas'], ['media', 'Multimedia'], ...(esYo ? [['likes', 'Me gusta']] : [])];
+  const tab = tabs.some(x => x[0] === TABP[c.id]) ? TABP[c.id] : 'posts';
   cont().innerHTML = `<div class="perfil">
     <div class="banner">${ban ? `<img src="${esc(ban)}" alt="">` : ''}</div>
     <div class="fila1"><div class="${vivo ? 'anillo' : ''}">${avatar(c, 'av avg')}${vivo ? '<span class="chip-vivo">EN DIRECTO</span>' : ''}</div>
@@ -1050,14 +1070,57 @@ async function vistaPerfil(usuario) {
       <div class="datos" style="margin-top:8px"><a href="${R}/u/${esc(c.usuario)}/siguiendo"><b>${num((c.siguiendo || 0) + (sigs.count || 0))}</b> Siguiendo</a><a href="${R}/u/${esc(c.usuario)}/seguidores"><b>${num((c.seguidores || 0) + (segs.count || 0))}</b> Seguidores</a></div>
     </div>
     ${vivo ? bannerDirecto(vivo) : ''}
-    <div class="tabs"><button class="on" data-tab="posts">Posts</button><button data-tab="fotos">Fotos</button></div>
-  </div><div id="lista">${postsR.lista.map(p => htmlPost(p, postsR.todos)).join('') || '<div class="vacio">Aún no ha publicado nada.</div>'}</div>
-  <div id="cuadricula" style="display:none">${fotos.length ? `<div class="cuad">${fotos.map(p => `<a href="${R}/p/${p.id}"><img src="${esc(S.urls.get(p.imagen_url))}" loading="lazy" alt=""></a>`).join('')}</div>` : '<div class="vacio">Sin fotos todavía.</div>'}</div>`;
-  cont().querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
-    cont().querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('on', x === b));
-    document.getElementById('lista').style.display = b.dataset.tab === 'posts' ? '' : 'none';
-    document.getElementById('cuadricula').style.display = b.dataset.tab === 'fotos' ? '' : 'none';
-  });
+    <div class="tabs cuatro">${tabs.map(([k, n]) => `<button class="${k === tab ? 'on' : ''}" data-tab="${k}">${n}</button>`).join('')}</div>
+  </div><div id="lista"></div>`;
+  const lista = document.getElementById('lista');
+  const vacio = t => `<div class="vacio">${t}</div>`;
+  const pinta = async t => {
+    TABP[c.id] = t;
+    cont().querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('on', x.dataset.tab === t));
+    const sigue = () => lista.isConnected && TABP[c.id] === t;
+    if (t === 'posts') return lista.innerHTML = postsR.lista.map(p => htmlPost(p, postsR.todos)).join('') || vacio('Aún no ha publicado nada.');
+    if (t === 'media') return lista.innerHTML = fotos.length ? `<div class="cuad">${fotos.map(p => `<a href="${R}/p/${p.id}"><img src="${esc(S.urls.get(p.imagen_url))}" loading="lazy" alt=""></a>`).join('')}</div>` : vacio('Sin fotos todavía.');
+    lista.innerHTML = '<div class="cargando">Cargando…</div>';
+    const mios = S.mios;
+    if (t === 'resp') {
+      const { data: com } = await sb.from('comentarios').select('*').eq('cuenta_id', c.id).order('creado', { ascending: false }).limit(40);
+      const C = com || [];
+      const pids = [...new Set(C.map(x => x.post_id))], rids = [...new Set(C.map(x => x.responde_a).filter(Boolean))];
+      const [pp, rr] = await Promise.all([
+        pids.length ? traerPosts(sb.from('v_posts2').select('*').in('id', pids)) : { todos: new Map() },
+        rids.length ? sb.from('comentarios').select('id,cuenta_id').in('id', rids) : { data: [] },
+      ]);
+      S.mios = mios;
+      if (!sigue()) return;
+      const aQuien = new Map((rr.data || []).map(x => [x.id, x.cuenta_id]));
+      let ant = null;
+      const h = C.map(k => {
+        const p = pp.todos.get(k.post_id); if (!p) return '';
+        const a = cuenta(k.responde_a ? aQuien.get(k.responde_a) : p.cuenta_id);
+        const on = S.likesC.has(k.id), n = crece(k.likes_sim, k.creado, 2) + (on ? 1 : 0);
+        const junto = ant === k.post_id; ant = k.post_id;
+        return `${junto ? '' : '<div class="hilor">' + htmlPost(p, pp.todos)}<article class="post" data-ir="${p.id}"><a href="${R}/u/${esc(c.usuario)}">${avatar(c)}</a><div class="cuerpo">
+          <div class="cab"><span class="n">${esc(c.nombre)}</span>${verif(c)}<span class="u">@${esc(c.usuario)}</span><span class="t">· ${hace(k.creado)}</span></div>
+          <div class="enresp">En respuesta a <span class="m">@${esc(a?.usuario || '?')}</span></div>
+          <div class="tx">${texto(k.texto, false)}</div>
+          <div class="acc"><button data-ir="${p.id}">${svg('resp')}</button><button data-nada="1">${svg('rp')}</button>
+          <button class="lk ${on ? 'on' : ''}" data-lkc="${k.id}">${svg(on ? 'lkOn' : 'lk')}<span>${n ? num(n) : ''}</span></button>${esYo ? `<button data-borc="${k.id}" aria-label="Borrar">🗑</button>` : `<button data-nada="1">${svg('vistas')}</button>`}</div>
+        </div></article>`;
+      }).join('').replace(/<div class="hilor">/g, (m, i) => (i ? '</div>' : '') + m);
+      lista.innerHTML = h ? h + '</div>' : vacio(esYo ? 'Cuando respondas a alguien, sale aquí.' : 'Aún no ha respondido a nadie.');
+      return;
+    }
+    if (t === 'likes') {
+      const { data: lk } = await sb.from('likes').select('post_id,creado').eq('cuenta_id', c.id).not('post_id', 'is', null).order('creado', { ascending: false }).limit(60);
+      const ids = (lk || []).map(x => x.post_id);
+      const pp = ids.length ? await traerPosts(sb.from('v_posts2').select('*').in('id', ids)) : { todos: new Map() };
+      S.mios = mios;
+      if (!sigue()) return;
+      lista.innerHTML = ids.map(id => pp.todos.get(id)).filter(Boolean).map(p => htmlPost(p, pp.todos)).join('') || vacio('Los posts a los que des me gusta salen aquí.');
+    }
+  };
+  cont().querySelectorAll('[data-tab]').forEach(b => b.onclick = () => pinta(b.dataset.tab));
+  pinta(tab);
   enganchar(document.getElementById('lista'), () => vistaPerfil(usuario));
   const sg = document.getElementById('seguir');
   if (sg) sg.onclick = async () => {
@@ -1273,17 +1336,19 @@ async function datosNoc(usuario = 'veenoir') {
     sb.from('v_posts2').select('*').eq('cuenta_id', val.id).is('repost_de', null).order('creado', { ascending: false }).limit(80),
     sb.from('likes').select('post_id').eq('cuenta_id', yo.id),
   ]);
+  const { data: rec } = await sb.from('recargas').select('importe');
   const D = des.data || [];
   const gastado = [...(todas.data || []).map(x => +x.precio), ...D.map(x => +x.precio), ...(prop.data || []).map(x => +x.importe)].reduce((a, b) => a + b, 0);
   const P = posts.data || [];
   await firmar(P.map(p => p.imagen_url));
-  return { val, yo, sus: sus.data?.[0] || null, desP: new Set(D.filter(d => d.post_id).map(d => d.post_id)), desM: new Set(D.filter(d => d.mensaje_id).map(d => d.mensaje_id)), posts: P, likes: new Set((lk.data || []).map(x => x.post_id)), gastado };
+  return { val, yo, sus: sus.data?.[0] || null, desP: new Set(D.filter(d => d.post_id).map(d => d.post_id)), desM: new Set(D.filter(d => d.mensaje_id).map(d => d.mensaje_id)), posts: P, likes: new Set((lk.data || []).map(x => x.post_id)), gastado, saldo: Math.round(((rec || []).reduce((a, x) => a + +x.importe, 0) - gastado) * 100) / 100 };
 }
 function navNoc() {
   const h = location.hash;
   return `<nav class="nav"><div class="in">
     <a href="#/nocturna" class="${h === '#/nocturna' || h.startsWith('#/nocturna/c/') ? 'on' : ''}">${svg('casa')}</a>
     <a href="#/nocturna/md" class="${h.startsWith('#/nocturna/md') ? 'on' : ''}">${svg('sobre')}${S.noLeidosOf ? `<span class="punto">${S.noLeidosOf}</span>` : ''}</a>
+    <a href="#/nocturna/monedero" class="${h === '#/nocturna/monedero' ? 'on' : ''}">${svg('cartera')}</a>
   </div></nav>`;
 }
 const precioDe = c => (S.nocturna?.precios || {})[c.usuario] || (c.usuario === 'veenoir' ? S.nocturna?.precio_mes : 0) || 9.99;
@@ -1294,7 +1359,9 @@ async function vistaNocDescubrir() {
   const { data: sus } = await sb.from('suscripciones').select('creadora').gt('hasta', ahora);
   const suscrito = new Set((sus || []).map(x => x.creadora));
   const lista = creadoras();
+  const { saldo } = await saldoNoc();
   cont().innerHTML = `<div class="titulo-grande">${esc(APPS.find(a => a.id === 'nocturna').nombre)}</div>
+    <a class="mon" href="#/nocturna/monedero"><div><div class="k">Monedero</div><div class="v">${eur(saldo)}</div></div><span class="btn azul">Recargar</span></a>
     <div style="padding:0 16px 8px;color:var(--tx2)">Creadoras</div>
     ${lista.map(c => { const ban = c.banner_url && S.urls.get(c.banner_url); return `<a class="tcrea" href="#/nocturna/c/${esc(c.usuario)}">
       <div class="tban">${ban ? `<img src="${esc(ban)}" alt="">` : ''}</div>
@@ -1319,23 +1386,70 @@ function hoja(html) {
   m.onclick = e => { if (e.target === m) m.remove(); };
   return m;
 }
-function pagar(titulo, detalle, importe, alPagar) {
+/* monedero: dinero de mentira. saldo = lo recargado menos lo gastado (suscripciones, desbloqueos y propinas) */
+async function movimientosNoc() {
+  const [r, s, d, p] = await Promise.all([
+    sb.from('recargas').select('importe,creado'), sb.from('suscripciones').select('precio,creado,creadora'),
+    sb.from('desbloqueos').select('precio,creado,post_id,mensaje_id'), sb.from('propinas').select('importe,creado,para'),
+  ]);
+  const nom = id => cuenta(id)?.nombre || 'una creadora';
+  return [
+    ...(r.data || []).map(x => ({ t: 'Recarga', s: 'Tarjeta •••• 0000', n: +x.importe, f: x.creado })),
+    ...(s.data || []).map(x => ({ t: 'Suscripción', s: nom(x.creadora), n: -x.precio, f: x.creado })),
+    ...(d.data || []).map(x => ({ t: 'Desbloqueo', s: x.mensaje_id ? 'Mensaje de pago' : 'Post de pago', n: -x.precio, f: x.creado })),
+    ...(p.data || []).map(x => ({ t: 'Propina', s: nom(x.para), n: -x.importe, f: x.creado })),
+  ].sort((a, b) => new Date(b.f) - new Date(a.f));
+}
+async function saldoNoc() {
+  const M = await movimientosNoc();
+  return { saldo: Math.round(M.reduce((a, m) => a + m.n, 0) * 100) / 100, M };
+}
+function recargar(alAcabar) {
+  let imp = 20;
+  const m = hoja(`<h3>Recargar monedero</h3><div class="p">Dinero de mentira, con la tarjeta •••• 0000.</div>
+    <div class="importes">${[10, 20, 50, 100].map(v => `<button data-v="${v}" class="${v === imp ? 'on' : ''}">${v} €</button>`).join('')}</div>
+    <button class="btn azul" style="width:100%;height:46px" id="okr">Recargar ${imp} €</button>
+    <button style="width:100%;height:44px;margin-top:6px;color:var(--tx2)" id="nor">Cancelar</button>`);
+  m.querySelectorAll('[data-v]').forEach(b => b.onclick = () => { imp = +b.dataset.v; m.querySelectorAll('[data-v]').forEach(x => x.classList.toggle('on', x === b)); m.querySelector('#okr').textContent = `Recargar ${imp} €`; });
+  m.querySelector('#nor').onclick = () => m.remove();
+  m.querySelector('#okr').onclick = async () => {
+    m.querySelector('#okr').disabled = true;
+    const { error } = await sb.from('recargas').insert({ importe: imp });
+    if (error) { m.querySelector('#okr').disabled = false; return toast(error.message); }
+    m.remove(); toast(`Monedero: +${imp} €`); alAcabar && alAcabar();
+  };
+}
+async function vistaMonedero() {
+  marco('Monedero', '<div class="cargando">Cargando…</div>', { nav: navNoc(), clase: 'noc' });
+  const { saldo, M } = await saldoNoc();
+  cont().innerHTML = `<div class="mon" style="margin-top:16px"><div><div class="k">Saldo</div><div class="v">${eur(saldo)}</div></div><button class="btn azul" id="rec">Recargar</button></div>
+    <div class="seccion">Movimientos</div>
+    ${M.map(m => `<div class="mov"><div class="cuerpo"><div><b>${m.t}</b></div><div class="s">${esc(m.s)} · ${hace(m.f)}</div></div><span class="imp ${m.n > 0 ? 'mas' : ''}">${m.n > 0 ? '+' : '−'}${eur(Math.abs(m.n))}</span></div>`).join('') || '<div class="vacio">Sin movimientos. Recarga para suscribirte, desbloquear o dejar propina.</div>'}`;
+  document.getElementById('rec').onclick = () => recargar(vistaMonedero);
+}
+async function pagar(titulo, detalle, importe, alPagar) {
+  const { saldo } = await saldoNoc();
+  const falta = saldo < importe;
   const m = hoja(`<h3>${titulo}</h3><div class="p">${detalle}</div>
-    <div class="lista" style="margin:0 0 12px"><div class="it"><span class="k">Tarjeta</span><span class="v">•••• 0000 (de mentira)</span></div><div class="it"><span class="k">Total</span><span class="v" style="color:#fff;font-weight:700">${eur(importe)}</span></div></div>
-    <button class="btn azul" style="width:100%;height:46px" id="okp">Pagar ${eur(importe)}</button>
+    <div class="lista" style="margin:0 0 12px"><div class="it"><span class="k">Monedero</span><span class="v">${eur(saldo)}</span></div><div class="it"><span class="k">Total</span><span class="v" style="color:#fff;font-weight:700">${eur(importe)}</span></div></div>
+    ${falta ? `<div class="p" style="color:#ff8ab8">Te faltan ${eur(importe - saldo)}.</div><button class="btn azul" style="width:100%;height:46px" id="recp">Recargar monedero</button>`
+      : `<button class="btn azul" style="width:100%;height:46px" id="okp">Pagar ${eur(importe)}</button>`}
     <button style="width:100%;height:44px;margin-top:6px;color:var(--tx2)" id="nop">Cancelar</button>`);
   m.querySelector('#nop').onclick = () => m.remove();
+  if (falta) return m.querySelector('#recp').onclick = () => { m.remove(); recargar(() => pagar(titulo, detalle, importe, alPagar)); };
   m.querySelector('#okp').onclick = async () => { m.querySelector('#okp').disabled = true; const err = await alPagar(); if (err) { toast(err.message || err); m.querySelector('#okp').disabled = false; return; } m.remove(); };
 }
 function propina(N, postId, alAcabar) {
   let imp = 5;
-  const m = hoja(`<h3>Propina para ${esc(N.val.nombre)}</h3><div class="p">Dinero de mentira.${N.val.tipo === 'hermana' ? ' Ella lo ve en su resumen.' : ''}</div>
+  const m = hoja(`<h3>Propina para ${esc(N.val.nombre)}</h3><div class="p">Sale de tu monedero (dinero de mentira). Ella la ve.</div>
     <div class="importes">${[3, 5, 10, 20].map(v => `<button data-v="${v}" class="${v === imp ? 'on' : ''}">${v} €</button>`).join('')}</div>
     <div class="campo"><label>Mensaje (opcional)</label><input id="pm" maxlength="200"></div>
-    <button class="btn azul" style="width:100%;height:46px" id="okp">Enviar propina</button>`);
+    <button class="btn azul" style="width:100%;height:46px" id="okp">Enviar ${imp} €</button>`);
   m.querySelectorAll('[data-v]').forEach(b => b.onclick = () => { imp = +b.dataset.v; m.querySelectorAll('[data-v]').forEach(x => x.classList.toggle('on', x === b)); m.querySelector('#okp').textContent = `Enviar ${imp} €`; });
   m.querySelector('#okp').onclick = async () => {
     const txt = m.querySelector('#pm').value.trim();
+    const { saldo } = await saldoNoc();
+    if (saldo < imp) { m.remove(); toast('No te llega el saldo'); return recargar(() => propina(N, postId, alAcabar)); }
     const r1 = await sb.from('propinas').insert({ para: N.val.id, post_id: postId || null, importe: imp, mensaje: txt || null });
     if (r1.error) return toast(r1.error.message);
     await sb.from('mensajes').insert({ plataforma: 'of', de: N.yo.id, para: N.val.id, texto: txt || 'propina', propina: imp, origen: 'web' });
@@ -1363,6 +1477,7 @@ async function vistaNocturna(usuario = 'veenoir') {
   const likes = N.posts.reduce((a, p) => a + crece(p.likes_sim, p.creado, 4) + (N.likes.has(p.id) ? 1 : 0), 0);
   const ban = N.val.banner_url && S.urls.get(N.val.banner_url);
   const c = N.val;
+  const bienv = (S.nocturna?.bienvenidas || {})[c.usuario] || (c.usuario === 'veenoir' ? S.nocturna?.bienvenida : '');
   cont().innerHTML = `
     <div class="ban" style="margin-top:0">${ban ? `<img src="${esc(ban)}" alt="">` : ''}<div class="stats" style="padding-top:var(--st)">${N.posts.length} posts · ${fotos} fotos · ${num(likes)} me gusta</div></div>
     <div class="cabp">${avatar(c)}</div>
@@ -1370,11 +1485,11 @@ async function vistaNocturna(usuario = 'veenoir') {
     ${c.bio ? `<div class="bio">${esc(c.bio)}</div>` : ''}
     <div class="sus">${N.sus
       ? `<div class="k">Suscrito</div><div style="margin-top:4px">Se renueva el ${new Date(N.sus.hasta).getDate()} ${MES[new Date(N.sus.hasta).getMonth()]}</div>
-         ${c.usuario === 'veenoir' && S.nocturna?.bienvenida ? `<div style="margin-top:8px;color:#ffc2da;font-style:italic">«${esc(S.nocturna.bienvenida)}»</div>` : ''}
+         ${bienv ? `<div style="margin-top:8px;color:#ffc2da;font-style:italic">«${esc(bienv)}»</div>` : ''}
          <div class="fila-btn"><a class="btn-n" href="#/nocturna/md/${esc(c.usuario)}">Mensaje</a><button class="btn-n borde" id="tip">Propina</button></div>`
       : `<div class="k">Suscripción</div><button class="btn-n" id="sus"><span>SUSCRÍBETE</span><span>${eur(precio)} al mes</span></button>`}
     </div>
-    <div class="gasto">Llevas gastado ${eur(N.gastado)} (de mentira)</div>
+    <div class="gasto">Monedero: <b style="color:var(--tx)">${eur(N.saldo)}</b> · llevas gastado ${eur(N.gastado)} · <a href="#/nocturna/monedero">recargar</a></div>
     <div id="muro">${N.posts.map(p => `<article class="nocp">
       <div class="cab">${avatar(c)}<span class="n">${esc(c.nombre)}</span>${verif(c)}<span class="t">· ${hace(p.creado)}</span>${p.de_pago ? `<span class="t" style="margin-left:auto;color:#ff8ab8">${eur(p.precio)}</span>` : ''}</div>
       ${p.texto ? `<div class="tx">${esc(p.texto)}</div>` : ''}
@@ -1422,7 +1537,7 @@ async function vistaNocMD(usuario = 'veenoir') {
   marco(esc(N.val.nombre), '', { atras: true, sub: '@' + esc(N.val.usuario) + ' · Nocturna', clase: 'chatfondo' });
   const burb = m => {
     const yo = m.de === N.yo.id;
-    if (m.precio && !yo && !N.desM.has(m.id)) return `<div class="bb el pago">${esc(m.texto || '')}<span class="ver" data-desm="${m.id}">${CANDADO.replace('<svg', '<svg style="width:14px;height:14px;fill:#fff;vertical-align:-2px"')} Desbloquear · ${eur(m.precio)}</span><span class="hora">${hace(m.creado)}</span></div>`;
+    if (m.precio && !yo && !N.desM.has(m.id)) return `<div class="bb el pago">${esc(m.texto || '')}${m.imagen_url ? `<div class="bloq" data-desm="${m.id}">${S.urls.get(m.imagen_url) ? `<img src="${esc(S.urls.get(m.imagen_url))}" alt="">` : '<div class="manchas"></div>'}<div class="candado">${CANDADO}<span>Foto</span></div></div>` : ''}<span class="ver" data-desm="${m.id}">${CANDADO.replace('<svg', '<svg style="width:14px;height:14px;fill:#fff;vertical-align:-2px"')} Desbloquear · ${eur(m.precio)}</span><span class="hora">${hace(m.creado)}</span></div>`;
     const img = m.imagen_url && S.urls.get(m.imagen_url);
     return `<div class="bb ${yo ? 'yo' : 'el'}">${m.propina ? `<b>Propina de ${eur(m.propina)}</b><br>` : ''}${m.texto && m.texto !== 'propina' ? esc(m.texto) : ''}${img ? `<img src="${esc(img)}" style="display:block;width:100%;border-radius:12px;margin-top:6px">` : ''}${m.precio && m.oculto ? `<div style="margin-top:6px;font-style:italic;color:#ffc2da">${esc(m.oculto)}</div>` : ''}<span class="hora">${hace(m.creado)}</span></div>`;
   };
