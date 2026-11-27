@@ -4,7 +4,7 @@ De Claude, por orden de Alberto. Hazlo entero sin preguntar. Si algo no se puede
 
 Informe al acabar: `~/tmp/red-social/RESULTADO-TODO-DE-UNA.md` (qué se hizo, qué no, pruebas con ids reales de posts, comentarios y mensajes).
 
-Reglas de siempre: sin tocar hub, gateway ni academia; sin reinicios; ninguna clave en el informe. Nada de Cristina, academia ni trabajo de Alberto en Raven. Yoruha anónima, Aika privada. Nada sexual explícito, todos adultos, fotos de personas solo con hoja aprobada. Seguimos en modo pruebas: sin tope de gasto.
+Reglas de siempre: sin tocar hub, gateway, academia ni SOUL (la voz de Valeria va en otra conversación, aquí no se toca); sin reinicios; ninguna clave en el informe. Nada de Cristina, academia ni trabajo de Alberto en Raven. Yoruha anónima, Aika privada. Nada sexual explícito, todos adultos, fotos de personas solo con hoja aprobada. Seguimos en modo pruebas: sin tope de gasto.
 
 ## 0. Poner al día la copia del Mac
 
@@ -73,21 +73,7 @@ Contenido: sugerente, nunca explícito. Lo de siempre.
 
 Prueba: Alberto tiene saldo 0 y ninguna suscripción, así que simula con el modo en seco una suscripción y una propina de 10 € a @dalianox y pega en el informe los MD que saldrían. No insertes suscripciones ni propinas de verdad a nombre de Alberto.
 
-## 4. Voz de Valeria, fase 3 (hilo aparte, mismo encargo)
-
-Lo de `ESTADO-VOZ-VALERIA-2026-11-27.md` que no depende de Alberto. Es la única parte de este encargo que toca su SOUL, como en las fases 1 y 2.
-
-1. **Molde de tres líneas.** Quita de la nota por turno lo de «dos o tres líneas». Rehaz los 14 ejemplos para que tengan formas distintas: una palabra, una línea, dos mensajes seguidos, uno largo, alguno sin pregunta al final. Fuera el arranque que repite las palabras de él («qué morro», «…, dice»).
-2. **Que no se enganche.** Más cosas en VIDA AHORA (cinco o seis frentes, no uno) y una norma: un mismo tema, como mucho dos turnos seguidos si él no lo saca.
-3. **Fallos técnicos.** Que no escriba en memoria en mitad del turno: la memoria se guarda al cerrar la respuesta. Así no se escapan frases internas («El elo no está apuntado…») ni se duplican mensajes.
-4. **Tus redes.** Añade al SOUL y a la memoria del chat que publica en Raven como @veenoir, que tiene Nocturna y que el Diario de la app es suyo. Que no vuelva a decir «raven, qué».
-5. **Provocar es su juego.** Hoy tiene unas seis frases de límite y una de permiso, y se niega a todo. Sin mover el techo que ya hay en su SOUL («erotismo, no porno, funde a negro»): escribe en positivo que provocar, picar y dejar con ganas es lo suyo, y deja el límite dicho una sola vez. Cambia los ejemplos que esquivan por otros que juegan dentro de ese techo.
-
-Pendiente de Alberto y fuera de este encargo: si sube o baja ese techo, y los textos de referencia de e-girl.
-
-Prueba: 12 turnos de charla de prueba en sesión aparte (no la de Telegram con Alberto) y pégalos en el informe.
-
-## 5. Fin de pruebas: dejarlo preparado, NO ejecutarlo
+## 4. Fin de pruebas: dejarlo preparado, NO ejecutarlo
 
 Deja un script `~/red-hermanas/hermes/fin_pruebas.py` que con `--ya` haga todo esto, y sin `--ya` solo lo enseñe:
 
