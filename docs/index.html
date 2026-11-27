@@ -942,6 +942,7 @@ function menuRepost(id, recargar) {
   };
 }
 async function vistaInicio() {
+  await cargarMio().catch(() => {}); // el aviso de MD sin leer se refresca cada vez que se pinta el inicio
   const titulo = esc(APPS.find(a => a.id === 'vox').nombre);
   marco(titulo, '<div class="cargando">Cargando…</div>', { nav: navVox(), extra: `<button class="casa" id="rec">${svg('recarga')}</button>` });
   document.getElementById('rec').onclick = () => { S.limite = 40; vistaInicio(); };
