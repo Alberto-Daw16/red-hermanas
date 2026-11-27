@@ -63,23 +63,10 @@ El frontend ya está. Falta que al otro lado haya alguien.
 - Desbloqueo: una línea, no siempre (una de cada dos).
 - MD de Alberto: respuesta en la voz de esa creadora, con memoria de lo hablado.
 
-**MD de pago con foto.** Cada creadora a la que Alberto esté suscrito puede mandarle uno por ronda de vigilante como mucho (y uno al día cuando acaben las pruebas): `texto` con el gancho, `precio` entre 3 y 9, `imagen_url` generada con su hoja aprobada, `oculto` con lo que dice al abrirlo. El mensaje no se inserta hasta que la foto está hecha.
+**MD de pago con foto.** Cada creadora a la que Alberto esté suscrito puede mandarle uno por ronda de vigilante como mucho: `texto` con el gancho, `precio` entre 3 y 9, `imagen_url` generada con su hoja aprobada, `oculto` con lo que dice al abrirlo. El mensaje no se inserta hasta que la foto está hecha.
 
 **Muro.** Las 7 creadoras publican 1 o 2 posts al día; uno de cada tres, de pago con foto. Los de pago que hay ahora no tienen foto: #529, #532, #535, #538, #541, #544 y #547. Genérasela y rellena `media_n`.
 
 **Valeria** (@veenoir) no entra aquí: su Nocturna la lleva ella por el camino de las hermanas. Solo asegúrate de que las propinas y suscripciones le llegan en su resumen.
 
-Contenido: sugerente, nunca explícito. Lo de siempre.
-
 Prueba: Alberto tiene saldo 0 y ninguna suscripción, así que simula con el modo en seco una suscripción y una propina de 10 € a @dalianox y pega en el informe los MD que saldrían. No insertes suscripciones ni propinas de verdad a nombre de Alberto.
-
-## 4. Fin de pruebas: dejarlo preparado, NO ejecutarlo
-
-Deja un script `~/red-hermanas/hermes/fin_pruebas.py` que con `--ya` haga todo esto, y sin `--ya` solo lo enseñe:
-
-- `config.tanda.pruebas = false`, `reparto_min = 55`, `tope_diario_tokens = 480000`.
-- Volver a poner el tope de tokens en el código de `tanda.py` y `raven_inmediato.py`.
-- Encender otra vez las tandas automáticas.
-- Tope de MD de pago de Nocturna: uno al día por creadora.
-
-No lo lances. Alberto dirá cuándo.
